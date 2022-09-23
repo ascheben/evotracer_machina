@@ -18,7 +18,8 @@ migrations = []
 cur_cp = ""
 
 tissues = ["PRL","LGR","HMR"]
-cp = ["CP01","CP02","CP03","CP04","CP05","CP06","CP07","CP08","CP09","CP10","CP11","CP12","CP13","CP14","CP15","CP16","CP17","CP18","CP19","CP20","CP21","CP22","CP23","CP24","CP25","CP26","CP27","CP28","CP30","CP31","CP32","CP34","CP35","CP36","CP38","CP39","CP42","CP43","CP49","CP50","CP51","CP52","CP56","CP59","all"]
+
+cp = ["CP01","CP02","CP03","CP04","CP05","CP06","CP07","CP08","CP09","CP10","CP11","CP12","CP13","CP14","CP15","CP16","CP17","CP18","CP19","CP20","CP21","CP22","CP23","CP24","CP25","CP26","CP27","CP28","CP29","CP30","CP31","CP32","CP33","CP34","CP35","CP36","CP37","CP38","CP39","CP40","CP41","CP42","CP43","CP44","CP45","CP46","CP47","CP48","CP49","CP50","CP51","CP52","CP53","CP54","CP55","CP56","CP57","CP58","CP59","CP60","CP61","all"]
 td = {}
 for c in cp:
     td[c] = {}
@@ -62,8 +63,8 @@ with open(sys.argv[1],'r') as infile:
             for t1 in tissues:
                 for t2 in tissues:
                     all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
-
-            print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],source_matrix,all_source_probs)
+            m = source_matrix
+            print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
             col_dict = {}
             lab_dict = {}
             model = ""
@@ -133,6 +134,7 @@ for t1 in tissues:
         all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
 
 
-
-print("all","NA","NA",source_entropy,source_matrix,all_source_probs)
+s = source_entropy
+m = source_matrix
+print("all","NA","NA",s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
 
