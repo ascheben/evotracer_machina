@@ -34,6 +34,10 @@ mv asv_sample_group.csv cp_output
 
 ## ANALYSE INFERRED TOPOLOGY
 
+# To Do: 
+# 1) all or most of the analysis scripts use a loop that ignores the final CP in the input results
+# 2) produce CSV formatted output from analysis scripts
+
 python /local/storage/no-backup/scheben-scratch/proca/machina/print_seeding_topology.py all_results_migration_optimal_split_22082022.txt | grep seeding| sed 's/ .*{/ /'| sed 's/}//'| cut -d' ' -f1,4,7,10,12,14,17 | sed 's/,//g' | tr ' ' '\t'
 
 python /local/storage/no-backup/scheben-scratch/proca/machina/selection_test.py all_results.txt asv_stat.csv
