@@ -98,7 +98,7 @@ with open(sys.argv[1],'r') as infile:
 
             tmrate = tree_met_rate(met_edges,non_met_edges)
 
-            print(cur_cp,model,len(migrations),tmrate,source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2])
+            print(*[cur_cp,model,len(migrations),tmrate,source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2]],sep=",")
             #print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
             col_dict = {}
             lab_dict = {}
@@ -177,5 +177,5 @@ s = ["NA" if np.isnan(x) else x for x in s]
 m = list(np.around(np.array(source_matrix),5))
 tmrate = tree_met_rate(all_met_edges,all_non_met_edges)
 #print("all","NA","NA",s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
-print("all","NA","NA",tmrate,s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2])
+print(*["all","NA","NA",tmrate,s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2]],sep=",")
 

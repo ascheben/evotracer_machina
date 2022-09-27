@@ -1,10 +1,34 @@
-ASV="$1"
-TREE="$2"
+#!/bin/bash
 
-TRAV="/local/storage/no-backup/scheben-scratch/proca/machina/traverse_split.py"
-GET="/local/storage/no-backup/scheben-scratch/proca/machina/get_results.sh"
-MACHINA="~/miniconda3/envs/machina/bin/pmh_tr"
+if [[ $# -eq 0 ]] ; then
+    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts>"
+    exit 0
+fi
 
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -i|--infile) ASV="$2"; shift ;;
+        -t|--tree) TREE="$2"; shift ;;
+        -s|--scripts) SPATH="$2"; shift ;;
+        *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts>" ; exit 1 ;;
+    esac
+    shift
+done
+
+if ! command -v pmh_tr &> /dev/null
+then
+    echo "pmh_tr from the MACHINA installation could not be found. Exiting!"
+    exit
+fi
+
+# PATHS TO SCRIPTS 
+
+TRAV="${SPATH}/traverse_split.py"
+GET="${SPATH}/get_results.sh"
+MACHINA="pmh_tr"
+TOPOLOGY="${SPATH}/print_seeding_topology.py"
+SELECTION="${SPATH}/selection_test.py"
+MIGRATION="${SPATH}/count_migrations.py"
 
 ## PREPROCESS INPUT DATA ##
 
@@ -34,13 +58,9 @@ mv asv_sample_group.csv cp_output
 
 ## ANALYSE INFERRED TOPOLOGY
 
-# To Do: 
-# 1) all or most of the analysis scripts use a loop that ignores the final CP in the input results
-# 2) produce CSV formatted output from analysis scripts
 
-python /local/storage/no-backup/scheben-scratch/proca/machina/print_seeding_topology.py all_results_migration_optimal_split_22082022.txt | grep seeding| sed 's/ .*{/ /'| sed 's/}//'| cut -d' ' -f1,4,7,10,12,14,17 | sed 's/,//g' | tr ' ' '\t'
 
-python /local/storage/no-backup/scheben-scratch/proca/machina/selection_test.py all_results.txt asv_stat.csv
-
-python /local/storage/no-backup/scheben-scratch/proca/machina/count_migrations.py all_results.txt
+python $TOPOLOGY all_results.txt > seeding_topology.txt 
+python $SELECTION all_results.txt asv_stat.csv > selection.txt
+python $MIGRATION all_results.txt > migration.txt
 
