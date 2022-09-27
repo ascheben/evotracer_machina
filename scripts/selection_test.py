@@ -78,15 +78,6 @@ model = ""
 migrations = []
 cur_cp = ""
 
-#cp = set(['all'])
-#with open(sys.argv[1],'r') as infile:
-#    lines = infile.readlines()
-#    for l in lines:
-#        l = l.strip()
-#        l = l.split(" ")
-#        cp.add(l[0])
-#        if l[1] == "color":
-#            tissues.add(l[2])
 
 td = {}
 for c in cp_set:
@@ -95,7 +86,8 @@ for c in cp_set:
         td[c][t1] = {}
         for t2 in tissues:
             td[c][t1][t2] = 0
-
+# print header
+print("CP,clade,clade_leaves,sister_leaves,other_leaves,clade_samples,sister_samples,nonclade_samples,clade_lineages,sister_lineages,nonclade_lineages,sister_relate_logp,nonclade_relate_logp,sister_sample_relate_logp,nonclade_sample_relate_logp")
 with open(sys.argv[1],'r') as infile:
     lines = infile.readlines()
     lines.append("END")
@@ -272,7 +264,7 @@ with open(sys.argv[1],'r') as infile:
 
                     all_samples_relate_logp = log_pvalue(k,fk,N,fn)
  
-                    print(*[cur_cp,key,total_leaves,total_leaves_sister,total_leaves_other,total_leaf_samples,total_leaf_samples_sister,total_leaf_samples_other,1,len(sisters),total_other,sis_relate_logp,all_relate_logp,sis_samples_relate_logp,sis_samples_relate_logp],sep=",")
+                    print(*[cur_cp,key,total_leaves,total_leaves_sister,total_leaves_other,total_leaf_samples,total_leaf_samples_sister,total_leaf_samples_other,1,len(sisters),total_other,sis_relate_logp,all_relate_logp,sis_samples_relate_logp,all_samples_relate_logp],sep=",")
                     
 
             # reset data

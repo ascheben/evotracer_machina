@@ -53,6 +53,9 @@ non_met_edges = 0
 all_met_edges = 0
 all_non_met_edges = 0
 
+# print header
+print("CP,model,migrations,TreeMetRate,H_PRL,H_LGR,H_HMR,PRL_PRL,PRL_LGR,PRL_HMR,LGR_PRL,LGR_LGR,LGR_HMR,HMR_PRL,HMR_LGR,HMR_HMR")
+
 with open(sys.argv[1],'r') as infile:
     lines = infile.readlines()
     lines.append("END")

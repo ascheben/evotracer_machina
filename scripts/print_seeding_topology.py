@@ -123,6 +123,8 @@ for c in cp:
         for t2 in tissues:
             td[c][t1][t2] = 0
 
+# print header
+print("CP,bidirectional_seeding,metastatic_expansion,parallel_seeding,primary_expansion,primary_seeding,reseeding,seeding_cascade")
 with open(sys.argv[1],'r') as infile:
     lines = infile.readlines()
     lines.append("END")
