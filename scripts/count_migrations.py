@@ -1,15 +1,26 @@
 import sys
+import numpy as np
 from scipy.stats import entropy
 
 def weird_division(n, d):
     return n / d if d else 0
 
-#entropy([5/11, 6/11, 0/11])
+def safe_entropy(x):
+    if sum(x) == 0:
+        h = np.nan
+    else:
+        h = entropy(x,base=3)
+    return h
+
+def tree_met_rate(metastasis_edges,non_metastasis_edges):
+    total_edges = metastasis_edges + non_metastasis_edges
+    rate = round(float(metastasis_edges / total_edges),5)
+    return rate
+
 
 # read in big results file for all CP
 # output one line per CP as well as one total line
 # each line includes summary info as well as each cell in the transition table
-
 
 col_dict = {}
 lab_dict = {}
@@ -17,9 +28,17 @@ model = ""
 migrations = []
 cur_cp = ""
 
-tissues = ["PRL","LGR","HMR"]
+tissues = set()
+cp = set(['all'])
+with open(sys.argv[1],'r') as infile:
+    lines = infile.readlines()
+    for l in lines:
+        l = l.strip()
+        l = l.split(" ")
+        cp.add(l[0])
+        if l[1] == "color":
+            tissues.add(l[2])
 
-cp = ["CP01","CP02","CP03","CP04","CP05","CP06","CP07","CP08","CP09","CP10","CP11","CP12","CP13","CP14","CP15","CP16","CP17","CP18","CP19","CP20","CP21","CP22","CP23","CP24","CP25","CP26","CP27","CP28","CP29","CP30","CP31","CP32","CP33","CP34","CP35","CP36","CP37","CP38","CP39","CP40","CP41","CP42","CP43","CP44","CP45","CP46","CP47","CP48","CP49","CP50","CP51","CP52","CP53","CP54","CP55","CP56","CP57","CP58","CP59","CP60","CP61","all"]
 td = {}
 for c in cp:
     td[c] = {}
@@ -28,16 +47,24 @@ for c in cp:
         for t2 in tissues:
             td[c][t1][t2] = 0
 
+
+met_edges = 0
+non_met_edges = 0
+all_met_edges = 0
+all_non_met_edges = 0
+
 with open(sys.argv[1],'r') as infile:
-    for l in infile:
+    lines = infile.readlines()
+    lines.append("END")
+    for l in lines:
         l = l.strip()
         l = l.split(" ")
         cp = l[0]
         if cur_cp == "":
             cur_cp = cp
-        if cp != cur_cp:
+        #print(f'comparing {l} to last line {last}')
+        if cp != cur_cp or l == ["END"]:
             # output CP summary
-            #print("Finished CP",cur_cp)
             # calculate entropy
             d = td[cur_cp]
             source_matrix = []
@@ -56,22 +83,34 @@ with open(sys.argv[1],'r') as infile:
                 for t2 in tissues:
                      source_probs.append(weird_division(d[t1][t2],source_tot))
                      target_probs.append(weird_division(d[t2][t1],target_tot))
-                hsource = entropy(source_probs,base=3)
-                htarget = entropy(target_probs,base=3)
+                
+                hsource = safe_entropy(source_probs)
+                htarget = safe_entropy(target_probs)
+
                 source_matrix.append(source_probs)
                 source_entropy.append(hsource)
             for t1 in tissues:
                 for t2 in tissues:
                     all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
-            m = source_matrix
-            print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
+            m = list(np.around(np.array(source_matrix),5))
+            source_entropy = list(np.around(np.array(source_entropy),5))
+            source_entropy = ["NA" if np.isnan(x) else x for x in source_entropy]
+
+            tmrate = tree_met_rate(met_edges,non_met_edges)
+
+            print(cur_cp,model,len(migrations),tmrate,source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2])
+            #print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
             col_dict = {}
             lab_dict = {}
             model = ""
+            met_edges = 0
+            non_met_edges = 0
             migrations = []
             cur_cp = cp
+            if l == ['END']:
+                break
+        
         group = l[1]
-        #print(l)
         if group == "color":
             col_dict[l[3]] = l[2]
         elif group == "model":
@@ -85,23 +124,22 @@ with open(sys.argv[1],'r') as infile:
             child_col = lab_dict[l[3]]
             parent_tis = col_dict[parent_col]
             child_tis = col_dict[child_col]
+            if "XXX" not in l[3]:
+                if parent_tis != child_tis:
+                    met_edges += 1
+                    all_met_edges += 1
+                else:
+                    non_met_edges += 1
+                    all_non_met_edges += 1
+
             if "ASV" in l[3]:
                 leaf = True
             else:
                 leaf = False
-            #print("l,parent_tis,child_tis",l,parent_tis,child_tis,leaf)
             if parent_tis == child_tis and leaf:
-                #print("no transition")
                 pass
                 
-            #if cp not in trans_dict:
-            #    trans_dict[cp] = {}
-            #if parent_tis not in trans_dict[cp]:
-            #    trans_dict[cp][parent_tis] = {}
-            #if child_tis not in trans_dict[cp][parent_tis]:
-            #    trans_dict[cp][parent_tis][child_tis] = 0
             else:
-                #print("Counting transition from ",parent_tis," to ",child_tis)
                 td[cp][parent_tis][child_tis] += 1
                 td['all'][parent_tis][child_tis] += 1
 
@@ -125,8 +163,8 @@ for t1 in tissues:
          source_probs.append(weird_division(d[t1][t2],source_tot))
          target_probs.append(weird_division(d[t2][t1],target_tot))
   
-    hsource = entropy(source_probs,base=3)
-    htarget = entropy(target_probs,base=3)
+    hsource = safe_entropy(source_probs)
+    htarget = safe_entropy(target_probs)
     source_matrix.append(source_probs)
     source_entropy.append(hsource)
 for t1 in tissues:
@@ -134,7 +172,10 @@ for t1 in tissues:
         all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
 
 
-s = source_entropy
-m = source_matrix
-print("all","NA","NA",s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
+s = list(np.around(np.array(source_entropy),5))
+s = ["NA" if np.isnan(x) else x for x in s] 
+m = list(np.around(np.array(source_matrix),5))
+tmrate = tree_met_rate(all_met_edges,all_non_met_edges)
+#print("all","NA","NA",s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
+print("all","NA","NA",tmrate,s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2])
 

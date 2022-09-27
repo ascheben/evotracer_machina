@@ -3,7 +3,6 @@ import math
 from math import comb
 from collections import defaultdict
 from collections import Counter
-from scipy.stats import entropy
 import numpy as np
 
 def weird_division(n, d):
@@ -38,7 +37,7 @@ def log_pvalue(k, fk,N,fN):
             logp = 0
         return(logp)
     else:
-        print("Error with input quantities")
+        return("NA")
 
 def yang_pvalue(k, fk,N,fN):
     #nc = fN
@@ -52,6 +51,9 @@ def yang_pvalue(k, fk,N,fN):
         return math.log(sum_p_Nk_nc)
 
 
+
+tissues = set()
+cp_set = set(["all"])
 asv_dict = defaultdict(lambda: defaultdict(int))
 with open(sys.argv[2],'r') as infile:
     header = next(infile)
@@ -60,10 +62,12 @@ with open(sys.argv[2],'r') as infile:
         l = l.split(",")
         asv = l[0]
         tissue = l[1]
+        tissues.add(tissue)
         mutation = l[25]
-        cp = l[29]
+        cp_name = l[29]
+        cp_set.add(cp_name)
         asv_count = int(l[3])
-        asv_dict[cp][asv+"_"+tissue] = asv_count
+        asv_dict[cp_name][asv+"_"+tissue] = asv_count
 
 
 parent_dict = {}
@@ -74,12 +78,18 @@ model = ""
 migrations = []
 cur_cp = ""
 
-tissues = ["PRL","LGR","HMR"]
+#cp = set(['all'])
+#with open(sys.argv[1],'r') as infile:
+#    lines = infile.readlines()
+#    for l in lines:
+#        l = l.strip()
+#        l = l.split(" ")
+#        cp.add(l[0])
+#        if l[1] == "color":
+#            tissues.add(l[2])
 
-cp = ["CP01","CP02","CP03","CP04","CP05","CP06","CP07","CP08","CP09","CP10","CP11","CP12","CP13","CP14","CP15","CP16","CP17","CP18","CP19","CP20","CP21","CP22","CP23","CP24","CP25","CP26","CP27","CP28","CP29","CP30","CP31","CP32","CP33","CP34","CP35","CP36","CP37","CP38","CP39","CP40","CP41","CP42","CP43","CP44","CP45","CP46","CP47","CP48","CP49","CP50","CP51","CP52","CP53","CP54","CP55","CP56","CP57","CP58","CP59","CP60","CP61","all"]
-#cp = ["CP01","CP02","CP03","CP04","CP05","CP06","CP07","CP08","CP09","CP10","CP11","CP12","CP13","CP14","CP15","CP16","CP17","CP18","CP19","CP20","CP21","CP22","CP23","CP24","CP25","CP26","CP27","CP28","CP30","CP31","CP32","CP34","CP35","CP36","CP38","CP39","CP42","CP43","CP49","CP50","CP51","CP52","CP56","CP59","all"]
 td = {}
-for c in cp:
+for c in cp_set:
     td[c] = {}
     for t1 in tissues:
         td[c][t1] = {}
@@ -87,46 +97,19 @@ for c in cp:
             td[c][t1][t2] = 0
 
 with open(sys.argv[1],'r') as infile:
-    for l in infile:
+    lines = infile.readlines()
+    lines.append("END")
+    for l in lines:
         l = l.strip()
         l = l.split(" ")
         cp = l[0]
         if cur_cp == "":
             cur_cp = cp
-        if cp != cur_cp:
+        if cp != cur_cp or cp == ["END"]:
             # output CP summary
-            #print("Finished CP",cur_cp)
             # calculate entropy
             d = td[cur_cp]
-            source_matrix = []
-            source_entropy = []
-            all_tis_source_tot = 0
-            all_source_probs = []
-            for t1 in tissues:
-                source_tot = 0
-                target_tot = 0
-                source_probs = []
-                target_probs = []
-                for t2 in tissues:
-                    source_tot += d[t1][t2]
-                    target_tot += d[t2][t1]
-                    all_tis_source_tot += d[t1][t2]
-                for t2 in tissues:
-                     source_probs.append(weird_division(d[t1][t2],source_tot))
-                     target_probs.append(weird_division(d[t2][t1],target_tot))
-                hsource = entropy(source_probs,base=3)
-                htarget = entropy(target_probs,base=3)
-                source_matrix.append(source_probs)
-                source_entropy.append(hsource)
-            for t1 in tissues:
-                for t2 in tissues:
-                    all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
 
-            #print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],source_matrix,all_source_probs)
-
-            
-            #print("leaf list:", leaf_list)
-            #print("parent dict:",parent_dict)
             cp_list = []
             topologies = []
             for asv in leaf_list:
@@ -158,7 +141,7 @@ with open(sys.argv[1],'r') as infile:
                                 #print(asv,asv_dict[cur_cp][asv])
                                 count_dict[asv] = asv_dict[cur_cp][asv]
                             else:
-                                for suffix in ["PRL","HMR","LGR"]:
+                                for suffix in tissues:
                                     try:
                                         if asv_dict[cur_cp][asv+"_"+suffix] != 0:
                                             #print(asv,asv_dict[cur_cp][asv+"_"+suffix])
@@ -167,7 +150,7 @@ with open(sys.argv[1],'r') as infile:
                                         pass
                         except:
                             pass
-            print(cur_cp,parent_dict,count_dict)
+            #print(cur_cp,parent_dict,count_dict)
             # Test for selection
             child_dict = defaultdict(set)
             for k,v in parent_dict.items():
@@ -202,27 +185,31 @@ with open(sys.argv[1],'r') as infile:
                             for c in child_nodes:
                                 if c != key and "ASV" not in c and c != "0" and c != key_parent:
                                     sisters.add(c)
-                    print(key, " parent is ", key_parent, " with sisters: ",sisters)
+                    #print(key, " parent is ", key_parent, " with sisters: ",sisters)
                     total_leaves = 0
+                    total_leaf_samples = 0 
                     for value in parent_dict[key]:
                         if "ASV" in value and "ASVXXX" not in value:
+                            total_leaf_samples += 1
                             if value in count_dict:
                                 total_leaves += count_dict[value]
                             else:
-                                for suffix in ["PRL","HMR","LGR"]:
+                                for suffix in tissues:
                                     try:
                                         nleaves = count_dict[value+"_"+suffix]
                                     except:
                                         pass
                                 total_leaves += nleaves
                     total_leaves_sister = 0
+                    total_leaf_samples_sister = 0
                     for s in sisters:
                         for value in parent_dict[s]:
                             if "ASV" in value and "ASVXXX" not in value:
+                                total_leaf_samples_sister +=1
                                 if value in count_dict:
                                     total_leaves_sister += count_dict[value]
                                 else:
-                                    for suffix in ["PRL","HMR","LGR"]:
+                                    for suffix in tissues:
                                         try:
                                             nleaves = count_dict[value+"_"+suffix]
                                         except:
@@ -231,16 +218,18 @@ with open(sys.argv[1],'r') as infile:
                     
 
                     total_leaves_other = 0
+                    total_leaf_samples_other = 0
                     total_other = 0
                     for s in parent_dict:
                         if s != "0" and s != key :
                             total_other += 1
                             for value in parent_dict[s]:
                                 if "ASV" in value and "ASVXXX" not in value:
+                                    total_leaf_samples_other += 1
                                     if value in count_dict:
                                         total_leaves_other += count_dict[value]
                                     else:
-                                        for suffix in ["PRL","HMR","LGR"]:
+                                        for suffix in tissues:
                                             try:
                                                 nleaves = count_dict[value+"_"+suffix]
                                             except:
@@ -248,7 +237,7 @@ with open(sys.argv[1],'r') as infile:
                                         total_leaves_other += nleaves
      
 
-                    print("len(sisters),total_leaves,total_leaves_sister,total_other,total_leaves_other:",len(sisters),total_leaves,total_leaves_sister,total_other,total_leaves_other)         
+                    #print("len(sisters),total_leaves,total_leaves_sister,total_other,total_leaves_other:",len(sisters),total_leaves,total_leaves_sister,total_other,total_leaves_other)         
 
                     # Use only lineages with same parent as target
                     k = len(sisters) + 1
@@ -267,10 +256,23 @@ with open(sys.argv[1],'r') as infile:
 
                     all_relate_logp = log_pvalue(k,fk,N,fn)
                     all_yang_logp = yang_pvalue(k,fk,N,fn)
-                    
-                    #print("other test ",cur_cp, key,relate_logp,yang_logp)
-                    #print("len(sisters),total_leaves,total_leaves_sister,total_other,total_leaves_other:",len(sisters),total_leaves,total_leaves_sister,total_other,total_leaves_other)
-                    print(cur_cp,key,total_leaves,total_leaves_sister,total_leaves_other,len(sisters),total_other,sis_relate_logp,all_relate_logp)
+
+                    # Use lineage counts not asv counts for leaves
+                    k = len(sisters) + 1
+                    fk = 1
+                    N = total_leaf_samples + total_leaf_samples_sister
+                    fn = total_leaf_samples
+
+                    sis_samples_relate_logp = log_pvalue(k,fk,N,fn)
+
+                    k = total_other + 1
+                    fk = 1
+                    N = total_leaf_samples + total_leaf_samples_other 
+                    fn = total_leaf_samples
+
+                    all_samples_relate_logp = log_pvalue(k,fk,N,fn)
+ 
+                    print(*[cur_cp,key,total_leaves,total_leaves_sister,total_leaves_other,total_leaf_samples,total_leaf_samples_sister,total_leaf_samples_other,1,len(sisters),total_other,sis_relate_logp,all_relate_logp,sis_samples_relate_logp,sis_samples_relate_logp],sep=",")
                     
 
             # reset data
@@ -281,6 +283,8 @@ with open(sys.argv[1],'r') as infile:
             model = ""
             migrations = []
             cur_cp = cp
+            if l == ["END"]:
+                break
 
         group = l[1]
         #print(l)
@@ -322,44 +326,3 @@ with open(sys.argv[1],'r') as infile:
             else:
                 parent_dict[l[2]] = [l[3]]
                 
-# print entropy for all
-d = td['all']
-source_matrix = []
-source_entropy = []
-all_tis_source_tot = 0
-all_source_probs = []
-
-for t1 in tissues:
-    source_tot = 0
-    target_tot = 0
-    source_probs = []
-    target_probs = []
-    for t2 in tissues:
-        source_tot += d[t1][t2]
-        target_tot += d[t2][t1]
-        all_tis_source_tot += d[t1][t2]
-    for t2 in tissues:
-         source_probs.append(weird_division(d[t1][t2],source_tot))
-         target_probs.append(weird_division(d[t2][t1],target_tot))
-  
-    hsource = entropy(source_probs,base=3)
-    htarget = entropy(target_probs,base=3)
-    source_matrix.append(source_probs)
-    source_entropy.append(hsource)
-for t1 in tissues:
-    for t2 in tissues:
-        all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
-
-#print("cols:",col_dict)
-#print("labels:", lab_dict)
-#print("td:",td)
-#print("all","NA","NA",source_entropy,source_matrix,all_source_probs)
-
-#print(asv_dict)
-#for k,v in asv_dict.items():
-#    asv_list = []
-#    for amplicon,mutations in v.items():
-#        asv_list.append(sorted(list(mutations)))
-#    mutation_counts = Counter([tuple(i) for i in asv_list])
-#    per_uniq = len(mutation_counts) / len(v) 
-#    print(k,per_uniq,len(mutation_counts),len(v),sorted(asv_per_dict[k]))
