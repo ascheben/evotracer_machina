@@ -39,6 +39,11 @@ with open(sys.argv[1],'r') as infile:
         if l[1] == "color":
             tissues.add(l[2])
 
+
+cp = sorted(list(cp))
+tissues = sorted(list(tissues))
+
+source_matrix_names = []
 td = {}
 for c in cp:
     td[c] = {}
@@ -46,7 +51,10 @@ for c in cp:
         td[c][t1] = {}
         for t2 in tissues:
             td[c][t1][t2] = 0
-
+            # add transition names once
+            if c == cp[0]:
+                trans_name = t1 + "_" + t2
+                source_matrix_names.append(trans_name)
 
 met_edges = 0
 non_met_edges = 0
@@ -54,7 +62,8 @@ all_met_edges = 0
 all_non_met_edges = 0
 
 # print header
-print("CP,model,migrations,TreeMetRate,H_PRL,H_LGR,H_HMR,PRL_PRL,PRL_LGR,PRL_HMR,LGR_PRL,LGR_LGR,LGR_HMR,HMR_PRL,HMR_LGR,HMR_HMR")
+out_header = ["CP,model,migrations,TreeMetRate"] + source_matrix_names
+print(*out_header,sep=",")
 
 with open(sys.argv[1],'r') as infile:
     lines = infile.readlines()
@@ -86,7 +95,6 @@ with open(sys.argv[1],'r') as infile:
                 for t2 in tissues:
                      source_probs.append(weird_division(d[t1][t2],source_tot))
                      target_probs.append(weird_division(d[t2][t1],target_tot))
-                
                 hsource = safe_entropy(source_probs)
                 htarget = safe_entropy(target_probs)
 
@@ -100,8 +108,8 @@ with open(sys.argv[1],'r') as infile:
             source_entropy = ["NA" if np.isnan(x) else x for x in source_entropy]
 
             tmrate = tree_met_rate(met_edges,non_met_edges)
-
-            print(*[cur_cp,model,len(migrations),tmrate,source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2]],sep=",")
+            outline = [cur_cp,model,len(migrations),tmrate] + source_entropy + list(np.array(m).flatten())
+            print(*outline,sep=",")
             #print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
             col_dict = {}
             lab_dict = {}
