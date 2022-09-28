@@ -44,11 +44,16 @@ cp = sorted(list(cp))
 tissues = sorted(list(tissues))
 
 source_matrix_names = []
+source_entropy_names = []
+
 td = {}
 for c in cp:
     td[c] = {}
     for t1 in tissues:
         td[c][t1] = {}
+        if c == cp[0]:
+            ent_name = "H_" + t1
+            source_entropy_names.append(ent_name)
         for t2 in tissues:
             td[c][t1][t2] = 0
             # add transition names once
@@ -62,7 +67,7 @@ all_met_edges = 0
 all_non_met_edges = 0
 
 # print header
-out_header = ["CP,model,migrations,TreeMetRate"] + source_matrix_names
+out_header = ["CP,model,migrations,TreeMetRate"] + source_entropy_names + source_matrix_names
 print(*out_header,sep=",")
 
 with open(sys.argv[1],'r') as infile:
