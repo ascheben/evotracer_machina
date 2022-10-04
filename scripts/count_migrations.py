@@ -192,6 +192,8 @@ s = list(np.around(np.array(source_entropy),5))
 s = ["NA" if np.isnan(x) else x for x in s] 
 m = list(np.around(np.array(source_matrix),5))
 tmrate = tree_met_rate(all_met_edges,all_non_met_edges)
+outline = ["all","NA","NA",tmrate] + s + list(np.array(m).flatten())
+print(*outline,sep=",")
 #print("all","NA","NA",s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
-print(*["all","NA","NA",tmrate,s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2]],sep=",")
+#print(*["all","NA","NA",tmrate,s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2]],sep=",")
 
