@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import os
 import math
 import pandas as pd
 import ete3
@@ -17,6 +18,7 @@ out_tree = sys.argv[3] + "_tree_split.txt"
 out_labels = sys.argv[3] + "_labels_split.txt"
 out_colors = sys.argv[3] + "_colors.txt"
 out_newick = sys.argv[3] + ".newick"
+out_failed = "FailedCP.txt"
 
 # hardcode primary tissue to add dummy where its missing
 primary_tissue = "PRL"
@@ -78,10 +80,32 @@ for i,t in enumerate(tissues):
 colorfile.close()
 
 species_list = list(cp_dict.keys())
-tree = Phylo.read(sys.argv[1], 'newick')
-common_ancestor = tree.common_ancestor(species_list)
-Phylo.write(common_ancestor, out_newick, "newick")
-tree = Tree(out_newick)
+prune_tree = Tree(sys.argv[1]) 
+prune_tree.prune(species_list,preserve_branch_length=True)
+prune_tree.write(format=1, outfile=out_newick)
+
+#tree = Phylo.read(sys.argv[1], 'newick')
+tree = prune_tree
+
+#common_ancestor = tree.common_ancestor(species_list)
+# if tree tips dont match expected due to unexpected topology delete all output and exit
+#observed_species_list = []
+#for t in common_ancestor.get_terminals():
+#    observed_species_list.append(t.name)
+#if set(species_list) == set(observed_species_list):
+#    Phylo.write(common_ancestor, out_newick, "newick")
+#    tree = Tree(out_newick)
+#else:
+#    overlap = len(set(species_list).intersection(set(observed_species_list)))
+#    print(cp_group,"original ASV names was ", len(species_list), "new ASV names was ", len(observed_species_list),"overlap was ", overlap)
+    #print("No match between",species_list," and ",observed_species_list)
+#    os.remove(out_labels)
+#    os.remove(out_colors)
+#    cp_group
+#    with open(out_failed, "a") as myfile:
+#            myfile.write(cp_group + "\n")
+#    sys.exit()
+
 
 node2leaves = tree.get_cached_content()
 nodes = {}

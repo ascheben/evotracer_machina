@@ -34,25 +34,6 @@ def seeding_topology(seeding_path_list):
     pri2met_tissues = set()
     seeding_type = []
     for asv in seeding_path_list: 
-        #spath = []
-        # collapse neighbors that are same tissue
-        #cur_tissue = ""
-        #for e in asv:
-        #    if e != cur_tissue:
-        #        spath.append(e)
-        #        cur_tissue = e
-        # seeding is always from primary in this case
-        #if len(spath) == 2 and spath[0] == primary:
-        #    seeding_type.append("primary_seeding")
-        #    pri_cas_tissues.add(spath[1])
-        #    pri2met_tissues.add(spath[1])
-        #elif len(spath) == 1 and spath[0] == primary:
-        #    seeding_type.append("primary_expansion")
-        #elif len(spath) > 2:
-        #    if spath[0] == primary and primary not in spath[1:]:
-        #seeding_type.append("seeding_cascade")
-        #pri_cas_tissues.add(spath[-1])
-
         window = 2
         overlap = 1
         neighbors = [asv[i:i+window] for i in range(0, len(asv), window-overlap)]
@@ -62,21 +43,23 @@ def seeding_topology(seeding_path_list):
                     pri2met_tissues.add(pair[1])
                     seeding_type.append("primary_seeding")
                 elif pair[0] == primary and pair[1] == primary:
-                    seeding_type.append("primary_expansion")
+                    seeding_type.append("primary_stationary")
                 elif pair[0] != primary and pair[1] != primary and pair[0] == pair[1]:
-                    seeding_type.append("metastatic_expansion")
+                    seeding_type.append("metastatic_stationary")
                 # machina enforces primary tissue to always be source
                 # thus any migration from one metastatic tissue to another is part of a cascade
                 elif pair[0] != primary and pair[1] != primary and pair[0] != pair[1]:
-                    seeding_type.append("seeding_cascade")
+                    seeding_type.append("cascade_seeding")
+                    seeding_type.append("metastatic_seeding")
             # check for reseeding or bidirectional seeding
             aba = find_ABA(asv)
             if len(aba) > 0:
                 for pattern in aba:
                     if pattern[0] == primary:
-                        seeding_type.append("reseeding")
-                    else:
-                        seeding_type.append("bidirectional_seeding")
+                        seeding_type.append("primary_reseeding")
+                    # ignore met->pri->met pattern
+                    elif primary not in pattern:
+                        seeding_type.append("metastatic_reseeding")
             else:
                 pass
     # check for parallel seeding
@@ -124,7 +107,10 @@ for c in cp:
             td[c][t1][t2] = 0
 
 # print header
-print("CP,bidirectional_seeding,metastatic_expansion,parallel_seeding,primary_expansion,primary_seeding,reseeding,seeding_cascade")
+#'cascade_seeding': 35, 'metastatic_reseeding': 0, 'metastatic_seeding': 35, 'metastatic_stationary': 73,
+#'parallel_seeding': 0, 'primary_reseeding': 0, 'primary_seeding': 72, 'primary_stationary
+
+print("CP,cascade_seeding,metastatic_reseeding,metastatic_seeding,metastatic_stationary,parallel_seeding,primary_reseeding,primary_seeding,primary_stationary")
 with open(sys.argv[1],'r') as infile:
     lines = infile.readlines()
     lines.append("END")
@@ -155,13 +141,24 @@ with open(sys.argv[1],'r') as infile:
                     topologies.append(parent_tissues)
                     #print(cur_cp,asv,list(reversed(parent_list)),parent_tissues)
             topo = seeding_topology(topologies)
-            top_types = ["seeding_cascade",
+            #top_types = ["seeding_cascade",
+            #        "primary_seeding",
+            #        "reseeding",
+            #        "bidirectional_seeding",
+            #        "parallel_seeding",
+            #        "primary_expansion",
+            #        "metastatic_expansion"]
+
+            top_types = ["cascade_seeding",
                     "primary_seeding",
-                    "reseeding",
-                    "bidirectional_seeding",
+                    "primary_reseeding",
                     "parallel_seeding",
-                    "primary_expansion",
-                    "metastatic_expansion"]
+                    "metastatic_seeding",
+                    "metastatic_reseeding",
+                    "primary_stationary",
+                    "metastatic_stationary"]
+
+
             topo_counts = Counter(topo)
             for top_type in top_types:
                 if top_type not in topo_counts:
