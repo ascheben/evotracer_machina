@@ -1,5 +1,8 @@
 # Migration history analysis (EvoTracR with prostate cancer Cas9 lineage tracing system)
 
+This pipeline uses EvoTracR data based on a prostate cancer Cas9 lineage tracing system to infer and analysie tumor
+migration histories.
+
 ## Running the pipeline on EvoTracR outputs
 
 Install the dependencies:
