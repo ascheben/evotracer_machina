@@ -19,9 +19,15 @@ Now we can run the pipeline with MACHINA.
 `./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/ --prefix myprefix`
 
 ## Outputs
+The key outputs are the files shown below.
 
-
-
+```
+myprefix_cp_output/myprefix_all_results.txt
+myprefix_cp_output/myprefix_migration.txt
+myprefix_cp_output/myprefix_seeding_topology.txt
+myprefix_cp_output/myprefix_selection_original_expansion.txt
+myprefix_cp_output/myprefix_selection_original_test.txt
+```
 
 ## Bootstrap analysis
 Cassiopeia needs to be installed ([see instructions](https://cassiopeia.readthedocs.io/en/latest/setup.html)) to execute a bootstrap analysis by resampling the indel matrix. An indel matrix has been provided here in the `data` directory. We can resample from this to generate a file with a single newick bootstrap tree per line.
@@ -35,4 +41,3 @@ rename tree_0 tree_ tree_*
 ```
 Now we can create a series of commands to run the MACHINA pipeline on each of the bootstrap trees.
 `seq 0 99| while read l; do echo "./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_${l} --scripts ./scripts/ --prefix ${l}" > run.cmd;done`
-
