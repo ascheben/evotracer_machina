@@ -37,7 +37,7 @@ MIGRATION="${SPATH}/count_migrations.py"
 #asv_names,sample,group
 cut -d',' -f1,2,30 ${ASV} > ${PREFIX}_asv_sample_group.csv
 # exclude miscelleneaous group CP00
-cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| grep -v CP00 > ${PREFIX}_CP_list.txt
+cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| grep -v CP00| grep -v CP01 > ${PREFIX}_CP_list.txt
 # prepare machina input files for each CP
 while read l; do ${TRAV} ${TREE} ${PREFIX}_asv_sample_group.csv ${l};done<${PREFIX}_CP_list.txt
 # remove CPs that failed traversal due to unexpected clade topology
@@ -48,12 +48,12 @@ while read l; do mkdir ${l}_split;done<${PREFIX}_CP_list.txt
    
 # prepare input for selection scan on original tree
 mkdir ${PREFIX}_cp_output
-for l in *_tree_split.txt; do cat $l |sed "s/^/${l} tree /"| sed 's/_tree_split.txt//';done | grep -v CP00 > ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt
+for l in *_tree_split.txt; do cat $l |sed "s/^/${l} tree /"| sed 's/_tree_split.txt//';done | grep -v CP00| grep -v CP01 > ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt
 
 ## RUN MACHINA ##     
 # make command file for machina
 # speed up MACHINA a bit by adding "-m 3"
-while read l; do echo "${MACHINA} -m 1 -o ${l}_split -c ${l}_colors.txt -p PRL ${l}_tree_split.txt ${l}_labels_split.txt &> ${l}_split/results.txt";done<${PREFIX}_CP_list.txt > ${PREFIX}_machina.cmd
+while read l; do echo "${MACHINA} -t 24 -m 1 -o ${l}_split -c ${l}_colors.txt -p PRL ${l}_tree_split.txt ${l}_labels_split.txt &> ${l}_split/results.txt";done<${PREFIX}_CP_list.txt > ${PREFIX}_machina.cmd
 # run machina in parallel
 ParaFly -CPU 12 -c ${PREFIX}_machina.cmd
 # parse results from each machina output dir
@@ -71,5 +71,7 @@ python $MIGRATION ${PREFIX}_cp_output/${PREFIX}_all_results.txt > ${PREFIX}_cp_o
 
 ## ANALYSE SELECTION ON ORIGINAL AND MACHINA TOPOLOGY
 
-python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_results.txt $ASV > ${PREFIX}_cp_output/${PREFIX}_selection.txt
-python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV > ${PREFIX}_cp_output/${PREFIX}_selection_original.txt
+#python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_results.txt $ASV > ${PREFIX}_cp_output/${PREFIX}_selection.txt
+python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^test" > ${PREFIX}_cp_output/${PREFIX}_selection_original_test.txt
+python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^expansion" > ${PREFIX}_cp_output/${PREFIX}_selection_original_expansion.txt
+
