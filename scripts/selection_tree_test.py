@@ -14,6 +14,20 @@ def get_index(mylist,myname):
         if myname in n:
             return i
 
+def get_tree_depth(tree):
+    max_depth = 0
+    for l in [leaf.name for leaf in tree.iter_leaves()]:
+        leaf_depth = -1
+        node = tree.search_nodes(name=l)[0]
+        while node:
+            node = node.up
+            leaf_depth += 1
+        if leaf_depth > max_depth:
+            max_depth = leaf_depth
+    return max_depth
+
+
+
 def log_pvalue(k, fk,N,fN):
     '''
     k = all lineages
@@ -54,9 +68,12 @@ def yang_pvalue(k, fk,N,fN):
 def traverse_tree(tabular_tree,freq_dict,cp):
     #print(tabular_tree)
     sig_threshold = math.log(0.1)
+    odds_threshold = 2
     tree = Tree.from_parent_child_table(tabular_tree)
     #print(tree.write())
    
+    tree_depth = get_tree_depth(tree)
+
     expanded_asv_lineages = set()
     expanded_asv_counts = set()
     expanded_asv_lineages_relax = set()
@@ -71,7 +88,9 @@ def traverse_tree(tabular_tree,freq_dict,cp):
     nodes_expanded_relax = 0
     nodes_expanded_asv_relax = 0
 
-
+    # fully unresolved trees should still produce one "test" line
+    if tree_depth == 1:
+        print(*["test",cp,"NA","NA","NA","NA","NA","NA","NA","NA","NA"],sep="\t")
     # ignore root node
     for node in tree.iter_descendants("levelorder"):
         if not node.is_leaf():
@@ -139,28 +158,35 @@ def traverse_tree(tabular_tree,freq_dict,cp):
             N_relax = len(node_descendants_uniq) + len(sister_descendants_relax_uniq)
             N_asv_relax = sum(node_descendant_freqs) + sum(sister_descendant_freqs_relax)
 
-
+            # Odds ratio for relaxed lineage counts
+            oddsratio = ((k_relax-fn)*fn)/(fk*(N_relax-fn))
             #print("k, fk,N,fn",k, fk,N,fn)
             pval = log_pvalue(k, fk,N,fn)
             pval_asv = log_pvalue(k, fk,N_asv,fn_asv)
             pval_relax = log_pvalue(k_relax, fk,N_relax,fn)
             pval_asv_relax = log_pvalue(k_relax, fk,N_asv_relax,fn_asv)
-            if pval != "NA":
-                if pval < sig_threshold:
-                    expanded_asv_lineages.update(node_descendants)
-                    nodes_expanded += 1
-            if pval_asv != "NA":
-                if pval_asv < sig_threshold:
-                    expanded_asv_counts.update(node_descendants)
-                    nodes_expanded_asv += 1
-            if pval_relax != "NA":
-                if pval_relax < sig_threshold:
-                    expanded_asv_lineages_relax.update(node_descendants)
-                    nodes_expanded_relax += 1
-            if pval_asv_relax != "NA":
-                if pval_asv_relax < sig_threshold:
-                    expanded_asv_counts_relax.update(node_descendants)
-                    nodes_expanded_asv_relax += 1
+            #if pval != "NA":
+            #    if pval < sig_threshold:
+            #        expanded_asv_lineages.update(node_descendants)
+            #        nodes_expanded += 1
+            #if pval_asv != "NA":
+            #    if pval_asv < sig_threshold:
+            #        expanded_asv_counts.update(node_descendants)
+            #        nodes_expanded_asv += 1
+            #if pval_relax != "NA":
+            #    if pval_relax < sig_threshold:
+            #        expanded_asv_lineages_relax.update(node_descendants)
+            #        nodes_expanded_relax += 1
+            #if pval_asv_relax != "NA":
+            #    if pval_asv_relax < sig_threshold:
+            #        expanded_asv_counts_relax.update(node_descendants)
+            #        nodes_expanded_asv_relax += 1
+
+            if oddsratio > odds_threshold:
+                expanded_asv_lineages_relax.update(node_descendants)
+                nodes_expanded_relax += 1
+
+
 
             # Print per lineage results
             if len(node_descendants_uniq)>0:
@@ -175,8 +201,8 @@ def traverse_tree(tabular_tree,freq_dict,cp):
                 sister_descendants_relax_uniq= ";".join(sister_descendants_relax_uniq)
             else: 
                 sister_descendants_relax_uniq = "NA"
-
-            print(*["test",cp,node.name,k,fk,N,fn,N_asv,fn_asv,k_relax,N_relax,N_asv_relax,pval,pval_asv,pval_relax,pval_asv_relax,node_descendants_uniq,sister_descendants_uniq,sister_descendants_relax_uniq],sep="\t")
+            print(*["test",cp,node.name,k_relax,fk,N_relax,fn,oddsratio,pval_relax,node_descendants_uniq,sister_descendants_relax_uniq],sep="\t")
+            #print(*["test",cp,node.name,k,fk,N,fn,N_asv,fn_asv,k_relax,N_relax,N_asv_relax,pval,pval_asv,pval_relax,pval_asv_relax,node_descendants_uniq,sister_descendants_uniq,sister_descendants_relax_uniq],sep="\t")
 
         else:
             leaf_name = node.name
@@ -210,7 +236,8 @@ def traverse_tree(tabular_tree,freq_dict,cp):
     expanded_asv_lineages_relax = list(set([s.partition('_')[0] for s in expanded_asv_lineages_relax]))
     expanded_asv_counts_relax = list(set([s.partition('_')[0] for s in expanded_asv_counts_relax]))
 
-    print(*["expansion",cp,len(nodes_total),len(nodes_tested),len(nodes_tested_relax),nodes_expanded,nodes_expanded_asv,nodes_expanded_relax,nodes_expanded_asv_relax,len(all_asv_uniq),len(expanded_asv_lineages),len(expanded_asv_counts),len(expanded_asv_lineages_relax),len(expanded_asv_counts_relax),total_freq,eal_count,eac_count,ealr_count,eacr_count],sep="\t")    
+    print(*["expansion",cp,tree_depth,len(nodes_total),len(nodes_tested_relax),nodes_expanded_relax,len(all_asv_uniq),len(expanded_asv_lineages_relax),total_freq,ealr_count],sep="\t")    
+    #print(*["expansion",cp,len(nodes_total),len(nodes_tested),len(nodes_tested_relax),nodes_expanded,nodes_expanded_asv,nodes_expanded_relax,nodes_expanded_asv_relax,len(all_asv_uniq),len(expanded_asv_lineages),len(expanded_asv_counts),len(expanded_asv_lineages_relax),len(expanded_asv_counts_relax),total_freq,eal_count,eac_count,ealr_count,eacr_count],sep="\t")    
 # get asv freq information from file
 # this may be needed if no information is availble in the tree file
 if len(sys.argv) == 3:
@@ -234,10 +261,11 @@ if len(sys.argv) == 3:
 
 tabular_tree = []
 freq_dict = {}
-header_test = ["test","CP","clade","total_lineages","clade_lineages","total_leaves","clade_leaves","total_asv_freq","clade_asv_freq", "total_lineages_relax","total_leaves_relax","total_asv_freq_relax","relate_logp","relate_logp_asv_freq","relate_logp_relax","relate_logp_asv_freq_relax","clade_leaf_names","sister_leaf_names","sister_leaf_names_relax"]
+header_test = ["test","CP","clade","total_lineages","clade_lineages","total_leaves","clade_leaves","odds_ratio","relate_logp","clade_leaf_names","sister_leaf_names"]
+#header_test = ["test","CP","clade","total_lineages","clade_lineages","total_leaves","clade_leaves","total_asv_freq","clade_asv_freq", "total_lineages_relax","total_leaves_relax","total_asv_freq_relax","relate_logp","relate_logp_asv_freq","relate_logp_relax","relate_logp_asv_freq_relax","clade_leaf_names","sister_leaf_names","sister_leaf_names_relax"]
 print(*header_test,sep="\t")
-
-header_expansion=["expansion","CP","total_nodes","tested_nodes","tested_nodes_relax","expanded_nodes","expanded_nodes_asv_freq","expanded_nodes_relax","expanded_nodes_asv_freq_relax","total_leaves","leaves_expanded_asv_lineages","leaves_expanded_asv_counts","leaves_expanded_asv_lineages_relax","leaves_expanded_asv_counts_relax","total_asv_freq","eal_count","eac_count","eal_relax_count","eal_relax_count"]
+header_expansion=["expansion","CP","tree_depth","total_nodes","tested_nodes","expanded_nodes","total_leaves","leaves_expanded_asv_lineages","total_asv_freq","expanded_asv_freq"]
+#header_expansion=["expansion","CP","total_nodes","tested_nodes","tested_nodes_relax","expanded_nodes","expanded_nodes_asv_freq","expanded_nodes_relax","expanded_nodes_asv_freq_relax","total_leaves","leaves_expanded_asv_lineages","leaves_expanded_asv_counts","leaves_expanded_asv_lineages_relax","leaves_expanded_asv_counts_relax","total_asv_freq","eal_count","eac_count","eal_relax_count","eal_relax_count"]
 print(*header_expansion,sep="\t")
 
 

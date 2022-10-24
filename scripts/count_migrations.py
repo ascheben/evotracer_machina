@@ -85,6 +85,7 @@ with open(sys.argv[1],'r') as infile:
             # calculate entropy
             d = td[cur_cp]
             source_matrix = []
+            source_count_matrix = []
             source_entropy = []
             all_tis_source_tot = 0
             all_source_probs = []
@@ -92,6 +93,7 @@ with open(sys.argv[1],'r') as infile:
                 source_tot = 0
                 target_tot = 0
                 source_probs = []
+                source_counts = []
                 target_probs = []
                 for t2 in tissues:
                     source_tot += d[t1][t2]
@@ -100,15 +102,20 @@ with open(sys.argv[1],'r') as infile:
                 for t2 in tissues:
                      source_probs.append(weird_division(d[t1][t2],source_tot))
                      target_probs.append(weird_division(d[t2][t1],target_tot))
+                     source_counts.append(d[t1][t2])
                 hsource = safe_entropy(source_probs)
                 htarget = safe_entropy(target_probs)
-
                 source_matrix.append(source_probs)
+                source_count_matrix.append(source_counts)
                 source_entropy.append(hsource)
             for t1 in tissues:
                 for t2 in tissues:
                     all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
-            m = list(np.around(np.array(source_matrix),5))
+            # Output probabilities
+            #m = list(np.around(np.array(source_matrix),5))
+            # Output counts instead
+            m = list(np.around(np.array(source_count_matrix),5))
+
             source_entropy = list(np.around(np.array(source_entropy),5))
             source_entropy = ["NA" if np.isnan(x) else x for x in source_entropy]
 
@@ -162,6 +169,7 @@ with open(sys.argv[1],'r') as infile:
 # print entropy for all
 d = td['all']
 source_matrix = []
+source_count_matrix = []
 source_entropy = []
 all_tis_source_tot = 0
 all_source_probs = []
@@ -170,6 +178,7 @@ for t1 in tissues:
     source_tot = 0
     target_tot = 0
     source_probs = []
+    source_counts = []
     target_probs = []
     for t2 in tissues:
         source_tot += d[t1][t2]
@@ -178,10 +187,11 @@ for t1 in tissues:
     for t2 in tissues:
          source_probs.append(weird_division(d[t1][t2],source_tot))
          target_probs.append(weird_division(d[t2][t1],target_tot))
-  
+         source_counts.append(d[t2][t1])
     hsource = safe_entropy(source_probs)
     htarget = safe_entropy(target_probs)
     source_matrix.append(source_probs)
+    source_count_matrix.append(source_counts)
     source_entropy.append(hsource)
 for t1 in tissues:
     for t2 in tissues:
@@ -189,8 +199,11 @@ for t1 in tissues:
 
 
 s = list(np.around(np.array(source_entropy),5))
-s = ["NA" if np.isnan(x) else x for x in s] 
-m = list(np.around(np.array(source_matrix),5))
+s = ["NA" if np.isnan(x) else x for x in s]
+# use transition probabilities
+#m = list(np.around(np.array(source_matrix),5))
+# use transition counts
+m = list(np.around(np.array(source_count_matrix),5))
 tmrate = tree_met_rate(all_met_edges,all_non_met_edges)
 outline = ["all","NA","NA",tmrate] + s + list(np.array(m).flatten())
 print(*outline,sep=",")
