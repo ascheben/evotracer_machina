@@ -1,10 +1,23 @@
 import sys
 from collections import Counter
+from ete3 import Tree
 
 def get_index(mylist,myname):
     for i,n in enumerate(mylist):
         if myname in n:
             return i
+
+def get_tree_depth(tree):
+    max_depth = 0
+    for l in [leaf.name for leaf in tree.iter_leaves()]:
+        leaf_depth = -1
+        node = tree.search_nodes(name=l)[0]
+        while node:
+            node = node.up
+            leaf_depth += 1
+        if leaf_depth > max_depth:
+            max_depth = leaf_depth
+    return max_depth
 
 def find_ABA(seeding_path):
     '''
@@ -23,12 +36,85 @@ def find_ABA(seeding_path):
             pass
     return ABA
 
+def seeding_topology_tree(tabular_tree,tissue_dict):
+    tree = Tree.from_parent_child_table(tabular_tree)
+    #tree_depth = get_tree_depth(tree)
+    parallel_seeding_edges = {}
+    seeding_type = []
+    edges = []
+    #print(tree)
+    #print(tissue_dict)
+    # root is skipped but we assume it is from prostate
+    primary = "PRL"
+    for i,node in enumerate(tree.traverse("preorder")):
+        if not node.is_leaf():
+            #print(i,node.name,node.children)
+            parent_tis = tissue_dict[node.name]
+            children_tis = []
+            children_list = []
+            primary_children = []
+            primary_children_tis = []
+            for n,child in enumerate(node.children):
+                child_tis = tissue_dict[child.name]
+                if child_tis != parent_tis:
+                    children_tis.append(child_tis)
+                    children_list.append(child.name)
+                else:
+                    primary_children.append(child.name)
+                    primary_children_tis.append(child_tis)
+                #print(i,node.name,child.name,parent_tis,child_tis)
+            # is there parallel seeding?
+            if len(set(children_tis))>1:
+                # find the edges to exclude
+                # here all non-primary children seeded in parallel are counted as one event
+                parallel_seeding_edges[node.name] = children_list
+                seeding_type.append("parallel_seeding")
+                for c in primary_children:
+                     edges.append([parent_tis,parent_tis])
+            else:
+                for c in primary_children_tis:
+                    edges.append([parent_tis,c])
+                for c in children_tis:
+                    edges.append([parent_tis,c])
+    # asv tissue for primary and cascade
+    #print("New edges",cur_cp,edges)
+    for pair in edges:
+        if len(pair) == 2:
+            if pair[0] == primary and pair[1] != primary:
+                #pri2met_tissues.add(pair[1])
+                seeding_type.append("primary_seeding")
+            elif pair[0] == primary and pair[1] == primary:
+                seeding_type.append("primary_stationary")
+            elif pair[0] != primary and pair[1] != primary and pair[0] == pair[1]:
+                seeding_type.append("metastatic_stationary")
+            # machina enforces primary tissue to always be source
+            # thus any migration from one metastatic tissue to another is part of a cascade
+            elif pair[0] != primary and pair[1] != primary and pair[0] != pair[1]:
+                seeding_type.append("cascade_seeding")
+                seeding_type.append("metastatic_seeding")
+        # check for reseeding or bidirectional seeding
+        #aba = find_ABA(asv)
+        #if len(aba) > 0:
+        #    for pattern in aba:
+        #        if pattern[0] == primary:
+        #            seeding_type.append("primary_reseeding")
+        #        # ignore met->pri->met pattern
+        #        elif primary not in pattern:
+        #            seeding_type.append("metastatic_reseeding")
+        #else:
+        #    pass
+    return(seeding_type)
+
+
+
+
 
 def seeding_topology(seeding_path_list):
     '''
     Takes in nested list of seeding paths for each ASV
     '''
     primary = "PRL"
+    #primary = "prostate"
     # asv tissue for primary and cascade
     pri_cas_tissues = set()
     pri2met_tissues = set()
@@ -109,7 +195,8 @@ for c in cp:
 # print header
 #'cascade_seeding': 35, 'metastatic_reseeding': 0, 'metastatic_seeding': 35, 'metastatic_stationary': 73,
 #'parallel_seeding': 0, 'primary_reseeding': 0, 'primary_seeding': 72, 'primary_stationary
-
+tabular_tree = []
+tissue_dict = {}
 print("CP,cascade_seeding,metastatic_reseeding,metastatic_seeding,metastatic_stationary,parallel_seeding,primary_reseeding,primary_seeding,primary_stationary")
 with open(sys.argv[1],'r') as infile:
     lines = infile.readlines()
@@ -129,7 +216,7 @@ with open(sys.argv[1],'r') as infile:
                     parent_list = []
                     cur_parent = list(parent_dict.keys())[get_index(list(parent_dict.values()),asv)] 
                     parent_list.append(cur_parent)
-                    while cur_parent != "0":
+                    while cur_parent != "0" and cur_parent != "0_0" and cur_parent != "grey":
                         cur_parent = list(parent_dict.keys())[get_index(list(parent_dict.values()),cur_parent)] 
                         parent_list.append(cur_parent)
                     parent_tissues = []
@@ -140,7 +227,12 @@ with open(sys.argv[1],'r') as infile:
                     parent_tissues.append(child_tissue)
                     topologies.append(parent_tissues)
                     #print(cur_cp,asv,list(reversed(parent_list)),parent_tissues)
+            #print("CP, topologies:",cp,topologies)
             topo = seeding_topology(topologies)
+            topo_tree = seeding_topology_tree(tabular_tree,tissue_dict)
+            # reset tabular tree
+            tabular_tree = []
+            tissue_dict = {}
             #top_types = ["seeding_cascade",
             #        "primary_seeding",
             #        "reseeding",
@@ -158,13 +250,14 @@ with open(sys.argv[1],'r') as infile:
                     "primary_stationary",
                     "metastatic_stationary"]
 
-
-            topo_counts = Counter(topo)
+            topo_counts = Counter(topo_tree)
+            #topo_counts = Counter(topo)
+            #print("New:",cur_cp,Counter(topo_tree))
+            #print("Old:",cur_cp,topo_counts)
             for top_type in top_types:
                 if top_type not in topo_counts:
                     topo_counts[top_type] = 0
             topo_counts = dict(sorted(topo_counts.items()))
-                    
             #print(cur_cp, col_dict,topo_counts)
             ## OUTPUT LINE
             #outline = [cur_cp] + list(topo_counts.values()) + list(topo_counts.keys())
@@ -183,6 +276,7 @@ with open(sys.argv[1],'r') as infile:
                 break
 
         group = l[1]
+        distance = 1
         if group == "color":
             col_dict[l[3]] = l[2]
         #elif group == "model":
@@ -192,10 +286,19 @@ with open(sys.argv[1],'r') as infile:
         elif group == "label":
             lab_dict[l[3]] = l[2]
         elif group == "tree":
-            parent_col = lab_dict[l[2]]
-            child_col = lab_dict[l[3]]
+            child = l[3]
+            parent = l[2]
+            parent_col = lab_dict[parent]
+            child_col = lab_dict[child]
             parent_tis = col_dict[parent_col]
             child_tis = col_dict[child_col]
+
+            if parent not in tissue_dict:
+                tissue_dict[parent] = parent_tis
+            if child not in tissue_dict:
+                tissue_dict[child] = child_tis
+            if "XXX" not in child:
+                tabular_tree.append((parent,child,distance))
             if "ASV" in l[3]:
                 leaf = True
                 leaf_list.append(l[3])
@@ -212,5 +315,3 @@ with open(sys.argv[1],'r') as infile:
                 parent_dict[l[2]].append(l[3])
             else:
                 parent_dict[l[2]] = [l[3]]
-                
-
