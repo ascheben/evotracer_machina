@@ -207,7 +207,6 @@ with open(sys.argv[1],'r') as infile:
         l = l.strip()
         l = l.split(" ")
         cp = l[0]
-        print(l)
         if cur_cp == "":
             cur_cp = cp
         if cp != cur_cp or l == ["END"]:
