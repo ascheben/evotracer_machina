@@ -21,7 +21,8 @@ out_newick = sys.argv[3] + ".newick"
 out_failed = "FailedCP.txt"
 
 # hardcode primary tissue to add dummy where its missing
-primary_tissue = "PRL"
+#primary_tissue = "PRL"
+primary_tissue = sys.argv[4]
 
 # read in nested ASV dict
 #asv_names,sample,group

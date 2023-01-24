@@ -20,7 +20,7 @@ def log_pvalue(k, fk,N,fN):
     N = all leaves
     fn = all target leaves
     '''
-    if fN < N and fk < k and fN > 0:
+    if fN < N and fk < k and fN > 0 and fN > fk and N > k:
         px  = math.log(math.factorial(N-fN-1)) - math.log(math.factorial(k-fk-1)) - math.log(math.factorial(N-k+fk-fN))
         px += math.log(math.factorial(fN-1)) - math.log(math.factorial(fk-1)) - math.log(math.factorial(fN-fk))
         px -= math.log(math.factorial(N-1)) - math.log(math.factorial(k-1)) - math.log(math.factorial(N-k))
@@ -142,10 +142,11 @@ with open(sys.argv[1],'r') as infile:
                                         pass
                         except:
                             pass
-            #print(cur_cp,parent_dict,count_dict)
             # Test for selection
+            # child dict contains incorrect entries
             child_dict = defaultdict(set)
             for k,v in parent_dict.items():
+                #print("parent_dict key value", k,v)
                 lowest_node = True
                 for node in v:
                     if not "ASV" in node:
@@ -153,31 +154,37 @@ with open(sys.argv[1],'r') as infile:
                 if lowest_node:
                     traversed = []
                     cur_node = k
-                    while cur_node != "0":
+                    while cur_node not in ["0","0_0"]:
+                        #print("cur node", cur_node)
                         cur_parent = list(parent_dict.keys())[get_index(list(parent_dict.values()),cur_node)]
-                        if cur_parent != "0":
+                        if cur_parent not in ["0","0_0"]:
+                            #print("Adding to child dict:", cur_node,cur_parent)
                             child_dict[cur_node].add(cur_parent)
                         for t in traversed:
-                            if t != "0":
-                                if cur_parent != "0":
+                            if t not in ["0","0_0"]:
+                                if cur_parent not in ["0","0_0"]:
+                                    #print("Adding to child dict",t,cur_parent)
                                     child_dict[t].add(cur_parent)
                         traversed.append(cur_node)
                         cur_node = cur_parent
-
+                #print("child_dict current node at end of loop",k,child_dict[k])
             for key in parent_dict:
-                if key != "0":
+                if key not in ["0","0_0"]:
                     sisters = set()
                     # find parent of key
                     key_parent = list(parent_dict.keys())[get_index(list(parent_dict.values()),key)]
                     # find all children of parent
+                    #print("Analysing clade:",key," with parent", key_parent)
                     for node in parent_dict[key_parent]:
-                        if node != key and "ASV" not in node and node != "0" and node != key_parent:
+                        # check other children of parent
+                        if node != key and "ASV" not in node and node not in ["0","0_0"] and node != key_parent:
                             sisters.add(node)
                             child_nodes = child_dict[node]
-                            for c in child_nodes:
-                                if c != key and "ASV" not in c and c != "0" and c != key_parent:
-                                    sisters.add(c)
-                    #print(key, " parent is ", key_parent, " with sisters: ",sisters)
+                            #print("child of parent", node," has children:",child_nodes)
+                            #for c in child_nodes:
+                            #    if c != key and "ASV" not in c and c not in ["0","0_0"] and c != key_parent:
+                            #        sisters.add(c)
+                    print(key, " parent is ", key_parent, " with sisters: ",sisters, " based on parent dict children", parent_dict[key_parent])
                     total_leaves = 0
                     total_leaf_samples = 0 
                     for value in parent_dict[key]:
@@ -213,7 +220,7 @@ with open(sys.argv[1],'r') as infile:
                     total_leaf_samples_other = 0
                     total_other = 0
                     for s in parent_dict:
-                        if s != "0" and s != key :
+                        if s not in ["0","0_0"] and s != key :
                             total_other += 1
                             for value in parent_dict[s]:
                                 if "ASV" in value and "ASVXXX" not in value:

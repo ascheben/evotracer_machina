@@ -36,7 +36,7 @@ def find_ABA(seeding_path):
             pass
     return ABA
 
-def seeding_topology_tree(tabular_tree,tissue_dict):
+def seeding_topology_tree(tabular_tree,tissue_dict,ptissue):
     tree = Tree.from_parent_child_table(tabular_tree)
     #tree_depth = get_tree_depth(tree)
     parallel_seeding_edges = {}
@@ -45,7 +45,8 @@ def seeding_topology_tree(tabular_tree,tissue_dict):
     #print(tree)
     #print(tissue_dict)
     # root is skipped but we assume it is from prostate
-    primary = "PRL"
+    #primary = "PRL"
+    primary = ptissue
     for i,node in enumerate(tree.traverse("preorder")):
         if not node.is_leaf():
             #print(i,node.name,node.children)
@@ -109,11 +110,12 @@ def seeding_topology_tree(tabular_tree,tissue_dict):
 
 
 
-def seeding_topology(seeding_path_list):
+def seeding_topology(seeding_path_list,ptissue):
     '''
     Takes in nested list of seeding paths for each ASV
     '''
-    primary = "PRL"
+    #primary = "PRL"
+    primary = ptissue
     #primary = "prostate"
     # asv tissue for primary and cascade
     pri_cas_tissues = set()
@@ -170,7 +172,7 @@ col_dict = {}
 lab_dict = {}
 migrations = []
 cur_cp = ""
-
+ptissue = sys.argv[2]
 
 tissues = set()
 cp = set()
@@ -205,6 +207,7 @@ with open(sys.argv[1],'r') as infile:
         l = l.strip()
         l = l.split(" ")
         cp = l[0]
+        print(l)
         if cur_cp == "":
             cur_cp = cp
         if cp != cur_cp or l == ["END"]:
@@ -228,8 +231,8 @@ with open(sys.argv[1],'r') as infile:
                     topologies.append(parent_tissues)
                     #print(cur_cp,asv,list(reversed(parent_list)),parent_tissues)
             #print("CP, topologies:",cp,topologies)
-            topo = seeding_topology(topologies)
-            topo_tree = seeding_topology_tree(tabular_tree,tissue_dict)
+            topo = seeding_topology(topologies,ptissue)
+            topo_tree = seeding_topology_tree(tabular_tree,tissue_dict,ptissue)
             # reset tabular tree
             tabular_tree = []
             tissue_dict = {}
@@ -264,7 +267,6 @@ with open(sys.argv[1],'r') as infile:
             # output values are sorted alphabetically by topology name
             outline = [cur_cp] + list(topo_counts.values())
             print(*outline,sep=",")
-
             col_dict = {}
             lab_dict = {}
             parent_dict = {}

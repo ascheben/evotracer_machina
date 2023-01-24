@@ -240,6 +240,7 @@ def traverse_tree(tabular_tree,freq_dict,cp):
     #print(*["expansion",cp,len(nodes_total),len(nodes_tested),len(nodes_tested_relax),nodes_expanded,nodes_expanded_asv,nodes_expanded_relax,nodes_expanded_asv_relax,len(all_asv_uniq),len(expanded_asv_lineages),len(expanded_asv_counts),len(expanded_asv_lineages_relax),len(expanded_asv_counts_relax),total_freq,eal_count,eac_count,ealr_count,eacr_count],sep="\t")    
 # get asv freq information from file
 # this may be needed if no information is availble in the tree file
+done_list = []
 if len(sys.argv) == 3:
     asvdict = {}
     with open(sys.argv[2],'r') as asv:
@@ -252,13 +253,22 @@ if len(sys.argv) == 3:
             count = int(l[3])
             cp_name = l[29]
             name_tissue = name + "_" + tissue
-            if cp_name not in asvdict:
-                asvdict[cp_name] = {}
-            asvdict[cp_name][name_tissue] = count
-            # for single tissue ASVs
-            if name not in asvdict[cp_name]:
-                asvdict[cp_name][name] = count
+            sequence = l[11]
 
+            done_line = cp_name + name + tissue + sequence
+            if done_line not in done_list:
+                if cp_name not in asvdict:
+                    asvdict[cp_name] = {}
+                if name_tissue in asvdict[cp_name]:
+                    asvdict[cp_name][name_tissue] = count + asvdict[cp_name][name_tissue]
+                else:
+                    asvdict[cp_name][name_tissue] = count
+                # for single tissue ASVs
+                if name not in asvdict[cp_name]:
+                    asvdict[cp_name][name] = count
+                else:
+                    asvdict[cp_name][name] = asvdict[cp_name][name] + count
+                done_list.append(done_line)
 tabular_tree = []
 freq_dict = {}
 header_test = ["test","CP","clade","total_lineages","clade_lineages","total_leaves","clade_leaves","odds_ratio","relate_logp","clade_leaf_names","sister_leaf_names"]

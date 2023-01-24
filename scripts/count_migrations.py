@@ -18,6 +18,12 @@ def tree_met_rate(metastasis_edges,non_metastasis_edges):
     return rate
 
 
+### SET PARAMETERS ###
+# Output transition counts or relative transition probabilities
+transition_probs = False
+ignore_self_migration = False
+### END PARAMETERS
+
 # read in big results file for all CP
 # output one line per CP as well as one total line
 # each line includes summary info as well as each cell in the transition table
@@ -67,7 +73,7 @@ all_met_edges = 0
 all_non_met_edges = 0
 
 # print header
-out_header = ["CP,model,migrations,TreeMetRate"] + source_entropy_names + source_matrix_names
+out_header = ["CP,model,migrations,edges,TreeMetRate"] + source_entropy_names + source_matrix_names
 print(*out_header,sep=",")
 
 with open(sys.argv[1],'r') as infile:
@@ -112,15 +118,18 @@ with open(sys.argv[1],'r') as infile:
                 for t2 in tissues:
                     all_source_probs.append(weird_division(d[t1][t2],all_tis_source_tot))
             # Output probabilities
-            #m = list(np.around(np.array(source_matrix),5))
+            if transition_probs:
+                m = list(np.around(np.array(source_matrix),5))
             # Output counts instead
-            m = list(np.around(np.array(source_count_matrix),5))
+            else:
+                m = list(np.around(np.array(source_count_matrix),5))
 
             source_entropy = list(np.around(np.array(source_entropy),5))
             source_entropy = ["NA" if np.isnan(x) else x for x in source_entropy]
 
             tmrate = tree_met_rate(met_edges,non_met_edges)
-            outline = [cur_cp,model,len(migrations),tmrate] + source_entropy + list(np.array(m).flatten())
+            edges = met_edges + non_met_edges
+            outline = [cur_cp,model,len(migrations),edges,tmrate] + source_entropy + list(np.array(m).flatten())
             print(*outline,sep=",")
             #print(cur_cp,model,len(migrations),source_entropy[0],source_entropy[1],source_entropy[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
             col_dict = {}
@@ -159,9 +168,13 @@ with open(sys.argv[1],'r') as infile:
                 leaf = True
             else:
                 leaf = False
-            if parent_tis == child_tis and leaf:
-                pass
-                
+            #if parent_tis == child_tis and leaf:
+            #    pass
+            if ignore_self_migration:
+                if parent_tis != child_tis:
+                    td[cp][parent_tis][child_tis] += 1
+                    td['all'][parent_tis][child_tis] += 1
+        
             else:
                 td[cp][parent_tis][child_tis] += 1
                 td['all'][parent_tis][child_tis] += 1
@@ -201,12 +214,14 @@ for t1 in tissues:
 s = list(np.around(np.array(source_entropy),5))
 s = ["NA" if np.isnan(x) else x for x in s]
 # use transition probabilities
-#m = list(np.around(np.array(source_matrix),5))
+if transition_probs:
+    m = list(np.around(np.array(source_matrix),5))
 # use transition counts
-m = list(np.around(np.array(source_count_matrix),5))
+else:
+    m = list(np.around(np.array(source_count_matrix),5))
 tmrate = tree_met_rate(all_met_edges,all_non_met_edges)
-outline = ["all","NA","NA",tmrate] + s + list(np.array(m).flatten())
-print(*outline,sep=",")
-#print("all","NA","NA",s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2],m,all_source_probs)
-#print(*["all","NA","NA",tmrate,s[0],s[1],s[2],m[0][0],m[0][1],m[0][2],m[1][0],m[1][1],m[1][2],m[2][0],m[2][1],m[2][2]],sep=",")
+all_edges = all_met_edges + all_non_met_edges
+outline = ["all","NA","NA",all_edges,tmrate] + s + list(np.array(m).flatten())
+# TO DO, order for 'all' columns being output is currently wrong
+#print(*outline,sep=",")
 
