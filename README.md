@@ -16,7 +16,9 @@ Note that the proprietary Gurobi solver needs a [license](https://www.gurobi.com
 
 Now we can run the pipeline with MACHINA.
 
-`./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/ --prefix myprefix`
+`./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/ --prefix myprefix --primary-tissue prostate --cutoff 50`
+
+Only a single tissue can be designated as the primary tumor source tissue. The cutoff value determines how many labels (unique sequence variant and tissue combinations) a clonal populations has to have to be analysed using the faster "OLD" machina algorithm. 
 
 ## Outputs
 The key outputs are the files shown below.
