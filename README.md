@@ -8,7 +8,7 @@ migration histories.
 Install the dependencies:
 
 ```
-conda env create -f env/machina.yml
+conda env create -f env/machina.yaml
 conda activate machina
 ```
 
