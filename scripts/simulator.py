@@ -3,14 +3,14 @@ import sys
 import cProfile
 from collections import defaultdict
 import copy
-#import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-#import seaborn as sns
 import time
-#from tqdm.auto import tqdm
 import random
 import cassiopeia as cas
+
+#from tqdm.auto import tqdm
+#import matplotlib.pyplot as plt
 #from cassiopeia.solver import missing_data_methods
 #import dendropy
 #from dendropy.calculate import treecompare
@@ -29,7 +29,7 @@ def mutate_seq(seq,pos,mut_bases):
         mut_seq = seq[:pos-1] + mut_bases + seq[pos-1+mut_size:]
     return mut_seq
 
-def generate_indel():
+def generate_indel(max_size):
     '''
     Take sequence and position and randomly introduce an
     indel at the given position. Returns the mutated sequence.
@@ -37,8 +37,7 @@ def generate_indel():
     del_prob = 0.6
     ins_prob = 0.4
     #max_size = 15
-    max_size = 3
-    #min_size = 1
+    #max_size = 3
     mut_size = int(np.random.exponential(6,1)[0])
     while mut_size == 0 or mut_size > max_size:
         mut_size = int(np.random.exponential(6,1)[0])
@@ -72,6 +71,10 @@ def sim_chars(tree,mut_rate):
 outprefix = sys.argv[1]
 high_mut_rate = float(sys.argv[2])
 low_mut_rate = float(sys.argv[3])
+max_size = int(sys.argv[4])
+sample_num = int(sys.argv[5])
+
+
 
 # simulate a tree based on birth death model with num_extant leaves
 bd_sim = cas.sim.BirthDeathFitnessSimulator(
@@ -81,7 +84,7 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
     mutation_distribution = lambda: 1 if np.random.uniform() < 0.5 else 0,
     fitness_distribution = lambda: np.random.normal(0, .5),
     fitness_base = 1.3,
-    num_extant = 10,
+    num_extant = sample_num,
     random_seed=17
 )
 ground_truth_tree = bd_sim.simulate_tree()
@@ -99,9 +102,7 @@ for i,m in enumerate(mut_rates):
         character_matrix = sim_chars(ground_truth_tree,m) 
 # join the matrices on the index col that is the tree leaf label
 final_matrix = character_matrix
-
 reconstructed_tree = cas.data.CassiopeiaTree(character_matrix = final_matrix, missing_state_indicator = -1)
-
 greedy_solver = cas.solver.VanillaGreedySolver()
 greedy_solver.solve(reconstructed_tree)
 # Get the reconstructed tree newick
@@ -155,12 +156,12 @@ for m,s in enumerate(site_names):
             site_indels.add(i)
             #print("Added to site_indel set:", site_indels)
             if i not in mut_dict:
-                indel_seq = generate_indel()
+                indel_seq = generate_indel(max_size)
                 #print("Indel not in mut_dict - generated indel:",indel_seq)
                 # ensure all indels at each site are unique
                 while indel_seq in mutations:
                     #print("Indel seq",indel_seq,"already exists at site:",mutations)
-                    indel_seq = generate_indel()
+                    indel_seq = generate_indel(max_size)
                 #print("Adding new indel to site",indel_seq)
                 mutations.append(indel_seq)
                 mut_dict[i] = indel_seq
