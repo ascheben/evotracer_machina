@@ -43,3 +43,24 @@ rename tree_0 tree_ tree_*
 ```
 Now we can create a series of commands to run the MACHINA pipeline on each of the bootstrap trees.
 `seq 0 99| while read l; do echo "./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_${l} --scripts ./scripts/ --prefix ${l}" > run.cmd;done`
+
+# Simulating test data for EvoTraceR
+To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence, we can simulated ground truth amplicon sequences. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. A wrapper script is available to generate output suitable for EvoTracer.
+
+```
+sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int>
+```
+
+The provided sample simulated data were generated as shown below. Note that these commands lead to non-determistic mutation profiles.
+
+```
+./sim_wrapper.sh --out simsmall --mutrate1 0.1 --mutrate2 0.01 --max-indel-size 3 --samples 20
+./sim_wrapper.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50
+```
+
+The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is the only output required for evaluation. The evaluation for EvoTraceR are:
+
+* What percentage of unique mutation combinations in a single sequence were identified as independent Amplicon Sequence Variants (ASVs)?
+* What percentage of mutations were identified?
+* What percentage of mutations had accurate positions and indel characters?
+

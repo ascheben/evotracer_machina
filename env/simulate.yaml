@@ -1,4 +1,4 @@
-name: cas
+name: simulate
 channels:
   - bioconda
   - r
