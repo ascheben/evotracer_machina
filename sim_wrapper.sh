@@ -50,7 +50,7 @@ PREFIX3="${MOUSE}_${TISSUE3}_${REF}_${TAG}_${NAME}"
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/simulate.yaml
 # conda activate simulate
-
+# 
 ./scripts/simulator.py ${PREFIX1} ${MUTRATE1} ${MUTRATE2} ${MAX_INDEL_SIZE} ${NUM_SAMPLES}
 reformat.sh in=${PREFIX1}.fa out=${PREFIX2}.fa samplerate=0.5 >> ${NAME}.log 2>&1
 reformat.sh in=${PREFIX1}.fa out=${PREFIX3}.fa samplerate=0.1 >> ${NAME}.log 2>&1
