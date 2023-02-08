@@ -51,6 +51,16 @@ To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence
 sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int>
 ```
 
+The required software to run the wrapper can be installed with conda:
+
+```
+conda env create -f env/simulate.yaml
+conda activate simulate
+```
+
+Although Cassiopeia should be installed via pip within the conda environment, in my case I needed to install Cassiopeia separately using pip as described in the [docs](https://cassiopeia-lineage.readthedocs.io/en/latest/installation.html).
+
+
 The provided sample simulated data were generated as shown below. Note that these commands lead to non-determistic mutation profiles.
 
 ```
@@ -63,4 +73,7 @@ The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is 
 * What percentage of unique mutation combinations in a single sequence were identified as independent Amplicon Sequence Variants (ASVs)?
 * What percentage of mutations were identified?
 * What percentage of mutations had accurate positions and indel characters?
+
+To compare the `asv_stat.csv` file to the ground truth, the simulated `.fa` files or the separate indel matrix, mutations, cut positions files can be used. Tissue1 data always contains all mutations, whereas other tissues contain random subsets of the full FASTQ file for tissue1. Note that gap character for deletions are stripped from the `.fa` files before being output by `simulator.py`. To get `.fa` files with gaps, this final step can be easily modified to additionally produce files with the gaps. Alternatively the [muscle aligner](https://anaconda.org/bioconda/muscle) can be used to align sequences in the `.fa` files and introduce gaps.
+
 
