@@ -2,24 +2,24 @@ java -ea -Xmx200m -cp /grid/siepel/home_norepl/scheben/elzapp/miniconda3/envs/ca
 Executing jgi.ReformatReads [in=MMUS1469_tissue1_BC10v0_MG_120419_simmid.fa, out=MMUS1469_tissue2_BC10v0_MG_120419_simmid.fa, samplerate=0.5]
 
 Input is being processed as unpaired
-Input:                  	51 reads          	13270 bases
-Processed:              	26 reads          	6770 bases
-Output:                 	26 reads (50.98%) 	6770 bases (51.02%)
+Input:                  	51 reads          	13407 bases
+Processed:              	28 reads          	7347 bases
+Output:                 	28 reads (54.90%) 	7347 bases (54.80%)
 
 Time:                         	0.060 seconds.
-Reads Processed:          26 	0.44k reads/sec
-Bases Processed:        6770 	0.11m bases/sec
+Reads Processed:          28 	0.47k reads/sec
+Bases Processed:        7347 	0.12m bases/sec
 java -ea -Xmx200m -cp /grid/siepel/home_norepl/scheben/elzapp/miniconda3/envs/cas/opt/bbmap-38.18/current/ jgi.ReformatReads in=MMUS1469_tissue1_BC10v0_MG_120419_simmid.fa out=MMUS1469_tissue3_BC10v0_MG_120419_simmid.fa samplerate=0.1
 Executing jgi.ReformatReads [in=MMUS1469_tissue1_BC10v0_MG_120419_simmid.fa, out=MMUS1469_tissue3_BC10v0_MG_120419_simmid.fa, samplerate=0.1]
 
 Input is being processed as unpaired
-Input:                  	51 reads          	13270 bases
-Processed:              	4 reads          	1042 bases
-Output:                 	4 reads (7.84%) 	1042 bases (7.85%)
+Input:                  	51 reads          	13407 bases
+Processed:              	6 reads          	1576 bases
+Output:                 	6 reads (11.76%) 	1576 bases (11.76%)
 
-Time:                         	0.059 seconds.
-Reads Processed:           4 	0.07k reads/sec
-Bases Processed:        1042 	0.02m bases/sec
+Time:                         	0.061 seconds.
+Reads Processed:           6 	0.10k reads/sec
+Bases Processed:        1576 	0.03m bases/sec
 
     ====================ART====================
              ART_Illumina (2008-2016)          
@@ -30,9 +30,9 @@ Bases Processed:        1042 	0.02m bases/sec
 Warning: your simulation will not output any ALN or SAM file with your parameter settings!
              Amplicon paired-end sequencing simulation
 
-Total CPU time used: 12.1593
+Total CPU time used: 12.2131
 
-The random seed for the run: 1675882739
+The random seed for the run: 1675942778
 
 Parameters used during run
 	Read Length:	150
@@ -61,9 +61,9 @@ Output files
 Warning: your simulation will not output any ALN or SAM file with your parameter settings!
              Amplicon paired-end sequencing simulation
 
-Total CPU time used: 12.2717
+Total CPU time used: 12.9587
 
-The random seed for the run: 1675882742
+The random seed for the run: 1675942780
 
 Parameters used during run
 	Read Length:	150
@@ -92,9 +92,9 @@ Output files
 Warning: your simulation will not output any ALN or SAM file with your parameter settings!
              Amplicon paired-end sequencing simulation
 
-Total CPU time used: 9.99258
+Total CPU time used: 10.1116
 
-The random seed for the run: 1675882744
+The random seed for the run: 1675942787
 
 Parameters used during run
 	Read Length:	150
