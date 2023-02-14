@@ -16,7 +16,6 @@ Due to inconsistencies in operating systems, the environment file method can fai
 
 ```
 conda create -c conda-forge -c bioconda -c etetoolkit -c anaconda -n machina biopython machina ete3 scipy numpy pandas parafly
-
 ```
 
 Note that the proprietary Gurobi solver needs a [license](https://www.gurobi.com/academia/academic-program-and-licenses/). An academic license can be acquired from the link and activated via command-line using `grbgetkey`.
