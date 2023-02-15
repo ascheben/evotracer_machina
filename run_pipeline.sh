@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue> --cutoff <big_cp_threshold>"
+    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue>"
     exit 0
 fi
 
@@ -12,7 +12,6 @@ while [[ "$#" -gt 0 ]]; do
         -s|--scripts) SPATH="$2"; shift ;;
         -p|--prefix) PREFIX="$2"; shift ;;
         -o|--primary-tissue) PTISSUE="$2"; shift ;;
-        -c|--cutoff) CUTOFF="$2"; shift ;;
 
     *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> --cutoff <big_cp_threshold>" ; exit 1 ;;
     esac
@@ -27,7 +26,7 @@ fi
 
 # PATHS TO SCRIPTS 
 #BIG_CP_THRESHOLD=${CUTOFF}
-BIG_CP_THRESHOLD="${CUTOFF//[$'\t\r\n ']}"
+#BIG_CP_THRESHOLD="${CUTOFF//[$'\t\r\n ']}"
 TRAV="${SPATH}/traverse_split.py"
 GET="${SPATH}/get_results.sh"
 GETOLD="${SPATH}/get_results_old2new.sh"
@@ -38,10 +37,10 @@ MIGRATION="${SPATH}/count_migrations.py"
 
 ## PREPROCESS INPUT DATA ##
 
-if [[ -n ${BIG_CP_THRESHOLD//[0-9]/} ]]; then
-    echo "Value for cutoff parameter is not an integer!"
-    exit
-fi
+#if [[ -n ${BIG_CP_THRESHOLD//[0-9]/} ]]; then
+#    echo "Value for cutoff parameter is not an integer!"
+#    exit
+#fi
 
 # Extract key ASV columns
 #asv_names,sample,group
@@ -52,7 +51,8 @@ cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| grep -v CP0
 while read l; do 
     ${TRAV} ${TREE} ${PREFIX}_asv_sample_group.csv ${l} ${PTISSUE}
     num_labels=`wc -l "${l}_labels_split.txt"|cut -d' ' -f1`
-    if [ "$num_labels" -gt "$BIG_CP_THRESHOLD" ]; then
+    #if [ "$num_labels" -gt "$BIG_CP_THRESHOLD" ]; then
+    if [ "$num_labels" -gt 50 ]; then
         echo ${l} >> ${PREFIX}_big_CP_list.txt
     fi
 done<${PREFIX}_CP_list.txt
