@@ -89,12 +89,12 @@ mv ${PREFIX}_asv_sample_group.csv ${PREFIX}_cp_output
 mv ${PREFIX}_CP_list.txt ${PREFIX}_cp_output
 ## ANALYSE INFERRED TOPOLOGY
 
-~/miniconda3/envs/machina/bin/python $TOPOLOGY ${PREFIX}_cp_output/${PREFIX}_all_results.txt ${PTISSUE} > ${PREFIX}_cp_output/${PREFIX}_seeding_topology.txt 
-~/miniconda3/envs/machina/bin/python $MIGRATION ${PREFIX}_cp_output/${PREFIX}_all_results.txt > ${PREFIX}_cp_output/${PREFIX}_migration.txt
+python $TOPOLOGY ${PREFIX}_cp_output/${PREFIX}_all_results.txt ${PTISSUE} > ${PREFIX}_cp_output/${PREFIX}_seeding_topology.txt 
+python $MIGRATION ${PREFIX}_cp_output/${PREFIX}_all_results.txt > ${PREFIX}_cp_output/${PREFIX}_migration.txt
 
 ## ANALYSE SELECTION ON ORIGINAL AND MACHINA TOPOLOGY
 
 #python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_results.txt $ASV > ${PREFIX}_cp_output/${PREFIX}_selection.txt
-~/miniconda3/envs/machina/bin/python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^test" > ${PREFIX}_cp_output/${PREFIX}_selection_original_test.txt
-~/miniconda3/envs/machina/bin/python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^expansion" > ${PREFIX}_cp_output/${PREFIX}_selection_original_expansion.txt
+python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^test" > ${PREFIX}_cp_output/${PREFIX}_selection_original_test.txt
+python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^expansion" > ${PREFIX}_cp_output/${PREFIX}_selection_original_expansion.txt
 
