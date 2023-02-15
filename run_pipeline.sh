@@ -12,7 +12,7 @@ while [[ "$#" -gt 0 ]]; do
         -s|--scripts) SPATH="$2"; shift ;;
         -p|--prefix) PREFIX="$2"; shift ;;
         -o|--primary-tissue) PTISSUE="$2"; shift ;;
-        -c|--cutoff) PTISSUE="$2"; shift ;;
+        -c|--cutoff) CUTOFF="$2"; shift ;;
 
     *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> --cutoff <big_cp_threshold>" ; exit 1 ;;
     esac
