@@ -26,7 +26,8 @@ then
 fi
 
 # PATHS TO SCRIPTS 
-BIG_CP_THRESHOLD=${CUTOFF}
+#BIG_CP_THRESHOLD=${CUTOFF}
+BIG_CP_THRESHOLD="${CUTOFF//[$'\t\r\n ']}"
 TRAV="${SPATH}/traverse_split.py"
 GET="${SPATH}/get_results.sh"
 GETOLD="${SPATH}/get_results_old2new.sh"
@@ -36,6 +37,11 @@ SELECTION="${SPATH}/selection_tree_test.py"
 MIGRATION="${SPATH}/count_migrations.py"
 
 ## PREPROCESS INPUT DATA ##
+
+if [[ -n ${BIG_CP_THRESHOLD//[0-9]/} ]]; then
+    echo "Value for cutoff parameter is not an integer!"
+    exit
+fi
 
 # Extract key ASV columns
 #asv_names,sample,group
