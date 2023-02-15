@@ -52,7 +52,7 @@ cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| grep -v CP0
 while read l; do 
     ${TRAV} ${TREE} ${PREFIX}_asv_sample_group.csv ${l} ${PTISSUE}
     num_labels=`wc -l "${l}_labels_split.txt"|cut -d' ' -f1`
-    if [[ "$num_labels" -gt "$BIG_CP_THRESHOLD" ]]; then
+    if [[ $num_labels -gt $BIG_CP_THRESHOLD ]]; then
     #if [ "$num_labels" -gt 30 ]; then
         echo ${l} >> ${PREFIX}_big_CP_list.txt
     fi
