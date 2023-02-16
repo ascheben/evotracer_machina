@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 CP="$1"
 PTISSUE="$2"
 cat ${CP}_colors.txt| sed "s/^/${CP} color /"
