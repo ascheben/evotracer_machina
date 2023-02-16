@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue>"
+    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue> --cutoff <int>"
     exit 0
 fi
 
@@ -14,7 +14,7 @@ while [[ "$#" -gt 0 ]]; do
         -o|--primary-tissue) PTISSUE="$2"; shift ;;
         -c|--cutoff) CUTOFF="$2"; shift ;;
 
-    *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> --cutoff <big_cp_threshold>" ; exit 1 ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> --cutoff <int>" ; exit 1 ;;
     esac
     shift
 done
