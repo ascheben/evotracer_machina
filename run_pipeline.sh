@@ -78,8 +78,8 @@ grep -v -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do ech
 ParaFly -CPU 2 -c ${PREFIX}_machina.cmd
 
 # parse results from each machina output dir
-grep -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do ${GETOLD} $l ${PTISSUE};done | tr '\t' ' '>> ${PREFIX}_cp_output/${PREFIX}_all_results.txt
-grep -v -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do ${GET} $l ${PTISSUE};done | tr '\t' ' '>> ${PREFIX}_cp_output/${PREFIX}_all_results.txt
+grep -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do ${GETOLD} $l ${PTISSUE} ${SPATH};done | tr '\t' ' '>> ${PREFIX}_cp_output/${PREFIX}_all_results.txt
+grep -v -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do ${GET} $l ${PTISSUE} ${SPATH};done | tr '\t' ' '>> ${PREFIX}_cp_output/${PREFIX}_all_results.txt
 
 # move intermediate output
 mv CP* ${PREFIX}_cp_output

@@ -1,5 +1,8 @@
+#!/usr/bin/env bash
+
 CP="$1"
 PTISSUE="$2"
+SPATH="$3"
 cat ${CP}_colors.txt| sed "s/^/${CP} color /"
 best="R"
 echo "${CP} model ${best} NA"
@@ -10,8 +13,7 @@ grep label  ${CP}_split/G-${PTISSUE}-${best}-binarized.dot| tr ',' ' '| cut -d' 
 grep "\->"  ${CP}_split/G-${PTISSUE}-${best}-binarized.dot| cut -d' ' -f1,3|sed 's/^\t//' >  ${CP}_split/G-${PTISSUE}-${best}-binarized_parent_child.txt
 
 # migration
-~/miniconda3/envs/machina/bin/python /local/storage/no-backup/scheben-scratch/proca/repo/proca/scripts/print_migration_tree_from_dot.py ${CP}_split/G-${PTISSUE}-${best}-binarized_labels.txt  ${CP}_split/G-${PTISSUE}-${best}-binarized_parent_child.txt | sed "s/^/${CP} migration /" | tr '\t' ' '
+python ${SPATH}/print_migration_tree_from_dot.py ${CP}_split/G-${PTISSUE}-${best}-binarized_labels.txt  ${CP}_split/G-${PTISSUE}-${best}-binarized_parent_child.txt | sed "s/^/${CP} migration /" | tr '\t' ' '
 
-# label and tree
-~/miniconda3/envs/machina/bin/python /local/storage/no-backup/scheben-scratch/proca/repo/proca/scripts/print_label_tree_from_dot.py ${CP}_split/T-${PTISSUE}-${best}-binarized_nodes.txt ${CP}_split/T-${PTISSUE}-${best}-binarized_parent_child.txt | sed "s/^/${CP} /"  | tr '\t' ' ' 
+python ${SPATH}/print_label_tree_from_dot.py ${CP}_split/T-${PTISSUE}-${best}-binarized_nodes.txt ${CP}_split/T-${PTISSUE}-${best}-binarized_parent_child.txt | sed "s/^/${CP} /"  | tr '\t' ' ' 
 
