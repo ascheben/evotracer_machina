@@ -53,8 +53,8 @@ for index, row in sim_mutation_matrix.iterrows():
     seq_mutations = row.to_dict()[index]
     for pos,mut_id in seq_mutations.items():
         seq_mutations[pos] = mutations[mut_id]
-    sim_cut_site_mutation_mappings.append(seq_mutations)
-
+    sim_cut_site_mutation_mappings.append(dict(sorted(seq_mutations.items())))
+    
 if args["output_all_mutations"]: 
     output_mutation_dicts_list(f'{output_dir_path}/simulated_cut_site_mutation_mappings.txt', sim_cut_site_mutation_mappings)
             
@@ -74,7 +74,7 @@ for simulated_asv in sim_cut_site_mutation_mappings:
             mutated_seq = mutated_seq[:pos] + alt_seq + mutated_seq[pos:]
             shift += len(alt_seq)
     sim_asv_seqs.append(mutated_seq)
-
+    
 # # Test Case #1: Percentage of Simulated ASVs identified
 matching_asvs = set(sim_asv_seqs) & set(evo_asv_seqs)
 print("Compare simulated sequences to asv_stat seq column values:")
@@ -96,7 +96,7 @@ for index, row in evo_df.iterrows():
 if args["output_all_mutations"]:
     with open(f'{output_dir_path}/evotracer_cut_site_mutation_mappings.txt', 'w') as file:
         for asv, mutations in evo_asv_muts_dict.items():
-            file.write(f'{asv}: {json.dumps(mutations)}\n')
+            file.write(f'{asv}: {json.dumps(dict(sorted(mutations.items())))}\n')
 
 # find simulated set of mutations matching evotracer set of mutations, otherwise find most similar mutations
 total_evotracer_mutations = 0
@@ -106,7 +106,7 @@ pos_shift_err = args["pos_error"]
 seq_char_err = args["indel_char_error"]
 if args["map_incorrect_evo_mutations"]: open(f'{output_dir_path}/incorrect_evotracer_mutations_mappings.txt', "w")
 for asv, evo_mutations in evo_asv_muts_dict.items():
-    evo_mutations = dict(sorted(evo_mutations.items())) # sort mutations in dictionary by position
+    evo_mutations = dict(sorted(evo_mutations.items())) 
     total_evotracer_mutations += len(evo_mutations)
     # identify matching mutations
     if evo_mutations in sim_cut_site_mutation_mappings:
@@ -118,7 +118,6 @@ for asv, evo_mutations in evo_asv_muts_dict.items():
         # similar_mutations_list = [x for x in sim_cut_site_mutation_mappings if len(x) == len(evo_mutations)]
         similar_mutations = []
         for simulated_mutations in sim_cut_site_mutation_mappings:
-            simulated_mutations = dict(sorted(simulated_mutations.items()))
             # filter simulated mutation set by positions and indel characters
             if len(simulated_mutations) == len(evo_mutations):
                 is_similar = True
