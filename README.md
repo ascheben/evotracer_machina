@@ -51,7 +51,7 @@ Now we can create a series of commands to run the MACHINA pipeline on each of th
 `seq 0 99| while read l; do echo "./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_${l} --scripts ./scripts/ --prefix ${l}" > run.cmd;done`
 
 # Simulating test data for EvoTraceR
-To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence, we can simulated ground truth amplicon sequences. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. A wrapper script is available to generate output suitable for EvoTracer.
+To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence, we simulated ground truth amplicon sequences. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. A wrapper script is available to generate output suitable for EvoTracer.
 
 ```
 sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int>
@@ -80,6 +80,29 @@ The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is 
 * What percentage of mutations were identified?
 * What percentage of mutations had accurate positions and indel characters?
 
-To compare the `asv_stat.csv` file to the ground truth, the simulated `.fa` files or the separate indel matrix, mutations, cut positions files can be used. Tissue1 data always contains all mutations, whereas other tissues contain random subsets of the full FASTQ file for tissue1. Note that gap character for deletions are stripped from the `.fa` files before being output by `simulator.py`. To get `.fa` files with gaps, this final step can be easily modified to additionally produce files with the gaps. Alternatively the [muscle aligner](https://anaconda.org/bioconda/muscle) can be used to align sequences in the `.fa` files and introduce gaps.
+The script used for evaluation is 'test_evotracer.py'. Set input parameters in 'test_config.py' such as the file paths for the indel character matrix, the cut positions, the mutations, and the asv_stat.csv file output from EvoTraceR. 
 
+## Test EvoTraceR Usage
+```
+Usage: python test_evotracer.py [options]
 
+Options:
+        -h, --help
+                Show this help message and exit
+        -d, --output-dir
+                Directory for saving selected output file results [default "test_output"]
+        -a, --output-all-mutations
+                Output all simulated and evotracer ASV cut-site mutation mappings to files. Simulated data is saved to "simulated_cut_site_mutation_mappings.txt" and EvoTraceR data is saved to "evotracer_cut_site_mutation_mappings.txt". Each dictionary represents an ASV's set of mutations mapping its cut site to the indel sequence
+        -s, --output-unidentified-sim-mutations
+                Output all simulated ASV's cut-site mutation mappings that are not identified by EvoTraceR to the file "unidentified_simulated_mutations.txt"
+        -i, --output-identified-sim-mutations
+                Output all simulated ASV's cut-site mutation mappings that are identified by EvoTraceR to the file "identified_simulated_mutations.txt"
+        -m, --map-incorrect-evo-mutations
+                Find EvoTraceR ASV's cut-site mutation mappings without an exact match in the simulated data. These unmatched ASVs are then mapped to the most similar sets of mutations in the simulated data by allowing either errors in the cut position or indel sequence. Results are output to "incorrect_evotracer_mutation_mappings.txt"
+        -p, --pos-error [default 10]
+                Number of position shifts allowed in mutations when finding similar ASVs
+        -c, --indel-char-error [default 1]
+                Number of character mismatches allowed in mutations when finding similar ASVs
+```
+
+To compare the `asv_stat.csv` file to the ground truth, the separate indel matrix, mutations, cut positions files are used. Tissue1 data always contains all mutations, whereas other tissues contain random subsets of the full FASTQ file for tissue1. Note that gap character for deletions are stripped from the `.fa` files before being output by `simulator.py`. To get `.fa` files with gaps, this final step can be easily modified to additionally produce files with the gaps. Alternatively the [muscle aligner](https://anaconda.org/bioconda/muscle) can be used to align sequences in the `.fa` files and introduce gaps.
