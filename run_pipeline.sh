@@ -35,7 +35,7 @@ MACHINA="pmh_tr"
 TOPOLOGY="${SPATH}/print_seeding_topology.py"
 SELECTION="${SPATH}/selection_tree_test.py"
 MIGRATION="${SPATH}/count_migrations.py"
-
+ADD_INFO="${SPATH}/add_freq_prob_to_results.py"
 ## PREPROCESS INPUT DATA ##
 
 if [[ -n ${BIG_CP_THRESHOLD//[0-9]/} ]]; then
@@ -99,3 +99,4 @@ python $MIGRATION ${PREFIX}_cp_output/${PREFIX}_all_results.txt > ${PREFIX}_cp_o
 python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^test" > ${PREFIX}_cp_output/${PREFIX}_selection_original_test.txt
 python $SELECTION ${PREFIX}_cp_output/${PREFIX}_all_original_tree.txt $ASV| grep "^expansion" > ${PREFIX}_cp_output/${PREFIX}_selection_original_expansion.txt
 
+python $ADD_INFO ${PREFIX}_cp_output/${PREFIX}_migration.txt $ASV ${PREFIX}_cp_output/${PREFIX}_all_results.txt > ${PREFIX}_cp_output/${PREFIX}_all_results_extended.txt

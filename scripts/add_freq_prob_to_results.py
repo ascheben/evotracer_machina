@@ -6,25 +6,33 @@ with open(sys.argv[1],'r') as mat:
     header = next(mat)
     header = header.strip()
     header = header.split(",")
+    # find number of tissues
+    #CP,model,migrations,edges,TreeMetRate,H_HMR,H_LGR,H_PRL,HMR_HMR,HMR_LGR,HMR_PRL,LGR_HMR,LGR_LGR,LGR_PRL,PRL_HMR,PRL_LGR,PRL_PRL
+    tissue_set = set()
+    for elem in header[5:]:
+        if elem.startswith("H:"):
+            tis_name = elem.replace("H:","")
+            tissue_set.add(tis_name)
+    tissue_cnt = len(tissue_set)
+    prob_index = 5 + tissue_cnt
     for l in mat:
         l = l.strip()
         l = l.split(",")
         pdict[l[0]] = {}
         #prob_mat = [l[8:11],l[11:14],l[14:]]
         # script breaks between MMUS1495 and 1469 
-        # prob_mat = l[8:]
-        prob_mat = l[9:]
+        prob_mat = l[prob_index:]
+        #prob_mat = l[9:]
         #tis_list = ["PRL","LGR","HMR"]
-        #prob_names = header[8:]
-        prob_names = header[9:]
+        prob_names = header[8:]
+        #prob_names = header[9:]
         for i,tis in enumerate(prob_names):
-            tis1 = tis.split("_")[0]
-            tis2 = tis.split("_")[1]
+            tis1 = tis.split(":")[0]
+            tis2 = tis.split(":")[1]
             if tis1 not in pdict[l[0]]:
                 pdict[l[0]][tis1] = {}
             if tis2 not in pdict[l[0]][tis1]:
                 pdict[l[0]][tis1][tis2] = {}
-            print(prob_mat)
             pdict[l[0]][tis1][tis2] = int(prob_mat[i])
 
 asvdict = {}
@@ -49,7 +57,7 @@ cur_cp = ""
 coldict = {}
 labdict = {}
 with open(sys.argv[3],'r') as results:
-    header = next(results)
+    #header = next(results)
     for l in results:
         l = l.strip()
         l = l.split(" ")
@@ -78,7 +86,9 @@ with open(sys.argv[3],'r') as results:
             #print(cur_cp,parent,child,source,target,child_freq,trans_prob)
 
 with open(sys.argv[3],'r') as results:
-    header = next(results)
+    #header = next(results)
+    header = "CP group value1 value2 asv_freq_count transition_probability transition_probability_no_selfmigration"
+    print(header)
     for l in results:
         l = l.strip()
         l = l.split(" ")
