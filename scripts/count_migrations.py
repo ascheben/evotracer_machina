@@ -58,7 +58,7 @@ for c in cp:
     for t1 in tissues:
         td[c][t1] = {}
         if c == cp[0]:
-            ent_name = "H:" + t1
+            ent_name = "H_" + t1
             source_entropy_names.append(ent_name)
         for t2 in tissues:
             td[c][t1][t2] = 0
