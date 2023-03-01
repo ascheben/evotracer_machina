@@ -197,31 +197,31 @@ with open(outfasta,'a') as o:
     o.write(outstr)
 for index, row in final_matrix.iterrows():
     row_fasta = ref_seq
-    print("refseq",ref_seq)
-    print(index,row)
+    #print("refseq",ref_seq)
+    #print(index,row)
     insertion_pos_dict = {}
-    print("ins_pos_dict",insertion_pos_dict)
+    #print("ins_pos_dict",insertion_pos_dict)
     for s in site_names:
         indel_id = row[s]
         cut_site = cut_dict[s]
         # if not no indel
         if indel_id != 0:
-            print("Mutation at site")
+            #print("Mutation at site")
             mut_bases = mut_dict[indel_id]
-            print("mut_bases:",mut_bases)
+            #print("mut_bases:",mut_bases)
             insertion_shift = 0
             for k,v in insertion_pos_dict.items():
                 # preceding insertion
                 if k < cut_site:
                     insertion_shift += len(v)
-            print("Final insertion shift:",insertion_shift)
+            #print("Final insertion shift:",insertion_shift)
             cut_site += insertion_shift
             row_fasta = mutate_seq(row_fasta,cut_site,mut_bases)
-            print("cut site,rowfasta", cut_site,row_fasta)
+            #print("cut site,rowfasta", cut_site,row_fasta)
             # track insertions
             if '-' not in mut_bases:
                 insertion_pos_dict[cut_site] = mut_bases
-                print("Added cut site to ins_pos_dict", cut_site, mut_bases)
+                #print("Added cut site to ins_pos_dict", cut_site, mut_bases)
     row_fasta = row_fasta.replace('-', '')
     outstr = ">" + index + "\n" + row_fasta + "\n"
     with open(outfasta,'a') as o:
