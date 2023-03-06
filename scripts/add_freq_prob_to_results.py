@@ -10,8 +10,8 @@ with open(sys.argv[1],'r') as mat:
     #CP,model,migrations,edges,TreeMetRate,H_HMR,H_LGR,H_PRL,HMR_HMR,HMR_LGR,HMR_PRL,LGR_HMR,LGR_LGR,LGR_PRL,PRL_HMR,PRL_LGR,PRL_PRL
     tissue_set = set()
     for elem in header[5:]:
-        if elem.startswith("H:"):
-            tis_name = elem.replace("H:","")
+        if elem.startswith("H_"):
+            tis_name = elem.replace("H_","")
             tissue_set.add(tis_name)
     tissue_cnt = len(tissue_set)
     prob_index = 5 + tissue_cnt
