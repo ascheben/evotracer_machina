@@ -26,7 +26,8 @@ then
 fi
 
 # PATHS TO SCRIPTS 
-#BIG_CP_THRESHOLD=${CUTOFF}
+THREADS=24
+BATCHES=1
 BIG_CP_THRESHOLD="${CUTOFF//[$'\t\r\n ']}"
 TRAV="${SPATH}/traverse_split.py"
 GET="${SPATH}/get_results.sh"
@@ -71,11 +72,11 @@ for l in *_tree_split.txt; do cat $l |sed "s/^/${l} tree /"| sed 's/_tree_split.
 ## RUN MACHINA ##     
 # make command file for machina
 # speed up MACHINA a bit by adding "-m 3"
-grep -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do echo "${MACHINA} -OLD -t 10 -m 3 -o ${l}_split -c ${l}_colors.txt -p ${PTISSUE} ${l}_tree_split.txt ${l}_labels_split.txt &> ${l}_split/results.txt";done >> ${PREFIX}_machina.cmd
-grep -v -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do echo "${MACHINA} -t 10 -m 3 -o ${l}_split -c ${l}_colors.txt -p ${PTISSUE} ${l}_tree_split.txt ${l}_labels_split.txt &> ${l}_split/results.txt";done >> ${PREFIX}_machina.cmd
+grep -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do echo "${MACHINA} -OLD -t ${THREADS} -m 3 -o ${l}_split -c ${l}_colors.txt -p ${PTISSUE} ${l}_tree_split.txt ${l}_labels_split.txt &> ${l}_split/results.txt";done >> ${PREFIX}_machina.cmd
+grep -v -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do echo "${MACHINA} -t ${THREADS} -m 3 -o ${l}_split -c ${l}_colors.txt -p ${PTISSUE} ${l}_tree_split.txt ${l}_labels_split.txt &> ${l}_split/results.txt";done >> ${PREFIX}_machina.cmd
 
 # run machina in parallel
-ParaFly -CPU 2 -c ${PREFIX}_machina.cmd
+ParaFly -CPU ${BATCHES} -c ${PREFIX}_machina.cmd
 
 # parse results from each machina output dir
 grep -f ${PREFIX}_big_CP_list.txt ${PREFIX}_CP_list.txt| while read l; do ${GETOLD} $l ${PTISSUE} ${SPATH};done | tr '\t' ' '>> ${PREFIX}_cp_output/${PREFIX}_all_results.txt
