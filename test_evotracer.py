@@ -8,9 +8,6 @@ import os
 def convert_to_percentage(a, b):
     return round((a/b)*100, 2)
 
-def diff_letters(a,b):
-    return len([li for li in difflib.ndiff(a, b) if li[0] != ' '])
-
 def output_mutation_dicts_list(file_path, mut_dicts):
     with open(file_path, 'w') as file:
         for mut_dict in mut_dicts:
@@ -21,10 +18,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-d", "--output-dir", default="test_output")
 parser.add_argument("-a", "--output-all-mutations", action="store_true", help="Output all simulated and evotracer ASV cut-site mutation mappings to file")
 parser.add_argument("-s", "--output-unidentified-sim-mutations", action="store_true", help="Output all simulated ASV mutations that are not identified by EvoTraceR")
-parser.add_argument("-i", "--output-identified-sim-mutations", action="store_true", help="Output all simulated ASV mutations that are identified by EvoTraceR")
-parser.add_argument("-m", "--map-incorrect-evo-mutations", action="store_true", help="EvoTraceR ASV mutations without an exact match in the simulated data are mapped to the most similar ASV mutations in the simulated data. Results are output to file.")
-parser.add_argument("-p", "--pos-error", type=int, default=10, help="Number of position shifts allowed in mutations when finding similar ASVs")
-parser.add_argument("-c", "--indel-char-error", type=int, default=1, help="Number of character mismatches allowed in mutations when finding similar ASVs")
+parser.add_argument("-i", "--output-matched-sim-mutations", action="store_true", help="Output all simulated ASV mutations that are identified by EvoTraceR")
+parser.add_argument("-m", "--map-similar-evo-sim-mutations", action="store_true", help="EvoTraceR ASV mutations without an exact match in the simulated data are mapped to the most similar ASV mutations in the simulated data. Results are output to file.")
 args = vars(parser.parse_args())
 
 output_dir_path = f'{os.getcwd()}/{args["output_dir"]}'
@@ -66,7 +61,7 @@ for simulated_asv in sim_cut_site_mutation_mappings:
     mutated_seq = ref_seq
     shift = 0
     for pos, alt_seq in simulated_asv.items():
-        pos += shift - 1
+        pos += shift
         if '-' in alt_seq:
             mutated_seq = mutated_seq[:pos] + mutated_seq[pos + len(alt_seq):]
             shift -= len(alt_seq)
@@ -98,36 +93,36 @@ if args["output_all_mutations"]:
         for asv, mutations in evo_asv_muts_dict.items():
             file.write(f'{asv}: {json.dumps(dict(sorted(mutations.items())))}\n')
 
-# find simulated set of mutations matching evotracer set of mutations, otherwise find most similar mutations
+# find simulated set of mutations exactly matching evotracer set of mutations, otherwise find most similar mutations
 total_evotracer_mutations = 0
-total_identified_mutations = 0
-identified_mutations = []
-pos_shift_err = args["pos_error"]
-seq_char_err = args["indel_char_error"]
-if args["map_incorrect_evo_mutations"]: open(f'{output_dir_path}/incorrect_evotracer_mutations_mappings.txt', "w")
+total_matching_mutations = 0
+total_similar_mutations = 0
+matching_mutations = []
+all_similar_mutations = []
+if args["map_similar_evo_sim_mutations"]: open(f'{output_dir_path}/similar_evotracer_simulated_mutations_mappings.txt', "w")
 for asv, evo_mutations in evo_asv_muts_dict.items():
     evo_mutations = dict(sorted(evo_mutations.items())) 
     total_evotracer_mutations += len(evo_mutations)
     # identify matching mutations
     if evo_mutations in sim_cut_site_mutation_mappings:
-        total_identified_mutations += len(evo_mutations)
-        identified_mutations.append(evo_mutations)
+        matching_mutations.append(evo_mutations)
+        total_matching_mutations += len(evo_mutations)
     # identify most similar set of mutations in simulated data compared to evotracer generated ASV mutations
-    elif args["map_incorrect_evo_mutations"]:
-        # filter simulated mutation set with same number of mutations as evotracer ASV
-        # similar_mutations_list = [x for x in sim_cut_site_mutation_mappings if len(x) == len(evo_mutations)]
+    else:
         similar_mutations = []
         for simulated_mutations in sim_cut_site_mutation_mappings:
             # filter simulated mutation set by positions and indel characters
             if len(simulated_mutations) == len(evo_mutations):
                 is_similar = True
                 for (simulated_pos, simulated_alt_seq), (evo_pos, evo_alt_seq) in zip(simulated_mutations.items(), evo_mutations.items()):
-                    if simulated_pos < evo_pos - pos_shift_err or simulated_pos > evo_pos + pos_shift_err or diff_letters(simulated_alt_seq, evo_alt_seq) > seq_char_err:
+                    if simulated_pos < evo_pos - len(simulated_alt_seq) or simulated_pos > evo_pos + len(simulated_alt_seq) or \
+                    (simulated_alt_seq != evo_alt_seq and evo_alt_seq != simulated_alt_seq[-1:] + simulated_alt_seq[:-1] and simulated_alt_seq != evo_alt_seq[-1:] + evo_alt_seq[:-1]):
                         is_similar = False
                 if is_similar:
                     similar_mutations.append(simulated_mutations)
-        incorrect_evo_mut_file_path = f'{output_dir_path}/incorrect_evotracer_mutations_mappings.txt'
-        with open(incorrect_evo_mut_file_path, "a") as file:
+                    all_similar_mutations.append(simulated_mutations)
+        map_evo_sim_mut_file_path = f'{output_dir_path}/similar_evotracer_simulated_mutations_mappings.txt'
+        with open(map_evo_sim_mut_file_path, "a") as file:
             file.write(f"EvoTraceR {asv}: {evo_mutations}\n")
             file.write("Most similar simulated ASVs:\n")
             for mut_dict in similar_mutations:
@@ -136,13 +131,22 @@ for asv, evo_mutations in evo_asv_muts_dict.items():
             file.write('\n')   
                     
 print("Compare simulated sequence mutations to asv_stat start and alt_seq column values:")
-print(f"Percentage of mutations found: {convert_to_percentage(total_evotracer_mutations, total_simulated_mutations) if total_evotracer_mutations <= total_simulated_mutations else 100.0}%")
-print(f"Percentage of mutations with accurate positions and indel characters: {convert_to_percentage(total_identified_mutations, total_simulated_mutations)}%")
+print(f"Percentage of mutations identified: {convert_to_percentage(total_evotracer_mutations, total_simulated_mutations) if total_evotracer_mutations <= total_simulated_mutations else 100.0}%")
+print(f"Percentage of mutations identified with exact matching positions and indel characters: {convert_to_percentage(total_matching_mutations, total_simulated_mutations)}%")
 
-unidentified_sim_mutations = [dict for dict in sim_cut_site_mutation_mappings if dict not in evo_asv_muts_dict.values()]
+identified_mutations = [dict for dict in matching_mutations]
+total_identified_mutations = total_matching_mutations
+for similar_mutation in all_similar_mutations:
+    if similar_mutation not in identified_mutations:
+        total_identified_mutations += len(similar_mutation)
+        identified_mutations.append(similar_mutation)    
+
+print(f"Percentage of mutations identified with exact or similar positions and indel characters: {convert_to_percentage(total_identified_mutations, total_simulated_mutations)}%")
+
+unidentified_sim_mutations = [dict for dict in sim_cut_site_mutation_mappings if dict not in evo_asv_muts_dict.values() and dict not in all_similar_mutations]
 
 if args["output_unidentified_sim_mutations"]:
     output_mutation_dicts_list(f'{output_dir_path}/unidentified_simulated_mutations.txt', unidentified_sim_mutations)
 
-if args["output_identified_sim_mutations"]:
-    output_mutation_dicts_list(f'{output_dir_path}/identified_simulated_mutations.txt', identified_mutations)
+if args["output_matched_sim_mutations"]:
+    output_mutation_dicts_list(f'{output_dir_path}/matched_simulated_mutations.txt', matching_mutations)
