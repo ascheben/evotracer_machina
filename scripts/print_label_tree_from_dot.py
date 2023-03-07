@@ -5,8 +5,17 @@ from ete3 import Tree
 #grep "\->" T-PRL-S-binarized.dot| cut -d' ' -f1,3|sed 's/^\t//' > T-PRL-S-binarized_parent_child.txt
 #grep label T-PRL-S-binarized.dot| tr ',' ' '| cut -d' ' -f1,4,5| sed 's/^\t//'| sed 's/color=//'| sed 's/label="//'| sed 's/"//g'| sed 's/]//'| sed 's/\\n/__/' |sed 's/^\t//'> T-PRL-S-binarized_nodes.txt
 
+# Revise this method:
+# 1) mark as safe all nodes that exist in the original tree based on exact set of children
+# 2) Remove spurious self-transitions
+#- If parent of a node is same:
+#  delete that node unless:
+#      a) its constrained by mutation-supported lineage in CP03_tree_split.txt
+#      b) its a migration node (its parent is diff color)
+
 nodes = sys.argv[1]
 edges = sys.argv[2]
+split_tree = sys.argv[3]
 coldict = {}
 nodedict = {}
 nodecoldict = {}
@@ -35,9 +44,6 @@ with open(nodes,'r') as n:
             nodecoldict[name] = col
         if nodeid not in nodedict:
             nodedict[nodeid] = name
-        # ignore redundant labels of false polytomy resolutions
-        #if name.count('^') < 2 or name.split("^")[2]=="0":
-            #print("label",col,name)
             
 pardict = {}
 chidict = {}
@@ -59,84 +65,62 @@ with open(edges,'r') as e:
         if child_name not in chidict:
             chidict[child_name] = parent_name
 
-        # ignore redundant parent-child relationships caused by false polytomy resolutions
-        #if not parent_name.count('^') > 1 and not child_name.count('^') > 1:
-        #    print("tree",parent_name,child_name)
-        #elif parent_name.count('^') > 1 and not child_name.count('^') > 1:
-        #    if not parent_name.split("^")[2]=="0":
-        #        parent_name = parent_name.split("^")[0] + "^" + parent_name.split("^")[1] + "^0"
-        #    print("tree",parent_name,child_name)
-        #elif not parent_name.count('^') > 1 and child_name.count('^') > 1:
-        #    if child_name.split("^")[2]=="0":
-        #        print("tree",parent_name,child_name)
+s_tabular_tree = []
+with open(split_tree,'r') as s:
+    for l in s:
+        l = l.strip().split(" ")
+        parent = l[0]
+        child = l[1]
+        s_tabular_tree.append((parent,child,1))
 
-
-# traverse parent node
-# simplify graph
-# if a parent A has tissue_label X, and it's parent B has label X, and it's children both have X
-# then delete the parent A and assign the children to B
-
-# Add correct node labels to tree
-#for i,node in enumerate(tree.traverse("preorder")):
-#    if node.is_leaf():
-#        ntype = "leaf"
-#    else:
-#        ntype = "internal"
-
-
-
-
-# init non-redundant parent dict
-nr_pardict = {}
 redundant_nodes = []
-nr_nodes = []
-for p,c in pardict.items():
-    if p not in chidict:
-        # is root node
-        parent_parent = None
-    else:
-        parent_label = coldict[nodecoldict[p]]
-        parent_parent = chidict[p]
-        parent_parent_label = coldict[nodecoldict[parent_parent]]
-        children_label = set()
-        for child in c:
-            children_label.add(coldict[nodecoldict[child]])
-        children_label = list(children_label)
-        if len(children_label) == 1:
-            if children_label[0] == parent_parent_label and children_label[0] == parent_label: 
-                #print("Redundant node - Parent node, parent_parent, children, parent_parent_label,children_label:", p, parent_parent, c, parent_parent_label,children_label[0])
-                # remove redundant
-                redundant_nodes.append(p)
-                if parent_parent in nr_pardict:
-                    cur_children = nr_pardict[parent_parent]
-                    # remove parent
-                    cur_children = [s for s in cur_children if s != p]
-                    # add children
-                    cur_children = cur_children + c
-                    nr_pardict[parent_parent] = cur_children
-                else:
-                    nr_pardict[parent_parent] = c
-            else:
-                #print("Non-Redundant node - Parent node, parent_parent, children, parent_parent_label,children_label:", p, parent_parent, c, parent_parent_label,children_label[0])
-                nr_pardict[p] = c
-                nr_nodes.append(p)
-
-
 tree = Tree.from_parent_child_table(tabular_tree)
+# split cassiopeia tree
+stree = Tree.from_parent_child_table(s_tabular_tree)
+conf_nodes = []
+for node in stree.iter_descendants("preorder"):
+    if not node.is_leaf():
+        descendants = []
+        # get list of descendants (tips only)
+        for d in node.iter_descendants("preorder"):
+            if d.is_leaf():
+                descendants.append(d.name)
+        conf_nodes.append(descendants)
+conf_nodes_found = []
+# skip root
+for node in tree.iter_descendants("preorder"):
+    if not node.is_leaf():
+        descendants = []
+        # get list of descendants (tips only)
+        for d in node.iter_descendants("preorder"):
+            if d.is_leaf():
+                descendants.append(d.name)
+        # is this node supported by the raw MP tree
+        node_is_supported = False
+        for c in conf_nodes:
+            if sorted(c) == sorted(descendants):
+                node_is_supported = True
+        # only allow one node per supported lineage
+        for f in conf_nodes_found:
+            if sorted(f) == sorted(descendants):
+                node_is_supported = False
+        if node_is_supported:
+            conf_nodes_found.append(descendants)
+        else:
+            # check if spurious self transition node
+            parent_node = node.up.name
+            parent_node_tissue = coldict[nodecoldict[parent_node]]
+            node_tissue = coldict[nodecoldict[node.name]]
+            if node_tissue == parent_node_tissue:
+                redundant_nodes.append(node.name)
+
 for r in redundant_nodes:
     badnode = tree.search_nodes(name=r)[0]
     badnode.delete()
 
 for node in tree.traverse("preorder"):
-    if node.is_leaf():
-        if node.name not in nr_nodes:
-            nr_nodes.append(node.name)
-
-#flatlist=[element for sublist in list(nr_pardict.values()) for element in sublist]
-#nodes = list(set(list(nr_pardict.keys()) + flatlist))
-for n in nr_nodes:
-    ncol = nodecoldict[n]
-    print("label",ncol,n)
+    ncol = nodecoldict[node.name]
+    print("label",ncol,node.name)
 
 for node in tree.traverse("preorder"):
     if not node.is_leaf():
@@ -145,14 +129,3 @@ for node in tree.traverse("preorder"):
             child_name = c.name
             print("tree",parent_name,child_name)
 
-#print(tree)
-#for p,c in nr_pardict.items():
-#    for child in c:
-#        print("tree",p,child)
-# nodes
-#277 3 ASV030_PRL\nPRL
-#276 1 ASV222_LVM\nLVM
-
-# parent child
-#274 276
-#274 275

@@ -15,5 +15,5 @@ grep "\->"  ${CP}_split/G-${PTISSUE}-${best}-binarized.dot| cut -d' ' -f1,3|sed 
 # migration
 python ${SPATH}/print_migration_tree_from_dot.py ${CP}_split/G-${PTISSUE}-${best}-binarized_labels.txt  ${CP}_split/G-${PTISSUE}-${best}-binarized_parent_child.txt | sed "s/^/${CP} migration /" | tr '\t' ' '
 
-python ${SPATH}/print_label_tree_from_dot.py ${CP}_split/T-${PTISSUE}-${best}-binarized_nodes.txt ${CP}_split/T-${PTISSUE}-${best}-binarized_parent_child.txt | sed "s/^/${CP} /"  | tr '\t' ' ' 
+python ${SPATH}/print_label_tree_from_dot.py ${CP}_split/T-${PTISSUE}-${best}-binarized_nodes.txt ${CP}_split/T-${PTISSUE}-${best}-binarized_parent_child.txt ${CP}_tree_split.txt | sed "s/^/${CP} /"  | tr '\t' ' ' 
 
