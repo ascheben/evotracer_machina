@@ -8,6 +8,10 @@ import os
 def convert_to_percentage(a, b):
     return round((a/b)*100, 2)
 
+def circularly_identical_seqs(seq1, seq2):
+    extended_seq1 = seq1 + seq1
+    return seq2 in extended_seq1
+
 def output_mutation_dicts_list(file_path, mut_dicts):
     with open(file_path, 'w') as file:
         for mut_dict in mut_dicts:
@@ -116,7 +120,8 @@ for asv, evo_mutations in evo_asv_muts_dict.items():
                 is_similar = True
                 for (simulated_pos, simulated_alt_seq), (evo_pos, evo_alt_seq) in zip(simulated_mutations.items(), evo_mutations.items()):
                     if simulated_pos < evo_pos - len(simulated_alt_seq) or simulated_pos > evo_pos + len(simulated_alt_seq) or \
-                    (simulated_alt_seq != evo_alt_seq and evo_alt_seq != simulated_alt_seq[-1:] + simulated_alt_seq[:-1] and simulated_alt_seq != evo_alt_seq[-1:] + evo_alt_seq[:-1]):
+                    len(simulated_alt_seq) != len(evo_alt_seq) or \
+                    circularly_identical_seqs(evo_alt_seq, simulated_alt_seq) == False:
                         is_similar = False
                 if is_similar:
                     similar_mutations.append(simulated_mutations)
