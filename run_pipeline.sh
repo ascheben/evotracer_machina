@@ -31,6 +31,36 @@ then
     exit
 fi
 
+if [ -z "${CUTOFF}" ]
+then
+    CUTOFF=1
+fi
+if [ -z "${ASV}" ]
+then
+    echo "Missing --infile parameter. Exiting!"
+    exit
+fi
+if [ -z "${TREE}" ]
+then
+     echo "Missing --tree parameter. Exiting!"
+    exit
+fi
+if [ -z "${SPATH}" ]
+then
+    echo "Missing --scripts parameter. Exiting!"
+    exit
+fi
+if [ -z "${PREFIX}" ]
+then
+    echo "Missing --prefix parameter. Exiting!"
+    exit
+fi
+if [ -z "${PTISSUE}" ]
+then
+    echo "Missing --primary-tissue parameter. Exiting!"
+    exit
+fi
+
 # PATHS TO SCRIPTS 
 THREADS=10
 BATCHES=2
