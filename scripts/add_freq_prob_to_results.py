@@ -8,6 +8,7 @@ with open(sys.argv[1],'r') as mat:
     header = header.split(",")
     # find number of tissues
     #CP,model,migrations,edges,TreeMetRate,H_HMR,H_LGR,H_PRL,HMR_HMR,HMR_LGR,HMR_PRL,LGR_HMR,LGR_LGR,LGR_PRL,PRL_HMR,PRL_LGR,PRL_PRL
+    # CP,model,migrations,edges,TreeMetRate,H_LVM,H_LVR,H_PRL,H_RBL,LVM:LVM,LVM:LVR,LVM:PRL,LVM:RBL,LVR:LVM,LVR:LVR,LVR:PRL,LVR:RBL,PRL:LVM,PRL:LVR,PRL:PRL,PRL:RBL,RBL:LVM,RBL:LVR,RBL:PRL,RBL:RBL
     tissue_set = set()
     for elem in header[5:]:
         if elem.startswith("H_"):
@@ -24,7 +25,7 @@ with open(sys.argv[1],'r') as mat:
         prob_mat = l[prob_index:]
         #prob_mat = l[9:]
         #tis_list = ["PRL","LGR","HMR"]
-        prob_names = header[8:]
+        prob_names = header[prob_index:]
         #prob_names = header[9:]
         for i,tis in enumerate(prob_names):
             tis1 = tis.split(":")[0]
