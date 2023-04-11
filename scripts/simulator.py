@@ -67,7 +67,8 @@ def sim_chars(tree,mut_rate):
         stochastic_missing_data_state = -1,
     )
     lt_sim.overlay_data(tree)
-    character_matrix = ground_truth_tree.character_matrix
+    character_matrix = tree.character_matrix
+    #character_matrix = ground_truth_tree.character_matrix
     return character_matrix
     
 outprefix = sys.argv[1]
@@ -140,7 +141,6 @@ ref_seq = "TCTACACGCGCGTTCAACCGAGGAAAACTACACACACGTTCAACCACGGTTTTTTACACACGCATTCAA
 # positions are 1-indexed
 ref_cut_sites = [17, 43, 69, 95, 121, 147, 173, 199, 225, 251] 
 #ref_border_sites = [1, 26, 52, 78, 104, 130, 156, 182, 208, 234]
-final_matrix
 site_names = list(final_matrix.columns)
 sample_names = list(final_matrix.index)
 site_indels = set()
