@@ -8,6 +8,7 @@ import pandas as pd
 import time
 import random
 import cassiopeia as cas
+from ete3 import Tree
 
 #from tqdm.auto import tqdm
 #import matplotlib.pyplot as plt
@@ -15,7 +16,6 @@ import cassiopeia as cas
 #import dendropy
 #from dendropy.calculate import treecompare
 #from dendropy.simulate import treesim
-#from ete3 import Tree
 
 def mutate_seq(seq,pos,mut_bases):
     '''
@@ -70,13 +70,42 @@ def sim_chars(tree,mut_rate):
     character_matrix = tree.character_matrix
     #character_matrix = ground_truth_tree.character_matrix
     return character_matrix
+
+def assign_tissue_labels(cas_tree,trans_mat):
+    tree = cas_tree
+    tissue_array = np.array(list(trans_mat.keys()))
+    tis_labels = {}
+    
+    # Set the root node label to the first tissue in the list
+    root = tree.root
+    tis_labels[root] = tissue_array[0]
+    
+    # Traverse the tree and assign tissue labels to each node
+    for node in tree.nodes:
+        # Skip the root node since it has already been labeled
+        if node == root:
+            continue
+
+        # Determine the probability of changing tissue label
+        prev_tissue = tis_labels[tree.parent(node)]
+        prob_vec = np.array([trans_mat[prev_tissue][t] for t in tissue_array])
+        
+        # Make tissue label decision of the current node and assign the label
+        tis_labels[node] = np.random.choice(tissue_array, p=prob_vec)
+    return tis_labels
+    
     
 outprefix = sys.argv[1]
 high_mut_rate = float(sys.argv[2])
 low_mut_rate = float(sys.argv[3])
 max_size = int(sys.argv[4])
 sample_num = int(sys.argv[5])
-
+#migration_matrix = {"prostate":{"prostate":0.34,"lung":0.33, "liver":0.33},
+#                    "lung":{"prostate":0.33,"lung":0.34,"liver":0.33},
+#                    "liver":{"prostate":0.33,"lung":0.33,"liver":0.34}}
+#migration_matrix_filepath = "data/migration_prob_matrix.csv"
+migration_matrix_filepath = str(sys.argv[6])
+migration_matrix = pd.read_csv(migration_matrix_filepath, sep=',', header=0, index_col=0).to_dict()
 
 
 # simulate a tree based on birth death model with num_extant leaves
@@ -95,6 +124,18 @@ ground_truth_tree = bd_sim.simulate_tree()
 #print("True tree:",ground_truth_tree.get_newick(record_branch_lengths=False))
 #s1 = ground_truth_tree.get_newick(record_branch_lengths=True)
 
+# overlay tissue labels for migration information
+tissue_labels = assign_tissue_labels(ground_truth_tree,migration_matrix)
+
+# Write tissue labels dict to output
+out_tis = outprefix + "_tissues.tsv"
+with open(out_tis,'a') as outt:
+    for k,v in tissue_labels.items():
+        outline = str(k) + "\t" + str(v) + "\n"
+        outt.write(outline)
+
+
+
 #mut_rates = [0.1,0.01]
 mut_rates = [high_mut_rate,low_mut_rate]
 for i,m in enumerate(mut_rates):
@@ -108,6 +149,7 @@ final_matrix = character_matrix
 reconstructed_tree = cas.data.CassiopeiaTree(character_matrix = final_matrix, missing_state_indicator = -1)
 greedy_solver = cas.solver.VanillaGreedySolver()
 greedy_solver.solve(reconstructed_tree)
+
 # Get the reconstructed tree newick
 #s2 = reconstructed_tree.get_newick() 
 
