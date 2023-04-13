@@ -10,6 +10,7 @@ import random
 import cassiopeia as cas
 from ete3 import Tree
 
+#import networkx as nx
 #from tqdm.auto import tqdm
 #import matplotlib.pyplot as plt
 #from cassiopeia.solver import missing_data_methods
@@ -73,6 +74,7 @@ def sim_chars(tree,mut_rate):
 
 def assign_tissue_labels(cas_tree,trans_mat):
     tree = cas_tree
+    tree_labeled = tree.copy()
     tissue_array = np.array(list(trans_mat.keys()))
     tis_labels = {}
     
@@ -91,8 +93,27 @@ def assign_tissue_labels(cas_tree,trans_mat):
         prob_vec = np.array([trans_mat[prev_tissue][t] for t in tissue_array])
         
         # Make tissue label decision of the current node and assign the label
-        tis_labels[node] = np.random.choice(tissue_array, p=prob_vec)
-    return tis_labels
+        if tree.is_leaf(node) == False:
+            tis_labels[node] = np.random.choice(tissue_array, p=prob_vec)
+        # Label leaves not by probability but by their parent
+        if tree.is_leaf(node) == True:
+            tis_labels[node] = prev_tissue
+    
+    # Make a concatenated key and value dictionary to relabel nodes in copied tree
+    node_tis_map = {}
+    for key, value in tis_labels.items():
+        new_value = key + "_" + value
+        node_tis_map[key] = new_value
+    
+    tree_labeled.relabel_nodes(node_tis_map)
+
+    # Add tissue labels to pandas df to add column labeling leaves
+    tissues_df = pd.DataFrame.from_dict(tis_labels, orient='index', columns=['tissue'])
+    tissues_df.index.names = ['node']
+    tissues_df.reset_index(drop=False, inplace=True)
+    tissues_df['leaves'] = [tree.is_leaf(x) for x in tissues_df['node'].values]
+
+    return tissues_df, tree_labeled
     
     
 outprefix = sys.argv[1]
@@ -125,14 +146,15 @@ ground_truth_tree = bd_sim.simulate_tree()
 #s1 = ground_truth_tree.get_newick(record_branch_lengths=True)
 
 # overlay tissue labels for migration information
-tissue_labels = assign_tissue_labels(ground_truth_tree,migration_matrix)
+tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree,migration_matrix)
 
-# Write tissue labels dict to output
-out_tis = outprefix + "_tissues.tsv"
-with open(out_tis,'a') as outt:
-    for k,v in tissue_labels.items():
-        outline = str(k) + "\t" + str(v) + "\n"
-        outt.write(outline)
+# Write tissue labels df to output
+tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)
+
+#Write new tree with tissue labeled nodes to newick output
+out_tree_tissues = outprefix + "_true_tissues.nwk"
+with open(out_tree_tissues,'w') as ttt:
+    ttt.write(labeled_tree.get_newick())
 
 
 
