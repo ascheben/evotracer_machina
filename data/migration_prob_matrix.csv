@@ -1,4 +1,4 @@
-,prostate,lung,liver
-prostate,0.34,0.33,0.33
-lung,0.33,0.34,0.33
-liver,0.33,0.33,0.34
+,PRL,HMR,LGR
+PRL,0.34,0.33,0.33
+HMR,0.33,0.34,0.33
+LGR,0.33,0.33,0.34
