@@ -9,8 +9,8 @@ import time
 import random
 import cassiopeia as cas
 from ete3 import Tree
-import pdb
 
+#import pdb
 #import networkx as nx
 #from tqdm.auto import tqdm
 #import matplotlib.pyplot as plt
@@ -122,11 +122,14 @@ high_mut_rate = float(sys.argv[2])
 low_mut_rate = float(sys.argv[3])
 max_size = int(sys.argv[4])
 sample_num = int(sys.argv[5])
+migration_matrix_filepath = str(sys.argv[6])
+
+#max_size = 3
 #migration_matrix = {"prostate":{"prostate":0.34,"lung":0.33, "liver":0.33},
 #                    "lung":{"prostate":0.33,"lung":0.34,"liver":0.33},
 #                    "liver":{"prostate":0.33,"lung":0.33,"liver":0.34}}
-#migration_matrix_filepath = "data/migration_prob_matrix.csv"
-migration_matrix_filepath = str(sys.argv[6])
+#migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
+
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
 
 # simulate a tree based on birth death model with num_extant leaves
@@ -138,6 +141,7 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
     fitness_distribution = lambda: np.random.normal(0, .5),
     fitness_base = 1.3,
     num_extant = sample_num,
+    #num_extant = 10,
     random_seed=17
 )
 ground_truth_tree = bd_sim.simulate_tree()
@@ -254,13 +258,24 @@ with open(out_tree_true,'w') as tt:
 with open(out_tree_infer,'w') as it:
     it.write(reconstructed_tree.get_newick())
 
-
+# Write overall fasta file
 outfasta = outprefix + ".fa"
 with open(outfasta,'a') as o:
     outstr = ">ref" + "\n" + ref_seq + "\n"
     o.write(outstr)
+
+# Write tissue specific fasta files
+tissues = tissue_labels_df['tissue'].unique()
+for tis in tissues:
+    globals()[f"outfasta_{tis}"] = outprefix + "-" + tis + ".fa"
+    with open(globals()[f"outfasta_{tis}"],'a') as o:
+        outstr = ">ref" + "\n" + ref_seq + "\n"
+        o.write(outstr)
+
+
 for index, row in final_matrix.iterrows():
     row_fasta = ref_seq
+    tissue = tissue_labels_df.loc[tissue_labels_df['node'] == index, 'tissue'].values[0]
     #print("refseq",ref_seq)
     #print(index,row)
     insertion_pos_dict = {}
@@ -290,4 +305,6 @@ for index, row in final_matrix.iterrows():
     outstr = ">" + index + "\n" + row_fasta + "\n"
     with open(outfasta,'a') as o:
         o.write(outstr)
-
+        
+    with open(globals()[f"outfasta_{tissue}"],'a') as t:
+        t.write(outstr)
