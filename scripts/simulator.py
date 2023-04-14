@@ -9,6 +9,7 @@ import time
 import random
 import cassiopeia as cas
 from ete3 import Tree
+import pdb
 
 #import networkx as nx
 #from tqdm.auto import tqdm
@@ -126,8 +127,7 @@ sample_num = int(sys.argv[5])
 #                    "liver":{"prostate":0.33,"lung":0.33,"liver":0.34}}
 #migration_matrix_filepath = "data/migration_prob_matrix.csv"
 migration_matrix_filepath = str(sys.argv[6])
-migration_matrix = pd.read_csv(migration_matrix_filepath, sep=',', header=0, index_col=0).to_dict()
-
+migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
 
 # simulate a tree based on birth death model with num_extant leaves
 bd_sim = cas.sim.BirthDeathFitnessSimulator(

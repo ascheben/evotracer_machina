@@ -5,9 +5,11 @@ import re
 
 migration_filepath = sys.argv[1]
 outprefix = sys.argv[2]
+desired_primary_tissue = sys.argv[3]
 
 #migration_filepath = "test_mig_cp_output/test_mig_migration.txt"
-#outprefix = "true"
+#outprefix = "data/true"
+#desired_primary_tissue = 'PRL'
 
 
 # Read in migration file and extract tissue names
@@ -41,9 +43,23 @@ for key in transition_dict:
             prob_dict[prior_tissue] = {new_tissue: transition_dict[key] / total_dict[prior_tissue]}
         else:
             prob_dict[prior_tissue][new_tissue] = transition_dict[key] / total_dict[prior_tissue]
+
+# Normalize probabilities for each prior tissue to sum to 1 for downstream random choice function
+for prior_tissue, transition_probabilities in prob_dict.items():
+    probabilities = list(transition_probabilities.values())
+    normalized_probabilities = np.round(probabilities, 2) / np.sum(np.round(probabilities, 2))
+    new_transition_probabilities = dict(zip(transition_probabilities.keys(), np.round(normalized_probabilities,2)))
+    prob_dict[prior_tissue] = new_transition_probabilities
     
+# Re-order the probability dictionary to have the desired primary tissue as the first key
+rest_keys = set(prob_dict.keys()) - {desired_primary_tissue}
+new_prob_dict = {desired_primary_tissue: prob_dict[desired_primary_tissue]}
+for key in rest_keys:
+    new_prob_dict[key] = prob_dict[key]
+
 # Write the transition matrix as an output csv file
-output_df = pd.DataFrame.from_dict(prob_dict, orient="index")
+output_df = pd.DataFrame.from_dict(new_prob_dict, orient="index")
+output_df = output_df[output_df.index]
 output_df.to_csv(outprefix + '_migration_prob_matrix.csv')
 
 
