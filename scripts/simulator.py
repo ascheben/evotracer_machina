@@ -122,13 +122,13 @@ high_mut_rate = float(sys.argv[2])
 low_mut_rate = float(sys.argv[3])
 max_size = int(sys.argv[4])
 sample_num = int(sys.argv[5])
-migration_matrix_filepath = str(sys.argv[6])
+#migration_matrix_filepath = str(sys.argv[6])
 
 #max_size = 3
 #migration_matrix = {"prostate":{"prostate":0.34,"lung":0.33, "liver":0.33},
 #                    "lung":{"prostate":0.33,"lung":0.34,"liver":0.33},
 #                    "liver":{"prostate":0.33,"lung":0.33,"liver":0.34}}
-#migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
+migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
 
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
 
@@ -141,7 +141,6 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
     fitness_distribution = lambda: np.random.normal(0, .5),
     fitness_base = 1.3,
     num_extant = sample_num,
-    #num_extant = 10,
     random_seed=17
 )
 ground_truth_tree = bd_sim.simulate_tree()
