@@ -12,8 +12,9 @@ while [[ "$#" -gt 0 ]]; do
         -m2|--mutrate2) MUTRATE2="$2"; shift ;;
         -i|--max-indel-size) MAX_INDEL_SIZE="$2"; shift ;;
         -s|--samples) NUM_SAMPLES="$2"; shift ;;
+        -mm|--migration) MIGRATION_MATRIX="$2"; shift ;;
 
-    *) echo "Unknown parameter passed: $1"; echo "Usage: sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int>" ; exit 1 ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>" ; exit 1 ;;
     esac
     shift
 done
@@ -39,18 +40,20 @@ fi
 MOUSE="MMUS1469"
 REF="BC10v0"
 TAG="MG_120419"
-TISSUES=("PRL" "HMR" "LGR")
+MIGRATION_MATRIX="data/true_migration_prob_matrix.csv"
+RAW_TISSUES=$(head -n 1 ${MIGRATION_MATRIX})
+IFS=', ' read -r -a TISSUES <<< "${RAW_TISSUES}"
 NTISSUES=${#TISSUES[@]}
 ALL="ALL_TISSUES"
 FA_ALL="${NAME}"
 PREFIXALL="${MOUSE}_${ALL}_${REF}_${TAG}_${NAME}"
 
-# example usage: sim_wrapper.sh sim4 0.1 0.1
+
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/simulate.yaml
 # conda activate simulate
 
-./scripts/simulator.py ${NAME} ${MUTRATE1} ${MUTRATE2} ${MAX_INDEL_SIZE} ${NUM_SAMPLES}
+./scripts/simulator.py ${NAME} ${MUTRATE1} ${MUTRATE2} ${MAX_INDEL_SIZE} ${NUM_SAMPLES} ${MIGRATION_MATRIX}
 outputdir="sim_results_${NAME}/"
 mkdir ${outputdir}
 mv ${NAME}*  ${outputdir}
@@ -61,7 +64,7 @@ mv ${NAME}*  ${outputdir}
 
 art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${outputdir}${PREFIXALL}_R >> ${NAME}.log 2>&1
 
-for (( i=0; i<${NTISSUES}; i++ )); do
+for (( i=1; i<${NTISSUES}; i++ )); do
     FA_PREFIX="${NAME}_${TISSUES[$i]}"
     PREFIX="${MOUSE}_${TISSUES[$i]}_${REF}_${TAG}_${NAME}"
     art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${outputdir}${PREFIX}_R >> ${NAME}.log 2>&1
