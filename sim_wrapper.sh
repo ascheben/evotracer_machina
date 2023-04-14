@@ -70,5 +70,17 @@ for (( i=1; i<${NTISSUES}; i++ )); do
     art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${outputdir}${PREFIX}_R >> ${NAME}.log 2>&1
 done
 
+mkdir temp_sample_fa/
+awk '/^>/ { OUT=substr($0,2) ".fa" } { print >> "temp_sample_fa/"OUT }' ${outputdir}${FA_ALL}.fa
+samples=$(ls temp_sample_fa/)
+mkdir ${outputdir}sample_specific_fastq/
+for file in ${samples}; do
+    ID="${file%.fa}"
+    PREFIXSAMPLE="${MOUSE}_${ID}_${REF}_${TAG}_${NAME}"
+    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 1000 -o "${outputdir}sample_specific_fastq/${PREFIXSAMPLE}_R" >> "${NAME}.log" 2>&1
+done
+rm -r temp_sample_fa/
+
 mv ${NAME}.log ${outputdir}
+
 
