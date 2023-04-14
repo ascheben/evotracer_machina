@@ -267,7 +267,7 @@ with open(outfasta,'a') as o:
 # Write tissue specific fasta files
 tissues = tissue_labels_df['tissue'].unique()
 for tis in tissues:
-    globals()[f"outfasta_{tis}"] = outprefix + "-" + tis + ".fa"
+    globals()[f"outfasta_{tis}"] = outprefix + "_" + tis + ".fa"
     with open(globals()[f"outfasta_{tis}"],'a') as o:
         outstr = ">ref" + "\n" + ref_seq + "\n"
         o.write(outstr)
