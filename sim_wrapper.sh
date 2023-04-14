@@ -40,7 +40,6 @@ fi
 MOUSE="MMUS1469"
 REF="BC10v0"
 TAG="MG_120419"
-MIGRATION_MATRIX="data/true_migration_prob_matrix.csv"
 RAW_TISSUES=$(head -n 1 ${MIGRATION_MATRIX})
 IFS=', ' read -r -a TISSUES <<< "${RAW_TISSUES}"
 NTISSUES=${#TISSUES[@]}
