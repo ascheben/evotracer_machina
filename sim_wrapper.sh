@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>""
+    echo "Usage: sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>"
     exit 0
 fi
 
@@ -61,12 +61,14 @@ mv ${NAME}*  ${outputdir}
 #reformat.sh in=${PREFIX1}.fa out=${PREFIX2}.fa samplerate=0.5 >> ${NAME}.log 2>&1
 #reformat.sh in=${PREFIX1}.fa out=${PREFIX3}.fa samplerate=0.1 >> ${NAME}.log 2>&1
 
-art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${outputdir}${PREFIXALL}_R >> ${NAME}.log 2>&1
+mkdir ${outputdir}all_samples_fastq/
+art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${outputdir}all_samples_fastq/${PREFIXALL}_R >> ${NAME}.log 2>&1
 
+mkdir ${outputdir}tissue_specific_fastq/
 for (( i=1; i<${NTISSUES}; i++ )); do
     FA_PREFIX="${NAME}_${TISSUES[$i]}"
     PREFIX="${MOUSE}_${TISSUES[$i]}_${REF}_${TAG}_${NAME}"
-    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${outputdir}${PREFIX}_R >> ${NAME}.log 2>&1
+    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${outputdir}tissue_specific_fastq/${PREFIX}_R >> ${NAME}.log 2>&1
 done
 
 mkdir temp_sample_fa/
@@ -76,7 +78,7 @@ mkdir ${outputdir}sample_specific_fastq/
 for file in ${samples}; do
     ID="${file%.fa}"
     PREFIXSAMPLE="${MOUSE}_${ID}_${REF}_${TAG}_${NAME}"
-    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 1000 -o "${outputdir}sample_specific_fastq/${PREFIXSAMPLE}_R" >> "${NAME}.log" 2>&1
+    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 1000 -o ${outputdir}sample_specific_fastq/${PREFIXSAMPLE}_R >> ${NAME}.log 2>&1
 done
 rm -r temp_sample_fa/
 
