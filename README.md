@@ -105,7 +105,9 @@ To compare the `asv_stat.csv` file to the ground truth, the separate indel matri
 
 ## Full simulation pipeline with EvoTraceR and Machina inference
 
-With the `simulate`, `r_env`, and `machina` conda environments already installed and validated on the independent wrappers, the entire simulation, evotracer, and machina pipeline can be run with the `sim_full_pipeline.sh` script. There are some filepaths for installed dependencies that need to be manually updated for running machina in the last section of the script. Note: this pipeline also requires the EvoTraceR-parallelize repo to be installed and initialized in R.
+With the `simulate`, `r_env`, and `machina` conda environments already installed and validated on the independent wrappers, the entire simulation -> evotracer -> machina pipeline can be run with the `sim_full_pipeline.sh` script. There are some filepaths for installed dependencies that need to be manually updated for running machina in the last section of the script. Note: this pipeline also requires the EvoTraceR-parallelize repo to be installed and initialized in R.
+
+Here is example input to run the script:
 ```
 ./sim_full_pipeline.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50 --migration data/true_migration_prob_matrix.csv
 ```
