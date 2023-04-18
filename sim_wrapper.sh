@@ -53,34 +53,44 @@ PREFIXALL="${MOUSE}_${ALL}_${REF}_${TAG}_${NAME}"
 # conda activate simulate
 
 ./scripts/simulator.py ${NAME} ${MUTRATE1} ${MUTRATE2} ${MAX_INDEL_SIZE} ${NUM_SAMPLES} ${MIGRATION_MATRIX}
+
 outputdir="sim_results_${NAME}/"
 mkdir ${outputdir}
-mv ${NAME}*  ${outputdir}
+mv ${NAME}* ${outputdir}
 
 # Previous code for downsampling, but will need to be re-written for new variable framework without PREFIX1, etc.
 #reformat.sh in=${PREFIX1}.fa out=${PREFIX2}.fa samplerate=0.5 >> ${NAME}.log 2>&1
 #reformat.sh in=${PREFIX1}.fa out=${PREFIX3}.fa samplerate=0.1 >> ${NAME}.log 2>&1
 
-mkdir ${outputdir}all_samples_fastq/
-art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${outputdir}all_samples_fastq/${PREFIXALL}_R >> ${NAME}.log 2>&1
+all_dir="${outputdir}all_samples_fastq/"
+mkdir ${all_dir}
+art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${all_dir}${PREFIXALL}_R >> ${NAME}.log 2>&1
+for file in ${all_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
-mkdir ${outputdir}tissue_specific_fastq/
+tissue_dir="${outputdir}tissue_specific_fastq/"
+mkdir ${tissue_dir}
 for (( i=1; i<${NTISSUES}; i++ )); do
     FA_PREFIX="${NAME}_${TISSUES[$i]}"
     PREFIX="${MOUSE}_${TISSUES[$i]}_${REF}_${TAG}_${NAME}"
-    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${outputdir}tissue_specific_fastq/${PREFIX}_R >> ${NAME}.log 2>&1
+    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${tissue_dir}${PREFIX}_R >> ${NAME}.log 2>&1
 done
+for file in ${tissue_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
-mkdir temp_sample_fa/
-awk '/^>/ { OUT=substr($0,2) ".fa" } { print >> "temp_sample_fa/"OUT }' ${outputdir}${FA_ALL}.fa
-samples=$(ls temp_sample_fa/)
-mkdir ${outputdir}sample_specific_fastq/
-for file in ${samples}; do
-    ID="${file%.fa}"
-    PREFIXSAMPLE="${MOUSE}_${ID}_${REF}_${TAG}_${NAME}"
-    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 1000 -o ${outputdir}sample_specific_fastq/${PREFIXSAMPLE}_R >> ${NAME}.log 2>&1
-done
-rm -r temp_sample_fa/
+
+### Un-comment below to generate fastq files for each sample from the fasta file with all samples
+
+#mkdir temp_sample_fa/
+#awk '/^>/ { OUT=substr($0,2) ".fa" } { print >> "temp_sample_fa/"OUT }' ${outputdir}${FA_ALL}.fa
+#samples=$(ls temp_sample_fa/)
+#sample_dir="${outputdir}sample_specific_fastq/"
+#mkdir ${sample_dir}
+#for file in ${samples}; do
+#    ID="${file%.fa}"
+#    PREFIXSAMPLE="${MOUSE}_${ID}_${REF}_${TAG}_${NAME}"
+#    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 1000 -o ${sample_dir}${PREFIXSAMPLE}_R >> ${NAME}.log 2>&1
+#done
+#rm -r temp_sample_fa/
+#for file in ${sample_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
 mv ${NAME}.log ${outputdir}
 
