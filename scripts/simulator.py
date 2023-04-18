@@ -78,6 +78,8 @@ def assign_tissue_labels(cas_tree,trans_mat):
     tree_labeled = tree.copy()
     tissue_array = np.array(list(trans_mat.keys()))
     tis_labels = {}
+    parent_nodes = {}
+    migration_labels = {}
     
     # Set the root node label to the first tissue in the list
     root = tree.root
@@ -99,6 +101,13 @@ def assign_tissue_labels(cas_tree,trans_mat):
         # Label leaves not by probability but by their parent
         if tree.is_leaf(node) == True:
             tis_labels[node] = prev_tissue
+        
+        parent_nodes[node] = tree.parent(node)
+        
+        if tis_labels[node] == prev_tissue:
+            migration_labels[node] = False
+        if tis_labels[node] != prev_tissue:
+            migration_labels[node] = True
     
     # Make a concatenated key and value dictionary to relabel nodes in copied tree
     node_tis_map = {}
@@ -113,6 +122,8 @@ def assign_tissue_labels(cas_tree,trans_mat):
     tissues_df.index.names = ['node']
     tissues_df.reset_index(drop=False, inplace=True)
     tissues_df['leaves'] = [tree.is_leaf(x) for x in tissues_df['node'].values]
+    tissues_df['parent_node'] = tissues_df['node'].map(parent_nodes)
+    tissues_df['migration_event'] = tissues_df['node'].map(migration_labels)
 
     return tissues_df, tree_labeled
     
