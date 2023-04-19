@@ -14,15 +14,18 @@ echo "Starting simulator..."
 conda activate simulate
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: sim_full_pipeline.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>"
+    ### Can uncomment below if the simulator.py is made to use two mutation rates
+    #echo "Usage: sim_full_pipeline.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>"
+    echo "Usage: sim_full_pipeline.sh --out <out_name> --mutrate <float> --max-indel-size <int> --samples <int> --migration <file_path>"
     exit 0
 fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -o|--out) NAME="$2"; shift ;;
-        -m1|--mutrate1) MUTRATE1="$2"; shift ;;
-        -m2|--mutrate2) MUTRATE2="$2"; shift ;;
+        #-m1|--mutrate1) MUTRATE1="$2"; shift ;;    ### Can uncomment if the simulator.py is made to use two mutation rates
+        #-m2|--mutrate2) MUTRATE2="$2"; shift ;;    ### Can uncomment if the simulator.py is made to use two mutation rates
+        -m|--mutrate) MUTRATE2="$2"; shift ;;
         -i|--max-indel-size) MAX_INDEL_SIZE="$2"; shift ;;
         -s|--samples) NUM_SAMPLES="$2"; shift ;;
         -mm|--migration) MIGRATION_MATRIX="$2"; shift ;;
@@ -37,6 +40,8 @@ then
     echo "Script ./sim_wrapper.sh not found. Exiting!"
     exit
 fi
+
+MUTRATE1=0.1 # this input is arbitrary since simulator.py does not use it. I have hardcoded a value to simplify sim_full_pipeline.sh inputs.
 
 ./sim_wrapper.sh --out ${NAME} --mutrate1 ${MUTRATE1} --mutrate2 ${MUTRATE2} --max-indel-size ${MAX_INDEL_SIZE} --samples ${NUM_SAMPLES} --migration ${MIGRATION_MATRIX}
 

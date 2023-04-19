@@ -109,5 +109,5 @@ With the `simulate`, `r_env`, and `machina` conda environments already installed
 
 Here is example input to run the script:
 ```
-./sim_full_pipeline.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50 --migration data/true_migration_prob_matrix.csv
+./sim_full_pipeline.sh --out simmid --mutrate 0.05 --max-indel-size 5 --samples 50 --migration data/true_migration_prob_matrix.csv
 ```
