@@ -8,6 +8,7 @@ source ~/miniconda3/etc/profile.d/conda.sh
 ### Run the simulator with the given command line parameters ###
 ################################################################
 
+echo "Starting simulator..."
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/simulate.yaml
 conda activate simulate
@@ -43,7 +44,7 @@ outputdir="sim_results_${NAME}/"
 sim_dir="${outputdir}out_simulator_${NAME}/"
 mkdir ${sim_dir}
 mv ${outputdir}* ${sim_dir}
-echo "This is okay"
+echo "This message is okay"
 
 conda deactivate
 
@@ -54,6 +55,7 @@ conda deactivate
 ### Run Evotracer on the simulator output ###
 #############################################
 
+echo "Starting EvoTraceR analysis..."
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/r_env.yaml
 # then need to install R package in R from the library(devtools) for the EvoTraceR-parallelize repo and potentially fix "umi_tools" and "cassiopeia" issues if encountered
@@ -85,6 +87,7 @@ conda deactivate
 ### Run Machina on the EvoTracer output ###
 #############################################
 
+echo "Starting Machina analysis..."
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/machina.yaml
 conda activate machina
@@ -110,5 +113,19 @@ mv ${PREFIX}_cp_output/* ${outputdir}${PREFIX}/
 rm -r ${PREFIX}_cp_output/
 
 conda deactivate
+
+
+### Retain only migration related files and delete the rest
+# Prune files for simulator output
+mv ${sim_dir} ${NAME}_true_tissues.nwk ../
+mv ${sim_dir} ${NAME}_tissues.tsv ../
+rm -r ${sim_dir}
+
+# Prune all EvoTraceR output files
+rm -r ${evo_output_dir}
+
+# Prune Machina intermediate output files
+mv ${outputdir}${PREFIX}/${PREFIX}* ..
+rm -r ${outputdir}${PREFIX}
 
 
