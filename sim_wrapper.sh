@@ -64,7 +64,7 @@ mv ${NAME}* ${outputdir}
 
 all_dir="${outputdir}all_samples_fastq/"
 mkdir ${all_dir}
-art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 2000 -o ${all_dir}${PREFIXALL}_R >> ${NAME}.log 2>&1
+art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${all_dir}${PREFIXALL}_R >> ${NAME}.log 2>&1
 for file in ${all_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
 tissue_dir="${outputdir}tissue_specific_fastq/"
@@ -72,7 +72,7 @@ mkdir ${tissue_dir}
 for (( i=1; i<${NTISSUES}; i++ )); do
     FA_PREFIX="${NAME}_${TISSUES[$i]}"
     PREFIX="${MOUSE}_${TISSUES[$i]}_${REF}_${TAG}"
-    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 2000 -o ${tissue_dir}${PREFIX}_R >> ${NAME}.log 2>&1
+    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${tissue_dir}${PREFIX}_R >> ${NAME}.log 2>&1
 done
 for file in ${tissue_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
@@ -87,7 +87,7 @@ for file in ${tissue_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 #for file in ${samples}; do
 #    ID="${file%.fa}"
 #    PREFIXSAMPLE="${MOUSE}_${ID}_${REF}_${TAG}"
-#    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 2000 -o ${sample_dir}${PREFIXSAMPLE}_R >> ${NAME}.log 2>&1
+#    art_illumina -ss HS25 -amp -p -na -i "temp_sample_fa/${file}" -l 150 -f 1000 -o ${sample_dir}${PREFIXSAMPLE}_R >> ${NAME}.log 2>&1
 #done
 #rm -r temp_sample_fa/
 #for file in ${sample_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
