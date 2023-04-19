@@ -22,9 +22,9 @@ Note that the proprietary Gurobi solver needs a [license](https://www.gurobi.com
 
 Now we can run the pipeline with MACHINA.
 
-`./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/ --prefix myprefix --primary-tissue prostate --cutoff 50`
+`./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/ --prefix myprefix --primary-tissue prostate`
 
-Only a single tissue can be designated as the primary tumor source tissue. The cutoff value determines how many labels (unique sequence variant and tissue combinations) a clonal populations has to have to be analysed using the faster "OLD" machina algorithm. The cutoff parameter is optional and the script will run faster without it.
+Only a single tissue can be designated as the primary tumor source tissue. The cutoff value determines how many labels (unique sequence variant and tissue combinations) a clonal populations has to have to be analysed using the faster "OLD" machina algorithm. If no cutoff value is supplied, all populations will be analysed with the "OLD" algorithm.
 
 ## Outputs
 The key outputs are the files shown below.
@@ -54,7 +54,7 @@ Now we can create a series of commands to run the MACHINA pipeline on each of th
 To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence, we simulated ground truth amplicon sequences. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. A wrapper script is available to generate output suitable for EvoTracer.
 
 ```
-sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <matrix_filepath>
+sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int>
 ```
 
 The required software to run the wrapper can be installed with conda:
@@ -70,8 +70,8 @@ Although Cassiopeia should be installed via pip within the conda environment, in
 The provided sample simulated data were generated as shown below. Note that these commands lead to non-determistic mutation profiles.
 
 ```
-./sim_wrapper.sh --out simsmall --mutrate1 0.1 --mutrate2 0.01 --max-indel-size 3 --samples 20 --migration data/true_migration_prob_matrix.csv
-./sim_wrapper.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50 --migration data/true_migration_prob_matrix.csv
+./sim_wrapper.sh --out simsmall --mutrate1 0.1 --mutrate2 0.01 --max-indel-size 3 --samples 20
+./sim_wrapper.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50
 ```
 
 The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is the only output required for evaluation. The evaluation for EvoTraceR are:
@@ -102,12 +102,3 @@ Options:
 ```
 
 To compare the `asv_stat.csv` file to the ground truth, the separate indel matrix, mutations, cut positions files are used. Tissue1 data always contains all mutations, whereas other tissues contain random subsets of the full FASTQ file for tissue1. Note that gap character for deletions are stripped from the `.fa` files before being output by `simulator.py`. To get `.fa` files with gaps, this final step can be easily modified to additionally produce files with the gaps. Alternatively the [muscle aligner](https://anaconda.org/bioconda/muscle) can be used to align sequences in the `.fa` files and introduce gaps.
-
-## Full simulation pipeline with EvoTraceR and Machina inference
-
-With the `simulate`, `r_env`, and `machina` conda environments already installed and validated on the independent wrappers, the entire simulation -> evotracer -> machina pipeline can be run with the `sim_full_pipeline.sh` script. There are some filepaths for installed dependencies that need to be manually updated for running machina in the last section of the script. Note: this pipeline also requires the EvoTraceR-parallelize repo to be installed and initialized in R.
-
-Here is example input to run the script:
-```
-./sim_full_pipeline.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50 --migration data/true_migration_prob_matrix.csv
-```
