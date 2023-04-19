@@ -35,7 +35,9 @@ def log_pvalue(k, fk,N,fN):
     N = all leaves
     fn = all target leaves
     '''
-    if fN < N and fk < k and fN > 0 and fN > fk and N > k:
+    if max(k, fk,N,fN) > 100000:
+        return "NA"
+    elif fN < N and fk < k and fN > 0 and fN > fk and N > k:
         px  = math.log(math.factorial(N-fN-1)) - math.log(math.factorial(k-fk-1)) - math.log(math.factorial(N-k+fk-fN))
         px += math.log(math.factorial(fN-1)) - math.log(math.factorial(fk-1)) - math.log(math.factorial(fN-fk))
         px -= math.log(math.factorial(N-1)) - math.log(math.factorial(k-1)) - math.log(math.factorial(N-k))
