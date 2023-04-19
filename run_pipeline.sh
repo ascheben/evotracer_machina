@@ -95,12 +95,12 @@ mkdir ${PREFIX}_cp_output
 cd ${PREFIX}_cp_output
 # Extract key ASV columns
 #asv_names,sample,group
-cut -d',' -f1,2,30 ${ASV} > ${PREFIX}_asv_sample_group.csv
+cut -d',' -f1,2,30 ${ASV} | sed '/^$/d' > ${PREFIX}_asv_sample_group.csv
 # exclude miscelleneaous group CP00
-cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| egrep -v "^CP0$|^CP00$|^CP000$" > ${PREFIX}_CP_list.txt
+cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| egrep -v "^CP0$|^CP00$|^CP000$"| sed '/^$/d' > ${PREFIX}_CP_list.txt
 # prepare machina input files for each CP
 touch ${PREFIX}_big_CP_list.txt
-while read l; do 
+while read l; do
     ${TRAV} ${TREE} ${PREFIX}_asv_sample_group.csv ${l} ${PTISSUE}
     num_labels=`sed -n '$=' ${l}_labels_split.txt`
     if [[ $num_labels -gt $BIG_CP_THRESHOLD ]]; then
