@@ -137,7 +137,7 @@ mv ${outputdir}${PREFIX}/${PREFIX}* ${outputdir}
 ##################################################
 ### Compare total true and inferred migrations ###
 ##################################################
-
+echo "Starting simulated ground truth and Machina comparison..."
 # Extract the specified column and count the number of True values for the true migrations total
 true_count=$(awk -F'\t' '{print $5}' ${outputdir}${NAME}_tissues.tsv | grep -c True)
 echo "Total true migrations in the ${NAME} simulation: $true_count"
@@ -147,7 +147,15 @@ inferred_count=$(awk -F',' 'NR>1{sum+=$3} END{print sum}' ${outputdir}${PREFIX}_
 echo "Total inferred migrations in the ${NAME} simulation: $inferred_count"
 
 # Write both true and inferred to an output csv with the input parameters stored
-echo "name,mutrate,max_indel_size,num_samples,migration_matrix,true_migrations,inferred_migrations" >> ${outputdir}inferred_true_migration_comparison_${NAME}.csv
-echo "${NAME},${MUTRATE2},${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${true_count},${inferred_count}" >> ${outputdir}inferred_true_migration_comparison_${NAME}.csv
+echo "name,mutrate,max_indel_size,num_samples,migration_matrix,true_migrations,inferred_migrations" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "${NAME},${MUTRATE2},${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${true_count},${inferred_count}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 
+conda activate simulate
+
+python ./scripts/compare_migrations_simtrue_machina.py "${outputdir}${NAME}_tissues.tsv" "${outputdir}${PREFIX}_migration.txt" "${NAME}" "${outputdir}"
+
+conda deactivate
+
+#rm ${outputdir}${NAME}*
+#rm ${outputdir}${PREFIX}*
 
