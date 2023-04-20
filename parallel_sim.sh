@@ -1,7 +1,6 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-
 parallel_sim_name="explore_parameters"
 # Set the migration matrix values that will be tested
 rare_mm="data/rare_migration_prob_matrix.csv"
@@ -19,6 +18,7 @@ ss_array=(100 1000 10000 50000 100000)
 # Create an array to store all the commands
 commands=()
 
+echo "Setting up all parameter combinations..."
 # Loop over all combinations of the three arrays and add the command to the commands array
 for mm in ${mm_array[@]}
 do
@@ -41,6 +41,8 @@ echo "There are ${#commands[@]} commands to be submitted."
 batch_size=20
 num_batches=$(( (${#commands[@]} + batch_size - 1) / batch_size ))
 
+echo "Beginning submission of all combinations in parallel batches of ${batch_size}..."
+conda activate machina
 for ((i=0; i<$num_batches; i++))
 do
   # Calculate the range of commands to submit in this batch
@@ -51,7 +53,7 @@ do
   batch_commands=("${commands[@]:$start_index:$batch_size}")
 
   # Construct the ParaFly command to submit this batch of commands with 20 CPUs
-  cmd="ParaFly -c '${batch_commands[*]}' -CPU 20"
+  cmd="ParaFly -CPU ${batch_size} -c '${batch_commands[*]}'"
 
   # Print the ParaFly command to the console
   echo "Submitting batch $((i+1)) of $num_batches: $cmd"
@@ -59,6 +61,8 @@ do
   # Submit the batch with ParaFly
   eval $cmd
 done
+
+echo "Commands are done, now appending results to one file..."
 
 # Create the main output file with the header
 echo "name,mutrate,max_indel_size,num_samples,migration_matrix,true_migrations,inferred_migrations,proportion" > ${parallel_sim_name}_all_output.csv
