@@ -63,8 +63,8 @@ then
 fi
 
 # PATHS TO SCRIPTS 
-THREADS=10
-BATCHES=2
+THREADS=1
+BATCHES=1
 BIG_CP_THRESHOLD="${CUTOFF//[$'\t\r\n ']}"
 
 SPATH=`absolute_path "${SPATH}"` 
