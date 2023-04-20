@@ -136,9 +136,9 @@ sample_num = int(sys.argv[5])
 migration_matrix_filepath = str(sys.argv[6])
 
 #max_size = 3
-#migration_matrix = {"prostate":{"prostate":0.34,"lung":0.33, "liver":0.33},
-#                    "lung":{"prostate":0.33,"lung":0.34,"liver":0.33},
-#                    "liver":{"prostate":0.33,"lung":0.33,"liver":0.34}}
+#migration_matrix = {"PRL":{"PRL":0.98,"HMR":0.01, "LGR":0.01},
+#                    "HMR":{"PRL":0.01,"HMR":0.98,"LGR":0.01},
+#                    "LGR":{"PRL":0.01,"HMR":0.01,"LGR":0.98}}
 #migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
 
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
