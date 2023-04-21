@@ -40,9 +40,6 @@ fi
 MOUSE="MMUS1469"
 REF="BC10v0"
 TAG="MG_120419"
-RAW_TISSUES=$(head -n 1 ${MIGRATION_MATRIX})
-IFS=', ' read -r -a TISSUES <<< "${RAW_TISSUES}"
-NTISSUES=${#TISSUES[@]}
 ALL="ALL_TISSUES"
 FA_ALL="${NAME}"
 PREFIXALL="${MOUSE}_${ALL}_${REF}_${TAG}"
@@ -58,18 +55,18 @@ outputdir="sim_results_${NAME}/"
 mkdir ${outputdir}
 mv ${NAME}* ${outputdir}
 
-# Previous code for downsampling, but will need to be re-written for new variable framework without PREFIX1, etc.
-#reformat.sh in=${PREFIX1}.fa out=${PREFIX2}.fa samplerate=0.5 >> ${NAME}.log 2>&1
-#reformat.sh in=${PREFIX1}.fa out=${PREFIX3}.fa samplerate=0.1 >> ${NAME}.log 2>&1
-
 all_dir="${outputdir}all_samples_fastq/"
 mkdir ${all_dir}
 art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 1000 -o ${all_dir}${PREFIXALL}_R >> ${NAME}.log 2>&1
 for file in ${all_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
+tissues_column=$(cut -f 2 "${outputdir}${NAME}_tissues.tsv" | tail -n +2)
+IFS=$'\n' read -d '' -ra TISSUES <<< "$(echo "$tissues_column" | sort | uniq)"
+NTISSUES=${#TISSUES[@]}
+
 tissue_dir="${outputdir}tissue_specific_fastq/"
 mkdir ${tissue_dir}
-for (( i=1; i<${NTISSUES}; i++ )); do
+for (( i=0; i<${NTISSUES}; i++ )); do
     FA_PREFIX="${NAME}_${TISSUES[$i]}"
     PREFIX="${MOUSE}_${TISSUES[$i]}_${REF}_${TAG}"
     art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 1000 -o ${tissue_dir}${PREFIX}_R >> ${NAME}.log 2>&1
