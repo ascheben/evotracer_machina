@@ -54,7 +54,7 @@ Now we can create a series of commands to run the MACHINA pipeline on each of th
 To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence, we simulated ground truth amplicon sequences. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. A wrapper script is available to generate output suitable for EvoTracer.
 
 ```
-sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int>
+sim_wrapper.sh --out <out_name> --mutrate <float|comma-sep list of floats> --samples <int>
 ```
 
 The required software to run the wrapper can be installed with conda:
@@ -67,11 +67,11 @@ conda activate simulate
 Although Cassiopeia should be installed via pip within the conda environment, in my case I needed to install Cassiopeia separately using pip as described in the [docs](https://cassiopeia-lineage.readthedocs.io/en/latest/installation.html).
 
 
-The provided sample simulated data were generated as shown below. Note that these commands lead to non-determistic mutation profiles.
+The provided sample simulated data were generated as shown below. Note that these commands lead to non-determistic mutation profiles. The number of cut sites is fixed at 10. The mutation rate for each of these sites can be set independently by passing a comma-separated list of floats to the `mutrate` flag.
 
 ```
-./sim_wrapper.sh --out simsmall --mutrate1 0.1 --mutrate2 0.01 --max-indel-size 3 --samples 20
-./sim_wrapper.sh --out simmid --mutrate1 0.1 --mutrate2 0.05 --max-indel-size 5 --samples 50
+./sim_wrapper.sh --out simsmall --mutrate 0.1 -samples 20
+./sim_wrapper.sh --out simmid --mutrate 0.1,0.1,0.1,0.1,0.1,0,0,0,0,0 --samples 50
 ```
 
 The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is the only output required for evaluation. The evaluation for EvoTraceR are:
