@@ -1,23 +1,23 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="test_explore_parameters"
+parallel_sim_name="largerCombinationRepeat_explore_parameters"
 # Set the migration matrix values that will be tested
 rare_mm="data/rare_migration_prob_matrix.csv"
 equal_mm="data/equal_migration_prob_matrix.csv"
 true_mm="data/true_migration_prob_matrix.csv"
 
 # Set the mutation matrix filepaths
-#mm_array=(${equal_mm} ${true_mm} ${rare_mm})
-mm_array=(${true_mm})
+mm_array=(${equal_mm} ${true_mm} ${rare_mm})
+#mm_array=(${true_mm})
 
 # Set the mutation rates to explore
-#mr_array=(0.01 0.015 0.02 0.025 0.03 0.035 0.04 0.045 0.05 0.055 0.06 0.065 0.07 0.075 0.08 0.085 0.09 .095 0.1 0.125 0.150 0.175 0.2)
-mr_array=(0.05)
+mr_array=(0.01 0.015 0.02 0.025 0.03 0.035 0.04 0.045 0.05 0.055 0.06 0.065 0.07 0.075 0.08 0.085 0.09 .095 0.1 0.125 0.150 0.175 0.2)
+#mr_array=(0.05)
 
 # Set the max indel sizes to explore
-#mi_array=(3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
-mi_array=(5)
+mi_array=(3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
+#mi_array=(5)
 
 # Set the sample sizes to explore
 #ss_array=(100 250 500 750 1000 1500 2000 2500 5000 10000 50000 10000)
@@ -82,10 +82,10 @@ echo "There are ${#commands[@]} commands to be submitted."
 # Create the main output file with the header
 echo "name,mutrate,max_indel_size,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
 
-for ((rep=0; rep<1; rep++))
+for ((rep=0; rep<5; rep++))
 do
   # Submit the commands in batches of 20 using ParaFly
-  batch_size=1
+  batch_size=20
   batches=$((${#commands[@]} / batch_size))
   num_batches=$(echo "scale=0; ($batches+0.5)/1" | bc)
 

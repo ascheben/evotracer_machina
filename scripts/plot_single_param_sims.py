@@ -1,6 +1,7 @@
 import sys
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 ### This script takes in simulation output where all variables were 
 ### consant except for one variable in which a range was tested
@@ -10,15 +11,25 @@ import matplotlib.pyplot as plt
   
 def plot_csv(csv_file, x_column, outdir):
     data = pd.read_csv(csv_file)
+
+    ### Can further stratify the data based on other parameters as constants if needed.
+    #data = data[data['mutrate']==0.05]
+    #data = data[data['max_indel_size']==5]
+    #data = data[data['num_samples']==100]
+    #data = data[data['migration_matrix']=='data/true_migration_prob_matrix.csv']
+
     data = data.sort_values(x_column)
     x = data[x_column]
     y = data['proportion']
-    plt.plot(x, y, marker='o')
+    ci = 95  # set the confidence interval
+    #hue_col = 'replicate'  # column to use for color grouping
+    plt.figure(figsize=(8, 6))
+    sns.lineplot(x=x_column, y='proportion', data=data,
+                 ci=ci, err_style='band', marker='o')
     plt.xlabel(x_column)
-    #plt.xticks(rotation=20,fontsize=10)
     plt.ylim(0, 1)
     plt.ylabel('Proportion of true migrations inferred')
-    plt.title('Proportion vs ' + x_column)
+    plt.title('')
     plt.tight_layout()
     plt.savefig(f'{outdir}proportion_vs_{x_column}.png')
     plt.show()

@@ -25,23 +25,23 @@ def plot_contour(data_filepath, var1, var2, result_var, output_dir):
     Z = scipy.interpolate.griddata((x, y), z, (X, Y), method='linear')
 
     # Define color scale and colorbar legend
-    levels = np.linspace(min(z), max(z), 10)
-    #levels = np.linspace(0, 1) ### use this line to set 0 and 1 limits to normalize the proportion values
-    cmap = plt.get_cmap('coolwarm')
+    #levels = np.linspace(min(z), max(z), 10)
+    levels = np.linspace(0, 1, 11) ### use this line to set 0 and 1 limits to normalize the proportion values
+    cmap = plt.get_cmap('viridis')
     norm = plt.Normalize(vmin=min(levels), vmax=max(levels))
     fig, ax = plt.subplots()
     CS = ax.contourf(X, Y, Z, levels=levels, cmap=cmap, norm=norm)
     cbar = fig.colorbar(CS)
     cbar.ax.set_ylabel(f'{result_var}')
     
-    CS_lines = ax.contour(X, Y, Z, colors='k', levels=levels)
+    CS_lines = ax.contour(X, Y, Z, colors='k', levels=levels, linewidths=0.5)
     #ax.clabel(CS_lines, inline=1, fontsize=10)
     ax.set_title('Equal migration matrix')   ### Fix for categorical parameter name
     ax.set_xlabel(f'{var1}')
     ax.set_ylabel(f'{var2}')
     plt.tight_layout()
     plt.show()
-    plt.savefig(f'{output_dir}/contour_equalMM2_{var1}_{var2}_{result_var}.png')     ### Can specify the name further for categorical stratification
+    plt.savefig(f'{output_dir}/contour_equalMM_{var1}_{var2}_{result_var}.png')     ### Can specify the name further for categorical stratification
 
 
 ### Takes in filepath to data csv, x variable, y variable, the z measured variable, and the desired output directory for saving results.
