@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="bestParamReplicates_explore_parameters"
+parallel_sim_name="test_explore_parameters"
 # Set the migration matrix values that will be tested
 rare_mm="data/rare_migration_prob_matrix.csv"
 equal_mm="data/equal_migration_prob_matrix.csv"
@@ -17,10 +17,10 @@ mr_array=(0.05)
 
 # Set the max indel sizes to explore
 #mi_array=(3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20)
-mi_array=(10)
+mi_array=(5)
 
 # Set the sample sizes to explore
-#ss_array=(100 200 300 400 500)
+#ss_array=(100 250 500 750 1000 1500 2000 2500 5000 10000 50000 10000)
 ss_array=(100)
 
 # Setup headers for recording the input parameters in a csv
@@ -80,41 +80,44 @@ done
 echo "There are ${#commands[@]} commands to be submitted."
 
 # Create the main output file with the header
-echo "name,mutrate,max_indel_size,num_samples,migration_matrix,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
+echo "name,mutrate,max_indel_size,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
 
-# Submit the commands in batches of 20 using ParaFly
-batch_size=1
-batches=$((${#commands[@]} / batch_size))
-num_batches=$(echo "scale=0; ($batches+0.5)/1" | bc)
-
-echo "Beginning submission of all combinations in parallel batches of ${batch_size}..."
-conda activate machina
-for ((i=0; i<$num_batches; i++))
+for ((rep=0; rep<1; rep++))
 do
-  echo "Submitting batch $((i+1))/$((num_batches+1)):"
-  # Calculate the range of commands to submit in this batch
-  start_index=$((i * batch_size))
+  # Submit the commands in batches of 20 using ParaFly
+  batch_size=1
+  batches=$((${#commands[@]} / batch_size))
+  num_batches=$(echo "scale=0; ($batches+0.5)/1" | bc)
 
-  # Slice the commands array to get the commands for this batch
-  batch_commands=("${commands[@]:${start_index}:${batch_size}}")
-  for command in "${batch_commands[@]}"
+  echo "Beginning submission of all combinations in parallel batches of ${batch_size}..."
+  conda activate machina
+  for ((i=0; i<$num_batches; i++))
   do
-    echo "${command}" >> "${i}.cmd"
-    echo "${command}"
+    echo "Submitting batch $((i+1))/$((num_batches+1)):"
+    # Calculate the range of commands to submit in this batch
+    start_index=$((i * batch_size))
+
+    # Slice the commands array to get the commands for this batch
+    batch_commands=("${commands[@]:${start_index}:${batch_size}}")
+    for command in "${batch_commands[@]}"
+    do
+      echo "${command}" >> "${i}.cmd"
+      echo "${command}"
+    done
+    # Print the ParaFly command to the console
+    ParaFly -CPU ${batch_size} -c ${i}.cmd
+    rm ${i}.cmd
+    rm ${i}.cmd.completed
+    # Append the second line of each csv file to the main file
+    for f in sim_results*/comparison*; do tail -n +2 $f >> output_all_${parallel_sim_name}.csv; done
+    # Remove all the individual csv files
+    rm -r sim_results*
   done
-  # Print the ParaFly command to the console
-  ParaFly -CPU ${batch_size} -c ${i}.cmd
-  rm ${i}.cmd
-  rm ${i}.cmd.completed
-  # Append the second line of each csv file to the main file
-  for f in sim_results*/comparison*; do tail -n +2 $f >> output_all_${parallel_sim_name}.csv; done
-  # Remove all the individual csv files
-  rm -r sim_results*
+
+  echo "All batches are done."
+
+  conda deactivate
 done
-
-echo "All batches are done."
-
-conda deactivate
 
 par_results="${parallel_sim_name}_parallel_sim_results"
 mkdir ${par_results}

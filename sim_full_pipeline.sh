@@ -124,6 +124,7 @@ conda deactivate
 # Prune files for simulator output
 mv ${sim_dir}${NAME}_true_tissues.nwk ${outputdir}
 mv ${sim_dir}${NAME}_tissues.tsv ${outputdir}
+mv ${sim_dir}${NAME}_mutations.tsv ${outputdir}
 rm -r ${sim_dir}
 
 # Prune all EvoTraceR output files
@@ -147,9 +148,11 @@ inferred_count=$(awk -F',' 'NR>1{sum+=$3} END{print sum}' ${outputdir}${PREFIX}_
 #echo "Total inferred migrations in the ${NAME} simulation: $inferred_count"
 proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
 
+num_mutations=$(wc -l ${outputdir}${NAME}_mutations.tsv | awk '{print $1}')
+
 # Write both true and inferred to an output csv with the input parameters stored
-echo "name,mutrate,max_indel_size,num_samples,migration_matrix,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
-echo "${NAME},${MUTRATE2},${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "name,mutrate,max_indel_size,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "${NAME},${MUTRATE2},${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 
 conda activate simulate
 
