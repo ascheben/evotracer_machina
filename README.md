@@ -50,7 +50,7 @@ rename tree_0 tree_ tree_*
 Now we can create a series of commands to run the MACHINA pipeline on each of the bootstrap trees.
 `seq 0 99| while read l; do echo "./run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_${l} --scripts ./scripts/ --prefix ${l}" > run.cmd;done`
 
-# Simulating test data for EvoTraceR
+## Simulating test data for EvoTraceR
 To evaluate the ability of EvoTraceR to detect mutations in the barcode sequence, we simulated ground truth amplicon sequences. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. A wrapper script is available to generate output suitable for EvoTracer.
 
 ```
@@ -81,6 +81,11 @@ The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is 
 * What percentage of mutations had accurate positions and indel characters?
 
 The script used for evaluation is 'test_evotracer.py'. Set input parameters in 'test_config.py' such as the file paths for the indel character matrix, the cut positions, the mutations, and the asv_stat.csv file output from EvoTraceR. 
+
+## Limitations of the simulator
+
+* Indel lengths are drawn from an exponential distribution, but then filtered by length to prevent overlap, which is not the best way to model them
+* A better way to deal with indel lengths would be to draw them all from the exponential distribution and then overlay them simulateneously, allowing for overlaps. Then overlaps should be resolved so that old deletions take precedence. This better models how large deletions cause dropout of neighboring cut sites.
 
 ## Test EvoTraceR Usage
 ```
