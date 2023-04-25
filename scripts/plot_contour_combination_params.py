@@ -9,7 +9,7 @@ import scipy.interpolate
 def plot_contour(data_filepath, var1, var2, result_var, output_dir):
     # Load data from CSV file
     raw_data = pd.read_csv(f'{data_filepath}')
-    data = raw_data[raw_data['migration_matrix']=='data/rare_migration_prob_matrix.csv']    ### change this if stratifying on another categorical parameter
+    data = raw_data[raw_data['migration_matrix']=='data/equal_migration_prob_matrix.csv']    ### change this if stratifying on another categorical parameter
 
     # Extract variables from dataframe
     x = data[f'{var1}'].values
@@ -25,9 +25,10 @@ def plot_contour(data_filepath, var1, var2, result_var, output_dir):
     Z = scipy.interpolate.griddata((x, y), z, (X, Y), method='linear')
 
     # Define color scale and colorbar legend
-    levels = np.linspace(0, 1, 11)
+    levels = np.linspace(min(z), max(z), 10)
+    #levels = np.linspace(0, 1) ### use this line to set 0 and 1 limits to normalize the proportion values
     cmap = plt.get_cmap('coolwarm')
-    norm = plt.Normalize(vmin=0, vmax=1)
+    norm = plt.Normalize(vmin=min(levels), vmax=max(levels))
     fig, ax = plt.subplots()
     CS = ax.contourf(X, Y, Z, levels=levels, cmap=cmap, norm=norm)
     cbar = fig.colorbar(CS)
@@ -35,12 +36,12 @@ def plot_contour(data_filepath, var1, var2, result_var, output_dir):
     
     CS_lines = ax.contour(X, Y, Z, colors='k', levels=levels)
     #ax.clabel(CS_lines, inline=1, fontsize=10)
-    ax.set_title('Rare migration matrix')   ### Fix for categorical parameter name
+    ax.set_title('Equal migration matrix')   ### Fix for categorical parameter name
     ax.set_xlabel(f'{var1}')
     ax.set_ylabel(f'{var2}')
     plt.tight_layout()
     plt.show()
-    plt.savefig(f'{output_dir}/contour_{var1}_{var2}_{result_var}.png')     ### Can specify the name further for categorical stratification
+    plt.savefig(f'{output_dir}/contour_equalMM2_{var1}_{var2}_{result_var}.png')     ### Can specify the name further for categorical stratification
 
 
 ### Takes in filepath to data csv, x variable, y variable, the z measured variable, and the desired output directory for saving results.
