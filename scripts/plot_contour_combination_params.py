@@ -9,7 +9,7 @@ import scipy.interpolate
 def plot_contour(data_filepath, var1, var2, result_var, output_dir):
     # Load data from CSV file
     raw_data = pd.read_csv(f'{data_filepath}')
-    data = raw_data[raw_data['migration_matrix']=='data/equal_migration_prob_matrix.csv']    ### change this if stratifying on another categorical parameter
+    data = raw_data[raw_data['migration_matrix']=='data/true_migration_prob_matrix.csv']    ### change this if stratifying on another categorical parameter
 
     # Extract variables from dataframe
     x = data[f'{var1}'].values
@@ -36,12 +36,12 @@ def plot_contour(data_filepath, var1, var2, result_var, output_dir):
     
     CS_lines = ax.contour(X, Y, Z, colors='k', levels=levels, linewidths=0.5)
     #ax.clabel(CS_lines, inline=1, fontsize=10)
-    ax.set_title('Equal migration matrix')   ### Fix for categorical parameter name
+    ax.set_title('True migration matrix')   ### Fix for categorical parameter name
     ax.set_xlabel(f'{var1}')
     ax.set_ylabel(f'{var2}')
     plt.tight_layout()
     plt.show()
-    plt.savefig(f'{output_dir}/contour_equalMM_{var1}_{var2}_{result_var}.png')     ### Can specify the name further for categorical stratification
+    plt.savefig(f'{output_dir}/contour_numMut_trueMM_{var1}_{var2}_{result_var}.png')     ### Can specify the name further for categorical stratification
 
 
 ### Takes in filepath to data csv, x variable, y variable, the z measured variable, and the desired output directory for saving results.

@@ -16,7 +16,7 @@ def plot_csv(csv_file, x_column, outdir):
     #data = data[data['mutrate']==0.05]
     #data = data[data['max_indel_size']==5]
     #data = data[data['num_samples']==100]
-    #data = data[data['migration_matrix']=='data/true_migration_prob_matrix.csv']
+    #data = data[data['migration_matrix']=='data/rare_migration_prob_matrix.csv']
 
     data = data.sort_values(x_column)
     x = data[x_column]
