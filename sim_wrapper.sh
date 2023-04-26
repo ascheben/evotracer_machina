@@ -1,20 +1,18 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>"
+    echo "Usage: sim_wrapper.sh --out <out_name> --mutrate --samples <int>"
     exit 0
 fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -o|--out) NAME="$2"; shift ;;
-        -m1|--mutrate1) MUTRATE1="$2"; shift ;;
-        -m2|--mutrate2) MUTRATE2="$2"; shift ;;
-        -i|--max-indel-size) MAX_INDEL_SIZE="$2"; shift ;;
+        -m|--mutrate) MUTRATE="$2"; shift ;;
         -s|--samples) NUM_SAMPLES="$2"; shift ;;
         -mm|--migration) MIGRATION_MATRIX="$2"; shift ;;
 
-    *) echo "Unknown parameter passed: $1"; echo "Usage: sim_wrapper.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>" ; exit 1 ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: sim_wrapper.sh --out <out_name> --mutrate --samples <int> --migration <filepath>"; exit 1 ;;
     esac
     shift
 done
@@ -49,7 +47,7 @@ PREFIXALL="${MOUSE}_${ALL}_${REF}_${TAG}"
 # conda env create -f env/simulate.yaml
 # conda activate simulate
 
-./scripts/simulator.py ${NAME} ${MUTRATE1} ${MUTRATE2} ${MAX_INDEL_SIZE} ${NUM_SAMPLES} ${MIGRATION_MATRIX}
+./scripts/simulator.py ${PREFIX1} ${MUTRATE} ${NUM_SAMPLES} ${MIGRATION_MATRIX}
 
 outputdir="sim_results_${NAME}/"
 mkdir ${outputdir}
