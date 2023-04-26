@@ -405,7 +405,7 @@ for tis in tissues:
         outstr = ">ref" + "\n" + ref_seq + "\n"
         o.write(outstr)
 
-for i,seq in enumerate(row_fasta):
+for i,seq in row_fasta.items():
     seq = seq.replace('-', '')
     outstr = ">" + str(i) + "\n" + seq + "\n"
     with open(outfasta,'a') as o:

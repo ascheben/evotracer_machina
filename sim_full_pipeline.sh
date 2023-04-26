@@ -1,9 +1,6 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-
-
-
 ################################################################
 ### Run the simulator with the given command line parameters ###
 ################################################################
@@ -16,17 +13,14 @@ conda activate simulate
 if [[ $# -eq 0 ]] ; then
     ### Can uncomment below if the simulator.py is made to use two mutation rates
     #echo "Usage: sim_full_pipeline.sh --out <out_name> --mutrate1 <float> --mutrate2 <float> --max-indel-size <int> --samples <int> --migration <file_path>"
-    echo "Usage: sim_full_pipeline.sh --out <out_name> --mutrate <float> --max-indel-size <int> --samples <int> --migration <file_path>"
+    echo "Usage: sim_full_pipeline.sh --out <out_name> --mutrate <float|comma-sep list of floats> --samples <int> --migration <file_path>"
     exit 0
 fi
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -o|--out) NAME="$2"; shift ;;
-        #-m1|--mutrate1) MUTRATE1="$2"; shift ;;    ### Can uncomment if the simulator.py is made to use two mutation rates
-        #-m2|--mutrate2) MUTRATE2="$2"; shift ;;    ### Can uncomment if the simulator.py is made to use two mutation rates
-        -m|--mutrate) MUTRATE2="$2"; shift ;;
-        -i|--max-indel-size) MAX_INDEL_SIZE="$2"; shift ;;
+        -m|--mutrate) MUTRATE="$2"; shift ;;
         -s|--samples) NUM_SAMPLES="$2"; shift ;;
         -mm|--migration) MIGRATION_MATRIX="$2"; shift ;;
 
@@ -41,9 +35,7 @@ then
     exit
 fi
 
-MUTRATE1=0.1 # this input is arbitrary since simulator.py does not use it. I have hardcoded a value to simplify sim_full_pipeline.sh inputs.
-
-./sim_wrapper.sh --out ${NAME} --mutrate1 ${MUTRATE1} --mutrate2 ${MUTRATE2} --max-indel-size ${MAX_INDEL_SIZE} --samples ${NUM_SAMPLES} --migration ${MIGRATION_MATRIX}
+./sim_wrapper.sh --out ${NAME} --mutrate ${MUTRATE} --samples ${NUM_SAMPLES} --migration ${MIGRATION_MATRIX}
 
 outputdir="sim_results_${NAME}/"
 sim_dir="${outputdir}out_simulator_${NAME}/"
@@ -52,9 +44,6 @@ mv ${outputdir}* ${sim_dir}
 echo "This message is okay"
 
 conda deactivate
-
-
-
 
 #############################################
 ### Run Evotracer on the simulator output ###
@@ -84,9 +73,6 @@ evo_output_dir="./${outputdir}out_evotracer_parallelize_${NAME}"
 Rscript ./scripts/run_evotracer_parallelize.R ${evo_input_dir} ${evo_output_dir} ${trimmomatic_path} ${flash_path} ${evotracer_path}
 
 conda deactivate
-
-
-
 
 #############################################
 ### Run Machina on the EvoTracer output ###
@@ -134,7 +120,6 @@ rm -r ${evo_output_dir}
 mv ${outputdir}${PREFIX}/${PREFIX}* ${outputdir}
 rm -r ${outputdir}${PREFIX}
 
-
 ##################################################
 ### Compare total true and inferred migrations ###
 ##################################################
@@ -151,8 +136,8 @@ proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
 num_mutations=$(wc -l ${outputdir}${NAME}_mutations.tsv | awk '{print $1}')
 
 # Write both true and inferred to an output csv with the input parameters stored
-echo "name,mutrate,max_indel_size,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
-echo "${NAME},${MUTRATE2},${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "name,/mutrate/,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "${NAME},/${MUTRATE}/,${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 
 conda activate simulate
 

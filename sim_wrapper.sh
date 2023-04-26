@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: sim_wrapper.sh --out <out_name> --mutrate --samples <int>"
+    echo "Usage: sim_wrapper.sh --out <out_name> --mutrate <float|comma-sep list of floats> --samples <int> --migration <filepath>"
     exit 0
 fi
 
@@ -12,7 +12,7 @@ while [[ "$#" -gt 0 ]]; do
         -s|--samples) NUM_SAMPLES="$2"; shift ;;
         -mm|--migration) MIGRATION_MATRIX="$2"; shift ;;
 
-    *) echo "Unknown parameter passed: $1"; echo "Usage: sim_wrapper.sh --out <out_name> --mutrate --samples <int> --migration <filepath>"; exit 1 ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: sim_wrapper.sh --out <out_name> --mutrate <float|comma-sep list of floats> --samples <int> --migration <filepath>"; exit 1 ;;
     esac
     shift
 done
@@ -47,7 +47,7 @@ PREFIXALL="${MOUSE}_${ALL}_${REF}_${TAG}"
 # conda env create -f env/simulate.yaml
 # conda activate simulate
 
-./scripts/simulator.py ${PREFIX1} ${MUTRATE} ${NUM_SAMPLES} ${MIGRATION_MATRIX}
+./scripts/simulator.py ${NAME} ${MUTRATE} ${NUM_SAMPLES} ${MIGRATION_MATRIX}
 
 outputdir="sim_results_${NAME}/"
 mkdir ${outputdir}
