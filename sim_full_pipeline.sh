@@ -136,8 +136,9 @@ proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
 num_mutations=$(wc -l ${outputdir}${NAME}_mutations.tsv | awk '{print $1}')
 
 # Write both true and inferred to an output csv with the input parameters stored
-echo "name,/mutrate/,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
-echo "${NAME},/${MUTRATE}/,${MAX_INDEL_SIZE},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "name,mutrate,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+mr_write=${MUTRATE//,/ }
+echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 
 conda activate simulate
 
