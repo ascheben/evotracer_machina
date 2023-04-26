@@ -1,14 +1,41 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="test_explore_parameters"
+parallel_sim_name="_explore_parameters"
 
 # Set the mutation rates to explore
-mr1=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
-mr2=(0.1,0.1,0.1,0.2,0.2,0,0,0,0,0)
-mr3=(0.2,0.2,0.2,0.3,0.3,0,0,0,0,0)
+#mr1=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
+#mr2=(0.1,0.1,0.1,0.2,0.2,0,0,0,0,0)
+#mr3=(0.2,0.2,0.2,0.3,0.3,0,0,0,0,0)
 #mr_array=("$mr1" "$mr2" "$mr3")
-mr_array=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
+#mr_array=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
+
+start=0
+end=0.2
+increment=0.025
+values=($(seq $start $increment $end))
+mr_array=()
+for i in "${values[@]}"; do
+    for j in "${values[@]}"; do
+        for k in "${values[@]}"; do
+            for l in "${values[@]}"; do
+                for m in "${values[@]}"; do
+                    for n in "${values[@]}"; do
+                        for o in "${values[@]}"; do
+                            for p in "${values[@]}"; do
+                                for q in "${values[@]}"; do
+                                    for r in "${values[@]}"; do
+                                        mr_array+=("($i,$j,$k,$l,$m,$n,$o,$p,$q,$r)")
+                                    done
+                                done
+                            done
+                        done
+                    done
+                done
+            done
+        done
+    done
+done
 
 # Set the sample sizes to explore
 #ss_array=(100 250 500 750 1000)
@@ -18,8 +45,8 @@ ss_array=(100)
 rare_mm="data/rare_migration_prob_matrix.csv"
 equal_mm="data/equal_migration_prob_matrix.csv"
 true_mm="data/true_migration_prob_matrix.csv"
-#mm_array=(${equal_mm} ${true_mm} ${rare_mm})
-mm_array=(${true_mm})
+mm_array=(${equal_mm} ${true_mm} ${rare_mm})
+#mm_array=(${true_mm})
 
 # Setup headers for recording the input parameters in a csv
 mr_header="mutation_rate"
