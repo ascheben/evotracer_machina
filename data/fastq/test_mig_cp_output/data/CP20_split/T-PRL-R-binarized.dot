@@ -1,0 +1,30 @@
+digraph T {
+	{
+		rank=same
+		12 [penwidth=3,colorscheme=set19,color=3,label="ASV610\nLGR"]
+		11 [penwidth=3,colorscheme=set19,color=2,label="ASV505\nHMR"]
+		10 [penwidth=3,colorscheme=set19,color=2,label="ASV556\nHMR"]
+		8 [penwidth=3,colorscheme=set19,color=2,label="ASV488\nHMR"]
+		6 [penwidth=3,colorscheme=set19,color=1,label="ASV444\nPRL"]
+		5 [penwidth=3,colorscheme=set19,color=1,label="ASV557\nPRL"]
+		3 [penwidth=3,colorscheme=set19,color=1,label="ASV577\nPRL"]
+	}
+	9 [penwidth=3,colorscheme=set19,color=2,label="0^0^1"]
+	7 [penwidth=3,colorscheme=set19,color=2,label="0^0^0"]
+	4 [penwidth=3,colorscheme=set19,color=1,label="0^1^1"]
+	2 [penwidth=3,colorscheme=set19,color=1,label="0^1^0"]
+	1 [penwidth=3,colorscheme=set19,color=1,label="0_1"]
+	0 [penwidth=3,colorscheme=set19,color=1,label="0_0"]
+	9 -> 11 [penwidth=3,colorscheme=set19,color=2]
+	9 -> 10 [penwidth=3,colorscheme=set19,color=2]
+	7 -> 9 [penwidth=3,colorscheme=set19,color=2]
+	7 -> 8 [penwidth=3,colorscheme=set19,color=2]
+	4 -> 6 [penwidth=3,colorscheme=set19,color=1]
+	4 -> 5 [penwidth=3,colorscheme=set19,color=1]
+	2 -> 4 [penwidth=3,colorscheme=set19,color=1]
+	2 -> 3 [penwidth=3,colorscheme=set19,color=1]
+	1 -> 12 [penwidth=3,colorscheme=set19,color="1;0.5:3"]
+	1 -> 2 [penwidth=3,colorscheme=set19,color=1]
+	0 -> 7 [penwidth=3,colorscheme=set19,color="1;0.5:2"]
+	0 -> 1 [penwidth=3,colorscheme=set19,color=1]
+}

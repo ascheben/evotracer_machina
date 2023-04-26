@@ -1,0 +1,3 @@
+LGR 1
+HMR 2
+PRL 3

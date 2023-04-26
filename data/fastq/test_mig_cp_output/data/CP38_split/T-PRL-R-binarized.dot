@@ -1,0 +1,14 @@
+digraph T {
+	{
+		rank=same
+		4 [penwidth=3,colorscheme=set19,color=1,label="ASV279\nHMR"]
+		3 [penwidth=3,colorscheme=set19,color=2,label="ASV371\nPRL"]
+		2 [penwidth=3,colorscheme=set19,color=2,label="ASV545\nPRL"]
+	}
+	1 [penwidth=3,colorscheme=set19,color=2,label="0^0^0"]
+	0 [penwidth=3,colorscheme=set19,color=2,label="0"]
+	1 -> 3 [penwidth=3,colorscheme=set19,color=2]
+	1 -> 2 [penwidth=3,colorscheme=set19,color=2]
+	0 -> 4 [penwidth=3,colorscheme=set19,color="2;0.5:1"]
+	0 -> 1 [penwidth=3,colorscheme=set19,color=2]
+}

@@ -1,0 +1,16 @@
+digraph barS {
+	{
+		rank=same
+	2 [shape=box,penwidth=3,colorscheme=set19,color=3,label="PRL"]
+	}
+	{
+		rank=same
+		1 [shape=box,penwidth=3,colorscheme=set19,color=1,label="LGR"]
+		0 [shape=box,penwidth=3,colorscheme=set19,color=2,label="HMR"]
+	}
+	2 -> 1 [penwidth=3,colorscheme=set19,color="3;0.5:1"]
+	2 -> 0 [penwidth=3,colorscheme=set19,color="3;0.5:2"]
+	2 -> 1 [penwidth=3,colorscheme=set19,color="3;0.5:1"]
+	2 -> 0 [penwidth=3,colorscheme=set19,color="3;0.5:2"]
+	2 -> 0 [penwidth=3,colorscheme=set19,color="3;0.5:2"]
+}

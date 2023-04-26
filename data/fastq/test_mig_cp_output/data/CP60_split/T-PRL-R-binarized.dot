@@ -1,0 +1,18 @@
+digraph T {
+	{
+		rank=same
+		6 [penwidth=3,colorscheme=set19,color=3,label="ASV103_HMR\nHMR"]
+		5 [penwidth=3,colorscheme=set19,color=2,label="ASV103_PRL\nPRL"]
+		4 [penwidth=3,colorscheme=set19,color=1,label="ASV161\nLGR"]
+		3 [penwidth=3,colorscheme=set19,color=1,label="ASV103_LGR\nLGR"]
+	}
+	2 [penwidth=3,colorscheme=set19,color=1,label="0^0^0"]
+	1 [penwidth=3,colorscheme=set19,color=2,label="0_1"]
+	0 [penwidth=3,colorscheme=set19,color=2,label="0_0"]
+	2 -> 4 [penwidth=3,colorscheme=set19,color=1]
+	2 -> 3 [penwidth=3,colorscheme=set19,color=1]
+	1 -> 6 [penwidth=3,colorscheme=set19,color="2;0.5:3"]
+	1 -> 5 [penwidth=3,colorscheme=set19,color=2]
+	0 -> 2 [penwidth=3,colorscheme=set19,color="2;0.5:1"]
+	0 -> 1 [penwidth=3,colorscheme=set19,color=2]
+}

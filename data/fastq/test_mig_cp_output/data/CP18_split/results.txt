@@ -1,0 +1,2 @@
+Academic license - for non-commercial use only
+With primary 'PRL', allowed patterns: (PS, S, M, R) and binarization: 2 migrations, 2 comigrations and 1 seeding sites. [LB, UB] = [2.08036, 2.08036]. 0.0453141 seconds
