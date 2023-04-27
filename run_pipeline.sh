@@ -101,7 +101,7 @@ cut -d',' -f1,2,30 ${ASV} | sed '/^$/d' > ${PREFIX}_asv_sample_group.csv
 if [ "$KEEP" = true ] ; then
     remove="^$"
 else
-    first_cp =`cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| head -1`
+    first_cp=`cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| head -1`
     remove="^${first_cp}$"
 fi
 cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| egrep -v "$remove"| sed '/^$/d' > ${PREFIX}_CP_list.txt
