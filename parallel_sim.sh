@@ -1,41 +1,22 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="_explore_parameters"
+parallel_sim_name="numSitesMid_explore_parameters"
 
 # Set the mutation rates to explore
-#mr1=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
-#mr2=(0.1,0.1,0.1,0.2,0.2,0,0,0,0,0)
-#mr3=(0.2,0.2,0.2,0.3,0.3,0,0,0,0,0)
-#mr_array=("$mr1" "$mr2" "$mr3")
+mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
+mr2=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0)
+mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0)
+mr4=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0,0)
+mr5=(0.1,0.1,0.1,0.1,0.1,0.1,0,0,0,0)
+mr6=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
+mr7=(0.1,0.1,0.1,0.1,0,0,0,0,0,0)
+mr8=(0.1,0.1,0.1,0,0,0,0,0,0,0)
+mr9=(0.1,0.1,0,0,0,0,0,0,0,0)
+mr10=(0.1,0,0,0,0,0,0,0,0,0)
+mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10")
 #mr_array=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
 
-start=0
-end=0.2
-increment=0.025
-values=($(seq $start $increment $end))
-mr_array=()
-for i in "${values[@]}"; do
-    for j in "${values[@]}"; do
-        for k in "${values[@]}"; do
-            for l in "${values[@]}"; do
-                for m in "${values[@]}"; do
-                    for n in "${values[@]}"; do
-                        for o in "${values[@]}"; do
-                            for p in "${values[@]}"; do
-                                for q in "${values[@]}"; do
-                                    for r in "${values[@]}"; do
-                                        mr_array+=("($i,$j,$k,$l,$m,$n,$o,$p,$q,$r)")
-                                    done
-                                done
-                            done
-                        done
-                    done
-                done
-            done
-        done
-    done
-done
 
 # Set the sample sizes to explore
 #ss_array=(100 250 500 750 1000)
@@ -86,7 +67,7 @@ do
   do
     for ss in ${ss_array[@]}
     do
-      for ((rep=0; rep<22; rep++))   ### Can set the amount of repeat simulations with the same parameters
+      for ((rep=0; rep<100; rep++))   ### Can set the amount of repeat simulations with the same parameters
       do
       simmid="sim${j}"
       cmd="./sim_full_pipeline.sh --out ${simmid} --mutrate ${mr} --samples ${ss} --migration ${mm}"
@@ -99,7 +80,7 @@ done
 echo "There are ${#commands[@]} commands to be submitted."
 
 # Create the main output file with the header
-echo "name,mutrate,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
+echo "name,mutrate,num_samples,migration_matrix,num_mutations,mut_per_site,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
 
 
 # Submit the commands in batches of 20 using ParaFly

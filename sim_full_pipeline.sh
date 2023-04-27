@@ -136,9 +136,20 @@ proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
 num_mutations=$(wc -l ${outputdir}${NAME}_mutations.tsv | awk '{print $1}')
 
 # Write both true and inferred to an output csv with the input parameters stored
-echo "name,mutrate,num_samples,migration_matrix,num_mutations,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "name,mutrate,num_samples,migration_matrix,num_mutations,mut_per_site,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 mr_write=${MUTRATE//,/ }
-echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+# Loop over the array and count the non-zero values
+IFS=' ' read -r -a mut_array <<< "$mr_write"
+num_sites=0
+for i in "${mut_array[@]}"
+do
+  if [[ $i != '0' ]]
+  then
+    num_sites=$((num_sites+1))
+  fi   
+done
+mut_per_site=$(echo "scale=4; $num_mutations / $num_sites" | bc)
+echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_mutations},${mut_per_site},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 
 conda activate simulate
 
@@ -146,6 +157,6 @@ python ./scripts/compare_migrations_simtrue_machina.py "${outputdir}${NAME}_tiss
 
 conda deactivate
 
-rm ${outputdir}${NAME}*
-rm ${outputdir}${PREFIX}*
+#rm ${outputdir}${NAME}*
+#rm ${outputdir}${PREFIX}*
 
