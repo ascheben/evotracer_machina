@@ -97,7 +97,7 @@ RAW_TISSUES=$(head -n 1 ${MIGRATION_MATRIX})
 IFS=', ' read -r -a TISSUES <<< "${RAW_TISSUES}"
 PTISSUE="${TISSUES[1]}"
 
-./run_pipeline.sh --infile ${ASV} --tree ${TREE} --scripts ${SPATH} --prefix ${PREFIX} --primary-tissue ${PTISSUE} --keep-first-cp
+timeout 3m ./run_pipeline.sh --infile ${ASV} --tree ${TREE} --scripts ${SPATH} --prefix ${PREFIX} --primary-tissue ${PTISSUE} --keep-first-cp
 
 mkdir ${outputdir}${PREFIX}
 mv ${PREFIX}_cp_output/* ${outputdir}${PREFIX}/
