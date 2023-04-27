@@ -7,7 +7,7 @@ absolute_path () {
 
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue> [--keep-first-cp]"
+    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue> [--keep-first-cp --threads <int> --batches <int>]"
     exit 0
 fi
 
@@ -19,9 +19,11 @@ while [[ "$#" -gt 0 ]]; do
         -p|--prefix) PREFIX="$2"; shift ;;
         -o|--primary-tissue) PTISSUE="$2"; shift ;;
         -c|--cutoff) CUTOFF="$2"; shift ;;
+        -l|--threads) THREADS=$2; shift ;;
+        -b|--batches) BATCHES=$2; shift ;;
         -k|--keep-first-cp) KEEP=true;;
 
-    *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> [--keep-first-cp]" ; exit 1 ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> [--keep-first-cp --threads <int> --batches <int>]" ; exit 1 ;;
     esac
     shift
 done
@@ -35,6 +37,14 @@ fi
 if [ -z "${CUTOFF}" ]
 then
     CUTOFF=1
+fi
+if [ -z "${THREADS}" ]
+then
+    THREADS=1
+fi
+if [ -z "${BATCHES}" ]
+then
+    BATCHES=1
 fi
 
 if [ -z "${ASV}" ]
@@ -64,8 +74,6 @@ then
 fi
 
 # PATHS TO SCRIPTS 
-THREADS=1
-BATCHES=1
 BIG_CP_THRESHOLD="${CUTOFF//[$'\t\r\n ']}"
 
 SPATH=`absolute_path "${SPATH}"` 
@@ -79,6 +87,8 @@ TOPOLOGY="${SPATH}/print_seeding_topology.py"
 SELECTION="${SPATH}/selection_tree_test.py"
 MIGRATION="${SPATH}/count_migrations.py"
 ADD_INFO="${SPATH}/add_freq_prob_to_results.py"
+# Ensure this harcoded reference
+REFERENCE="BC10"
 
 ## PREPROCESS INPUT DATA ##
 
@@ -96,7 +106,7 @@ mkdir ${PREFIX}_cp_output
 cd ${PREFIX}_cp_output
 # Extract key ASV columns
 #asv_names,sample,group
-cut -d',' -f1,2,30 ${ASV} | sed '/^$/d' > ${PREFIX}_asv_sample_group.csv
+cut -d',' -f1,2,30 ${ASV} | grep -v "$REFERENCE"| sed '/^$/d' > ${PREFIX}_asv_sample_group.csv
 # exclude miscelleneaous group CP00
 if [ "$KEEP" = true ] ; then
     remove="^$"
@@ -105,7 +115,14 @@ else
     first_cp=`cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| head -1`
     remove="^${first_cp}$"
 fi
-cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| egrep -v "$remove"| sed '/^$/d' > ${PREFIX}_CP_list.txt
+# if a CP only includes the reference, exclude it
+cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq | egrep -v "$remove"| sed '/^$/d' > ${PREFIX}_CP_list.txt
+# if its empty, then exit
+if [ ! -s ${PREFIX}_CP_list.txt ]; then
+    echo "No CPs found or all CPs removed after filtering. Exiting!"
+    exit
+fi
+
 # prepare machina input files for each CP
 touch ${PREFIX}_big_CP_list.txt
 while read l; do
@@ -124,7 +141,7 @@ while read l; do mkdir ${l}_split;done<${PREFIX}_CP_list.txt
    
 # prepare input for selection scan on original tree
 #mkdir ${PREFIX}_cp_output
-for l in *_tree_split.txt; do cat $l |sed "s/^/${l} tree /"| sed 's/_tree_split.txt//';done | grep -v CP00 > ${PREFIX}_all_original_tree.txt
+for l in *_tree_split.txt; do cat $l |sed "s/^/${l} tree /"| sed 's/_tree_split.txt//';done | grep -v "$remove" > ${PREFIX}_all_original_tree.txt
 
 ## RUN MACHINA ##     
 # make command file for machina
