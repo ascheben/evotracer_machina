@@ -7,7 +7,7 @@ absolute_path () {
 
 
 if [[ $# -eq 0 ]] ; then
-    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue>"
+    echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --prefix <output_prefix> --primary-tissue <tissue> [--keep-first-cp]"
     exit 0
 fi
 
@@ -19,8 +19,9 @@ while [[ "$#" -gt 0 ]]; do
         -p|--prefix) PREFIX="$2"; shift ;;
         -o|--primary-tissue) PTISSUE="$2"; shift ;;
         -c|--cutoff) CUTOFF="$2"; shift ;;
+        -k|--keep-first-cp) KEEP=true;;
 
-    *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue>" ; exit 1 ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: run_pipeline.sh --infile <asv_stats> --tree <newick_tree> --scripts </path/to/scripts> --primary-tissue <tissue> [--keep-first-cp]" ; exit 1 ;;
     esac
     shift
 done
@@ -97,7 +98,13 @@ cd ${PREFIX}_cp_output
 #asv_names,sample,group
 cut -d',' -f1,2,30 ${ASV} | sed '/^$/d' > ${PREFIX}_asv_sample_group.csv
 # exclude miscelleneaous group CP00
-cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| egrep -v "^CP0$|^CP00$|^CP000$"| sed '/^$/d' > ${PREFIX}_CP_list.txt
+if [ "$KEEP" = true ] ; then
+    remove="^$"
+else
+    first_cp =`cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| head -1`
+    remove="^${first_cp}$"
+fi
+cut -f3 -d',' ${PREFIX}_asv_sample_group.csv|tail -n +2| sort| uniq| egrep -v "$remove"| sed '/^$/d' > ${PREFIX}_CP_list.txt
 # prepare machina input files for each CP
 touch ${PREFIX}_big_CP_list.txt
 while read l; do
