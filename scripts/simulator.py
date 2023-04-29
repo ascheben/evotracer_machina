@@ -216,9 +216,9 @@ m = sys.argv[2]
 sample_num = int(sys.argv[3])
 migration_matrix_filepath = str(sys.argv[4])
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
-#migration_matrix = {"PRL":{"PRL":0.98,"HMR":0.01, "LGR":0.01},
-#                    "HMR":{"PRL":0.01,"HMR":0.98,"LGR":0.01},
-#                    "LGR":{"PRL":0.01,"HMR":0.01,"LGR":0.98}}
+#migration_matrix = {"PRL":{"PRL":0.80,"HMR":0.10, "LGR":0.10},
+#                    "HMR":{"PRL":0.10,"HMR":0.80,"LGR":0.10},
+#                    "LGR":{"PRL":0.10,"HMR":0.10,"LGR":0.80}}
 #migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
 num_cuts = 10
 ref_seq = "TCTACACGCGCGTTCAACCGAGGAAAACTACACACACGTTCAACCACGGTTTTTTACACACGCATTCAACCACGGACTGCTACACACGCACTCAACCGTGGATATTTACATACTCGTTCAACCGTGGATTGTTACACCCGCGTTCAACCAGGGTCAGATACACCCACGTTCAACCGTGGTACTATACTCGGGCATTCAACCGCGGCTTTCTGCACACGCCTACAACCGCGGAACTATACACGTGCATTCACCCGTGGATC"
