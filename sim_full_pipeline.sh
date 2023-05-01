@@ -159,7 +159,7 @@ declare -a mut_array
 
 while read line; do
     # Count the number of -1 values in the row
-    row_dropout=$(echo "$line" | tr ' ' '\n' | grep -c "^-1$")
+    row_dropout=$(echo "$line" | cut -f 2- | tr '\t' '\n' | grep -e "^-1$" | wc -l)
     total_dropout=$((total_dropout + row_dropout))
     dropout_array+=("$row_dropout")
     # Count non 0 and non -1 to get number of mutated sites per row
