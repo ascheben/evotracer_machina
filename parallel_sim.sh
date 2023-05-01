@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="highMMrepeat_explore_parameters"
+parallel_sim_name="6_highMMrepeat_explore_parameters"
 
 # Set the mutation rates to explore
 mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
