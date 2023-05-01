@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="includeDropout_ModerateMM_moreMutrates_explore_parameters"
+parallel_sim_name="highMMrepeat_explore_parameters"
 
 # Set the mutation rates to explore
 mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -41,11 +41,12 @@ ss_array=(100)
 
 # Set the migration matrix values that will be tested
 rare_mm="data/rare_migration_prob_matrix.csv"
-equal_mm="data/equal_migration_prob_matrix.csv"
 moderate_mm="data/moderate_migration_prob_matrix.csv"
 true_mm="data/true_migration_prob_matrix.csv"
-mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${true_mm})
-#mm_array=(${true_mm})
+high_mm="data/high_migration_prob_matrix.csv"
+equal_mm="data/equal_migration_prob_matrix.csv"
+#mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${true_mm})
+mm_array=(${high_mm})
 
 # Setup headers for recording the input parameters in a csv
 mr_header="mutation_rate"
