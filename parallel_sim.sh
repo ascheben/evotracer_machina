@@ -31,16 +31,16 @@ mr24=(1,0.1,1,0.1,1,0.1,1,0.1,1,0.1)
 mr25=(1,0.01,0.01,1,0.01,0.01,1,0.01,0.01,1)
 mr26=(1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
 mr27=(0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01)
-#mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15" "$mr16" "$mr17" "$mr18" "$mr19" "$mr20" "$mr21" "$mr22" "$mr23" "$mr24" "$mr25" "$mr26" "$mr27")
+mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15" "$mr16" "$mr17" "$mr18" "$mr19" "$mr20" "$mr21" "$mr22" "$mr23" "$mr24" "$mr25" "$mr26" "$mr27")
 
 ### Use below to take input mutrate for scipy.optimize script
-while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -m|--mutrate) mr_array="$2"; shift ;;
-    *) echo "Unknown parameter passed: $1"; echo "Usage: parallel_sim.sh -m <10 comma seperated values 0 to 1>" ; exit 1 ;;
-    esac
-    shift
-done ### remove to above if not doing scipy for mutrate. Input mutrate can be manual for manual simulations not with scipy.
+#while [[ "$#" -gt 0 ]]; do
+#    case $1 in
+#        -m|--mutrate) mr_array="$2"; shift ;;
+#    *) echo "Unknown parameter passed: $1"; echo "Usage: parallel_sim.sh -m <10 comma seperated values 0 to 1>" ; exit 1 ;;
+#    esac
+#    shift
+#done ### remove to above if not doing scipy for mutrate. Input mutrate can be manual for manual simulations not with scipy.
 
 # Set the sample sizes to explore
 #ss_array=(100 250 500 750 1000)
@@ -106,7 +106,7 @@ done
 echo "There are ${#commands[@]} commands to be submitted."
 
 # Create the main output file with the header
-echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
+echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
 
 # Submit the commands in batches of 20 using ParaFly
 batch_size=20
@@ -154,8 +154,8 @@ mv *${parallel_sim_name}.csv ${par_results}/
 
 ### Use below to print all proportions data and remove sim data for use with scipy optimize
 ### Remove this if not using scipy since this deletes all output and prints to the terminal only what scipy needs
-proportions_scipy=$(tail -n +2 ${par_results}/output_all_${parallel_sim_name}.csv | cut -d ',' -f 14 | sed ':a;N;$!ba;s/\n/,/g')
-echo "proportions = [$proportions_scipy]"
-rm -r ${par_results}/
+#proportions_scipy=$(tail -n +2 ${par_results}/output_all_${parallel_sim_name}.csv | cut -d ',' -f 14 | sed ':a;N;$!ba;s/\n/,/g')
+#echo "proportions = [$proportions_scipy]"
+#rm -r ${par_results}/
 
 

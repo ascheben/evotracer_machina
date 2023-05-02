@@ -136,8 +136,10 @@ proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
 
 num_uniq_mutations=$(wc -l ${outputdir}${NAME}_mutations.tsv | awk '{print $1}')
 
+avg_mut_age=$(awk '{ age += $NF } END { print age / NR }' ${outputdir}${NAME}_mutations.tsv)
+
 # Write both true and inferred to an output csv with the input parameters stored
-echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 mr_write=${MUTRATE//,/ }
 # Loop over the array and count the non-zero values
 IFS=' ' read -r -a mut_array <<< "$mr_write"
@@ -171,7 +173,7 @@ avg_row_dropout=$(echo "scale=4; $total_dropout / $NUM_SAMPLES" | bc)
 avg_mut_sites_per_sample=$(echo "scale=4; $total_mut_sites / $NUM_SAMPLES" | bc)
 avg_proportion_mut_sites=$(echo "scale=4; $avg_mut_sites_per_sample / $num_sites" | bc)
 
-echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_uniq_mutations},${uniq_mut_per_site},${total_mut_sites},${avg_mut_sites_per_sample},${avg_proportion_mut_sites},${total_dropout},${avg_row_dropout},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
+echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_uniq_mutations},${uniq_mut_per_site},${total_mut_sites},${avg_mut_sites_per_sample},${avg_proportion_mut_sites},${total_dropout},${avg_row_dropout},${avg_mut_age},${true_count},${inferred_count},${proportion}" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
 
 conda activate simulate
 
