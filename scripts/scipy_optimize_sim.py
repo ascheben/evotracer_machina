@@ -6,7 +6,6 @@ import pandas as pd
 import re
 import seaborn as sns
 import matplotlib as mpl
-import pdb
 
 #I will set parallel_sim.sh to run 100x simulations for the input mutrate and only return the proportion values from the 
 # summary csv as 'proportions = [0.1234 0.2345 0.3213 ...]' format in the last line of terminal output for simplicity with scipy.optimize
@@ -15,7 +14,6 @@ def optimize_constant_mutrate(x):
     input_string = f'{x},{x},{x},{x},{x},{x},{x},{x},{x},{x}'
     result = subprocess.run(['bash', 'parallel_sim.sh', '-m', input_string], stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').split('\n')
-    pdb.set_trace()
     print(f'Input mutrate string : {input_string}')
     proportion_regex = r'(?<=proportions = \[)[\d\.,]+(?=\])'
     match = re.search(proportion_regex, output[-2])
