@@ -25,10 +25,18 @@ def plot_csv(csv_file, x_column, outdir):
     
     #def avg_greater_than_zero(x):
     #    values = list(map(float, x.split()))
-    #    values = [v for v in values if v > 0]
+    #   values = [v for v in values if v > 0]
     #    return sum(values)/len(values) if len(values) > 0 else 0
 
+    #def avg_greater_than_zero(x):
+    #    values = list(map(float, x.split()))
+    #    if all(v > 0 for v in values):
+    #        return sum(values)/len(values)
+    #    else:
+    #        return 0
+
     #data['average_mutrate'] = data['mutrate'].apply(avg_greater_than_zero)
+    #data = data[data['average_mutrate'] != 0]
 
     #data['avg_proportion_mut_sites']=(np.round(np.array(data[x_column]), 0))
     #data[x_column] = data[x_column].round(1)
@@ -64,7 +72,7 @@ def plot_csv(csv_file, x_column, outdir):
 
     #sns.stripplot(x='mutrate', y='proportion', hue='migration_matrix', data=data_saturation, jitter=True, palette=['red', 'blue', 'green', 'orange'], hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'],dodge=True)
 
-    plt.xlabel('average_mutrate across all non 0 sites')
+    plt.xlabel('average_mutrate for barcodes with 10 potentially active sites')
     #plt.xticks(rotation=-40, ha='left')
     #plt.ylim(0, 1)
     plt.ylabel('Proportion of true migrations inferred')
@@ -72,7 +80,7 @@ def plot_csv(csv_file, x_column, outdir):
     #plt.legend(['Rare migration matrix', 'True migration matrix', 'Equal migration matrix'], loc='upper left', bbox_to_anchor=(0, 1))
     plt.legend(loc='upper left', bbox_to_anchor=(0.6, 1))
     plt.tight_layout()
-    plt.savefig(f'{outdir}averageMutrate_vs_proportion_lineplot2.png')
+    plt.savefig(f'{outdir}{x_column}_vs_proportion_lineplot.png')
     plt.show()
 
 csv=sys.argv[1]

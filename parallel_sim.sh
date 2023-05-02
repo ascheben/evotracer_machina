@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="6_highMMrepeat_explore_parameters"
+parallel_sim_name="scipy_explore_parameters"
 
 # Set the mutation rates to explore
 mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -31,9 +31,16 @@ mr24=(1,0.1,1,0.1,1,0.1,1,0.1,1,0.1)
 mr25=(1,0.01,0.01,1,0.01,0.01,1,0.01,0.01,1)
 mr26=(1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
 mr27=(0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01)
-mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15" "$mr16" "$mr17" "$mr18" "$mr19" "$mr20" "$mr21" "$mr22" "$mr23" "$mr24" "$mr25" "$mr26" "$mr27")
-#mr_array=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
+#mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15" "$mr16" "$mr17" "$mr18" "$mr19" "$mr20" "$mr21" "$mr22" "$mr23" "$mr24" "$mr25" "$mr26" "$mr27")
 
+### Use below to take input mutrate for scipy.optimize script
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -m|--mutrate) mr_array="$2"; shift ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: parallel_sim.sh -m <10 comma seperated values 0 to 1>" ; exit 1 ;;
+    esac
+    shift
+done ### remove to above if not doing scipy for mutrate. Input mutrate can be manual for manual simulations not with scipy.
 
 # Set the sample sizes to explore
 #ss_array=(100 250 500 750 1000)
@@ -45,8 +52,8 @@ moderate_mm="data/moderate_migration_prob_matrix.csv"
 true_mm="data/true_migration_prob_matrix.csv"
 high_mm="data/high_migration_prob_matrix.csv"
 equal_mm="data/equal_migration_prob_matrix.csv"
-#mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${true_mm})
-mm_array=(${high_mm})
+#mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${high_mm} ${true_mm})
+mm_array=(${true_mm})
 
 # Setup headers for recording the input parameters in a csv
 mr_header="mutation_rate"
@@ -143,4 +150,12 @@ conda deactivate
 par_results="${parallel_sim_name}_parallel_sim_results"
 mkdir ${par_results}
 mv *${parallel_sim_name}.csv ${par_results}/
+
+
+### Use below to print all proportions data and remove sim data for use with scipy optimize
+### Remove this if not using scipy since this deletes all output and prints to the terminal only what scipy needs
+proportions_scipy=$(tail -n +2 ${par_results}/output_all_${parallel_sim_name}.csv | cut -d ',' -f 14 | sed ':a;N;$!ba;s/\n/,/g')
+echo "proportions = [$proportions_scipy]"
+rm -r ${par_results}/
+
 
