@@ -66,7 +66,7 @@ def plot_csv(csv_file, x_column, outdir):
     #data_saturation=data[data[x_column].astype('float64') > 46]
 
     #data_melt = pd.melt(data, id_vars=[x_column], value_vars=['true_migrations', 'inferred_migrations'], 
-    #                var_name='migration_type', value_name='migrations')
+    #                    var_name='migration_type', value_name='migrations')
 
     #data_rare = data_rare.sort_values(x_column)
     #data_true = data_true.sort_values(x_column)
@@ -76,7 +76,7 @@ def plot_csv(csv_file, x_column, outdir):
     #sns.lineplot(x=x_column, y='proportion', data=data_rare, errorbar=('ci', ci), err_style='band', marker='o', color='red', label='Rare migration matrix')
     #sns.lineplot(x=x_column, y='proportion', data=data_true, errorbar=('ci', ci), err_style='band', marker='o', color='blue', label='True migration matrix')
     #sns.lineplot(x=x_column, y='proportion', data=data_equal, errorbar=('ci', ci), err_style='band', marker='o', color='green', label='Equal migration matrix')
-    #sns.lineplot(x=x_column, y='avg_mutation_age', data=data, errorbar=('ci', ci), err_style='band', marker='o')
+    sns.lineplot(x=x_column, y='num_uniq_mutations', data=data, errorbar=('ci', ci), err_style='band', marker='o')
                 #,palette=['red', 'blue', 'green', 'black', 'orange'], hue='migration_matrix', hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/high_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'])
     #sns.scatterplot(x=x_column, y='proportion', data=data, size=2, palette=['red', 'blue', 'green', 'black', 'orange'], hue='migration_matrix', hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/high_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'])
     #sns.barplot(x=x_column, y='proportion', data=data, hue='migration_matrix', hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'], dodge=True, errorbar=('ci', ci), palette=['red', 'blue', 'green'], capsize=0.1)
@@ -92,7 +92,8 @@ def plot_csv(csv_file, x_column, outdir):
     #sns.stripplot(dodge=True, size=2, x=x_column, y='proportion', hue='migration_matrix', data=data, palette=['red', 'blue', 'green', 'grey'], hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'])
     #sns.barplot(x=x_column, y='proportion', data=data, dodge=True, errorbar=('ci', ci), capsize=0.1, palette=['red', 'blue', 'green', 'grey'], hue='migration_matrix', hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'])
     
-    #sns.boxplot(x=x_column, y='migrations', data=data_melt, hue='migration_type', width=0.2, palette=['red', 'blue'], showfliers=False, dodge=True)
+
+    #sns.boxplot(x=x_column, y='migrations', data=data_melt, hue='migration_type', linewidth=1.5, width=0.4, palette=['black', 'red'], showfliers=False, dodge=True)
     #sns.stripplot(x=x_column, y='migrations', data=data_melt, hue='migration_type', size=2, palette=['red', 'blue'], dodge=True, jitter=True)
 
     #sns.stripplot(x='mutrate', y='proportion', hue='migration_matrix', data=data_saturation, jitter=True, palette=['red', 'blue', 'green', 'orange'], hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'],dodge=True)
@@ -106,7 +107,7 @@ def plot_csv(csv_file, x_column, outdir):
 
     #sns.scatterplot(x='average_mutrate', y='avg_proportion_mut_sites', data=data, s=20, color='k', legend=False)
     #sns.lineplot(x='avg_mutrate', y='value', data=data_melt, color='k', errorbar=('ci', ci), err_style='band', marker='o')
-    sns.boxplot(x=x_column, y='avg_mutation_age', data=data, width=0.6, color='grey', showfliers=False, fliersize=3, dodge=True)
+    #sns.boxplot(x=x_column, y='avg_mutation_age', data=data, width=0.6, color='grey', showfliers=False, fliersize=3, dodge=True)
     
     ### Used below to annotate scipy lineplot
     #plt.annotate(f"Scipy.optimize solution:\navg_mutrate = 0.126398\nproportion = 0.60813", 
@@ -122,12 +123,12 @@ def plot_csv(csv_file, x_column, outdir):
     #plt.xticks(ticks=range(0,1,0.1), labels=range(0,1,0.1))
     #plt.xticks(rotation=-40, ha='left')
     #plt.xlim(0.12635,0.12643)
-    plt.ylabel('avg_mutation_age')
+    plt.ylabel('num_uniq_mutations')
     plt.title('')
     #plt.legend(['Rare migration matrix', 'True migration matrix', 'Equal migration matrix'], loc='upper left', bbox_to_anchor=(0, 1))
-    #plt.legend(loc='upper left', bbox_to_anchor=(0, 1))
+    plt.legend(loc='upper left', bbox_to_anchor=(0, 1))
     plt.tight_layout()
-    plt.savefig(f'{out_dir}{x_column}_vs_avgAgeMut_boxplot.png')
+    plt.savefig(f'{out_dir}{x_column}_vs_numUniqMutations_lineplot.png')
     #plt.show()
 
 csv=sys.argv[1]
