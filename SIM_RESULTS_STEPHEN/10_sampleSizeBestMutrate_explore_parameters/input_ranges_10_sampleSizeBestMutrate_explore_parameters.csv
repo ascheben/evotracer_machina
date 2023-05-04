@@ -1,0 +1,6 @@
+mutation_rate,sample_size,migration_matrix
+0.1264 0.1264 0.1264 0.1264 0.1264 0.1264 0.1264 0.1264 0.1264 0.1264,100,data/true_migration_prob_matrix.csv
+,500,
+,1000,
+,10000,
+,100000,

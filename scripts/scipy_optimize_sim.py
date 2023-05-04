@@ -10,8 +10,11 @@ import matplotlib as mpl
 #I will set parallel_sim.sh to run 100x simulations for the input mutrate and only return the proportion values from the 
 # summary csv as 'proportions = [0.1234 0.2345 0.3213 ...]' format in the last line of terminal output for simplicity with scipy.optimize
 
-def optimize_constant_mutrate(x):
-    input_string = f'{x},{x},{x},{x},{x},{x},{x},{x},{x},{x}'
+#def optimize_constant_mutrate(x1):         ### Used to optimize a constant mutation rate across all 10 sites
+    #input_string = f"{x},{x},{x},{x},{x},{x},{x},{x},{x},{x}"
+
+def optimize_constant_mutrate(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10):         ### Used to optimize a variable mutation rate across all 10 sites
+    input_string = f"{x1},{x2},{x3},{x4},{x5},{x6},{x7},{x8},{x9},{x10}"
     result = subprocess.run(['bash', 'parallel_sim.sh', '-m', input_string], stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').split('\n')
     print(f'Input mutrate string : {input_string}')
@@ -34,12 +37,14 @@ def avg_mutrate(mutrate_str):
     return sum(mutrates) / len(mutrates)
 
 #Set output name
-output_name="constantMutrate_scipy_results"
+output_name="11_scipy_variableMutrate_results"
 output_dir=f'./{output_name}'
 results = {}
 
 #Run the scipy optimization
-result = minimize_scalar(optimize_constant_mutrate, method='bounded', bounds=[0.05,0.25], options={'maxiter':23})
+#result = minimize_scalar(optimize_constant_mutrate, method='bounded', bounds=[0.05,0.25])          ### Used to optimize a constant mutation rate across all 10 sites
+bounds = [(0, 1)] * 10  # bounds for all 10 elements
+result = minimize(optimize_constant_mutrate, bounds=bounds)       ### Used to optimize a variable mutation rate across all 10 sites
 
 #Print maximum proportion and corresponding input
 max = -result.fun

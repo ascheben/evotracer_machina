@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="9_mixedMutrateStrategiesSameAverage_explore_parameters"
+parallel_sim_name="11_multivariateScipyMixedMutrateStrategies_explore_parameters"
 
 # Set the mutation rates to explore
 # mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -34,23 +34,23 @@ parallel_sim_name="9_mixedMutrateStrategiesSameAverage_explore_parameters"
 # mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15" "$mr16" "$mr17" "$mr18" "$mr19" "$mr20" "$mr21" "$mr22" "$mr23" "$mr24" "$mr25" "$mr26" "$mr27")
 
 ### mr input for mied strategies with an average of 0.1264
-mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
-mr2=(0.2528,0,0.2528,0,0.2528,0,0.2528,0,0.2528,0)
-mr3=(1,0.0528,0.0469,0.04106,0.0352,0.02933,0.0235,0.0176,0.0118,0.0059)
-mr4=(0.8,0.0928,0.0825,0.0722,0.0619,0.0516,0.0413,0.031,0.0207,0.0104)
-mr5=(0.6,0.1328,0.1181,0.1034,0.0887,0.074,0.0593,0.0446,0.0299,0.0152)
-mr6=(0.4,0.1728,0.1536,0.1344,0.1152,0.096,0.0768,0.0576,0.0384,0.0192)
-mr7=(0.1685,0.0843,0.1685,0.0843,0.1685,0.0843,0.1685,0.0843,0.1685,0.0843)
-mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7")
+#mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
+#mr2=(0.2528,0,0.2528,0,0.2528,0,0.2528,0,0.2528,0)
+#mr3=(1,0.0528,0.0469,0.04106,0.0352,0.02933,0.0235,0.0176,0.0118,0.0059)
+#mr4=(0.8,0.0928,0.0825,0.0722,0.0619,0.0516,0.0413,0.031,0.0207,0.0104)
+#mr5=(0.6,0.1328,0.1181,0.1034,0.0887,0.074,0.0593,0.0446,0.0299,0.0152)
+#mr6=(0.4,0.1728,0.1536,0.1344,0.1152,0.096,0.0768,0.0576,0.0384,0.0192)
+#mr7=(0.1685,0.0843,0.1685,0.0843,0.1685,0.0843,0.1685,0.0843,0.1685,0.0843)
+#mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7")
 
 ### Use below to take input mutrate for scipy.optimize script
-#while [[ "$#" -gt 0 ]]; do
-#    case $1 in
-#        -m|--mutrate) mr_array="$2"; shift ;;
-#    *) echo "Unknown parameter passed: $1"; echo "Usage: parallel_sim.sh -m <10 comma seperated values 0 to 1>" ; exit 1 ;;
-#    esac
-#    shift
-#done ### remove to above if not doing scipy for mutrate. Input mutrate can be manual for manual simulations not with scipy.
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -m|--mutrate) mr_array="$2"; shift ;;
+    *) echo "Unknown parameter passed: $1"; echo "Usage: parallel_sim.sh -m <10 comma seperated values 0 to 1>" ; exit 1 ;;
+    esac
+    shift
+done ### remove to above if not doing scipy for mutrate. Input mutrate can be manual for manual simulations not with scipy.
 
 # Set the sample sizes to explore
 #ss_array=(100 250 500 750 1000)
@@ -164,8 +164,8 @@ mv *${parallel_sim_name}.csv ${par_results}/
 
 ### Use below to print all proportions data and remove sim data for use with scipy optimize
 ### Remove this if not using scipy since this deletes all output and prints to the terminal only what scipy needs
-#proportions_scipy=$(tail -n +2 ${par_results}/output_all_${parallel_sim_name}.csv | cut -d ',' -f 14 | sed ':a;N;$!ba;s/\n/,/g')
-#echo "proportions = [$proportions_scipy]"
-#rm -r ${par_results}/
+proportions_scipy=$(tail -n +2 ${par_results}/output_all_${parallel_sim_name}.csv | cut -d ',' -f 14 | sed ':a;N;$!ba;s/\n/,/g')
+echo "proportions = [$proportions_scipy]"
+rm -r ${par_results}/
 
 
