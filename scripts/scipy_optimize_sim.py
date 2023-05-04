@@ -2,6 +2,7 @@
 import os
 import subprocess
 from scipy.optimize import minimize_scalar
+from scipy.optimize import minimize
 import pandas as pd
 import re
 import seaborn as sns
@@ -13,8 +14,8 @@ import matplotlib as mpl
 #def optimize_constant_mutrate(x1):         ### Used to optimize a constant mutation rate across all 10 sites
     #input_string = f"{x},{x},{x},{x},{x},{x},{x},{x},{x},{x}"
 
-def optimize_constant_mutrate(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10):         ### Used to optimize a variable mutation rate across all 10 sites
-    input_string = f"{x1},{x2},{x3},{x4},{x5},{x6},{x7},{x8},{x9},{x10}"
+def optimize_constant_mutrate(x):         ### Used to optimize a variable mutation rate across all 10 sites
+    input_string = ','.join(str(x_i) for x_i in x)
     result = subprocess.run(['bash', 'parallel_sim.sh', '-m', input_string], stdout=subprocess.PIPE)
     output = result.stdout.decode('utf-8').split('\n')
     print(f'Input mutrate string : {input_string}')
@@ -43,8 +44,8 @@ results = {}
 
 #Run the scipy optimization
 #result = minimize_scalar(optimize_constant_mutrate, method='bounded', bounds=[0.05,0.25])          ### Used to optimize a constant mutation rate across all 10 sites
-bounds = [(0, 1)] * 10  # bounds for all 10 elements
-result = minimize(optimize_constant_mutrate, bounds=bounds)       ### Used to optimize a variable mutation rate across all 10 sites
+bounds = [(0, 1)]*10  # bounds for all 10 elements
+result = minimize(optimize_constant_mutrate, x0=[0.25]*10, bounds=bounds)       ### Used to optimize a variable mutation rate across all 10 sites
 
 #Print maximum proportion and corresponding input
 max = -result.fun
