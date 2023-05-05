@@ -248,8 +248,8 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
     mutation_distribution = lambda: 1 if np.random.uniform() < 0.5 else 0,
     fitness_distribution = lambda: np.random.normal(0, .5),
     fitness_base = 1.3,
-    num_extant = sample_num,
-    random_seed=17
+    num_extant = sample_num
+    #random_seed=17
 )
 ground_truth_tree = bd_sim.simulate_tree()
 # information on tree object: https://cassiopeia-lineage.readthedocs.io/en/latest/api/reference/cassiopeia.data.CassiopeiaTree.html
