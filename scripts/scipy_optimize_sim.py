@@ -43,9 +43,9 @@ output_dir=f'./{output_name}'
 results = {}
 
 #Run the scipy optimization
-#result = minimize_scalar(optimize_constant_mutrate, method='bounded', bounds=[0.05,0.25])          ### Used to optimize a constant mutation rate across all 10 sites
+#result = minimize_scalar(optimize_constant_mutrate, method='bounded', bounds=[0.05,0.25], options={'maxiter':23})          ### Used to optimize a constant mutation rate across all 10 sites
 bounds = [(0, 1)]*10  # bounds for all 10 elements
-result = minimize(optimize_constant_mutrate, x0=[0.25]*10, bounds=bounds)       ### Used to optimize a variable mutation rate across all 10 sites
+result = minimize(optimize_constant_mutrate, x0=[0.12]*10, bounds=bounds, options={'maxiter':49})       ### Used to optimize a variable mutation rate across all 10 sites
 
 #Print maximum proportion and corresponding input
 max = -result.fun
