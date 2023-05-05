@@ -248,9 +248,10 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
     mutation_distribution = lambda: 1 if np.random.uniform() < 0.5 else 0,
     fitness_distribution = lambda: np.random.normal(0, .5),
     fitness_base = 1.3,
-    num_extant = sample_num
-    #random_seed=17
+    num_extant = sample_num,
+    random_seed=17
 )
+# Note: the random seed is currently hardcoded, so the tree is fixed. This needs to be changed to vary the trees
 ground_truth_tree = bd_sim.simulate_tree()
 # information on tree object: https://cassiopeia-lineage.readthedocs.io/en/latest/api/reference/cassiopeia.data.CassiopeiaTree.html
 #print("True tree:",ground_truth_tree.get_newick(record_branch_lengths=False))
