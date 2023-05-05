@@ -214,6 +214,9 @@ def assign_tissue_labels(cas_tree,trans_mat):
 outprefix = sys.argv[1]
 m = sys.argv[2]
 sample_num = int(sys.argv[3])
+if sample_num > 10000:
+    print("Sample size is over 10,000 - this is too large. Exiting!")
+    sys.exit()
 migration_matrix_filepath = str(sys.argv[4])
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
 #migration_matrix = {"PRL":{"PRL":0.80,"HMR":0.10, "LGR":0.10},
@@ -241,18 +244,28 @@ cas.sim.Cas9LineageTracingDataSimulator.overlay_data = overlay_data_drop
 
 # simulate a tree based on birth death model with num_extant leaves
 # information on tree object: https://cassiopeia-lineage.readthedocs.io/en/latest/api/reference/cassiopeia.data.CassiopeiaTree.html
+#bd_sim = cas.sim.BirthDeathFitnessSimulator(
+#    birth_waiting_distribution = lambda scale: np.random.exponential(scale),
+#    initial_birth_scale = 0.5,
+#    death_waiting_distribution = lambda: np.random.exponential(1.5),
+#    mutation_distribution = lambda: 1 if np.random.uniform() < 0.5 else 0,
+#    fitness_distribution = lambda: np.random.normal(0, .5),
+#    fitness_base = 1.3,
+#    num_extant = sample_num,
+#    random_seed=17
+#)
+
+# run until 10,000 leaves
 bd_sim = cas.sim.BirthDeathFitnessSimulator(
-    birth_waiting_distribution = lambda scale: np.random.exponential(scale),
-    initial_birth_scale = 0.5,
-    death_waiting_distribution = lambda: np.random.exponential(1.5),
-    mutation_distribution = lambda: 1 if np.random.uniform() < 0.5 else 0,
-    fitness_distribution = lambda: np.random.normal(0, .5),
-    fitness_base = 1.3,
-    num_extant = sample_num,
-    random_seed=17
-)
-# Note: the random seed is currently hardcoded, so the tree is fixed. This needs to be changed to vary the trees
+        #experiment_time = 280
+        birth_waiting_distribution = lambda scale: np.random.exponential(scale),
+        initial_birth_scale = 0.5,
+        num_extant = 10000
+    )
 ground_truth_tree = bd_sim.simulate_tree()
+# downsample leaves
+ground_truth_tree = cas.sim.UniformLeafSubsampler(number_of_leaves=sample_num).subsample_leaves(ground_truth_tree)
+
 # information on tree object: https://cassiopeia-lineage.readthedocs.io/en/latest/api/reference/cassiopeia.data.CassiopeiaTree.html
 #print("True tree:",ground_truth_tree.get_newick(record_branch_lengths=False))
 #s1 = ground_truth_tree.get_newick(record_branch_lengths=True)
