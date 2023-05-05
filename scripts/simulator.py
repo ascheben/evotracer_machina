@@ -216,9 +216,9 @@ m = sys.argv[2]
 sample_num = int(sys.argv[3])
 migration_matrix_filepath = str(sys.argv[4])
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
-#migration_matrix = {"PRL":{"PRL":0.98,"HMR":0.01, "LGR":0.01},
-#                    "HMR":{"PRL":0.01,"HMR":0.98,"LGR":0.01},
-#                    "LGR":{"PRL":0.01,"HMR":0.01,"LGR":0.98}}
+#migration_matrix = {"PRL":{"PRL":0.80,"HMR":0.10, "LGR":0.10},
+#                    "HMR":{"PRL":0.10,"HMR":0.80,"LGR":0.10},
+#                    "LGR":{"PRL":0.10,"HMR":0.10,"LGR":0.80}}
 #migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
 num_cuts = 10
 ref_seq = "TCTACACGCGCGTTCAACCGAGGAAAACTACACACACGTTCAACCACGGTTTTTTACACACGCATTCAACCACGGACTGCTACACACGCACTCAACCGTGGATATTTACATACTCGTTCAACCGTGGATTGTTACACCCGCGTTCAACCAGGGTCAGATACACCCACGTTCAACCGTGGTACTATACTCGGGCATTCAACCGCGGCTTTCTGCACACGCCTACAACCGCGGAACTATACACGTGCATTCACCCGTGGATC"
@@ -251,6 +251,7 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
     num_extant = sample_num,
     random_seed=17
 )
+# Note: the random seed is currently hardcoded, so the tree is fixed. This needs to be changed to vary the trees
 ground_truth_tree = bd_sim.simulate_tree()
 # information on tree object: https://cassiopeia-lineage.readthedocs.io/en/latest/api/reference/cassiopeia.data.CassiopeiaTree.html
 #print("True tree:",ground_truth_tree.get_newick(record_branch_lengths=False))

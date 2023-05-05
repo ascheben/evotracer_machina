@@ -44,11 +44,11 @@ transitions_df = transitions_df.transpose()
 
 
 ### Extract the inferred migration values form the dataframe and append under the true values in the transitions df above
-transitions_df.loc[f'{sim_name}_inferred']=inferred_df[list(true_transitions.keys())].sum()
+transitions_df.loc[f'{sim_name}_inferred']=inferred_df.loc[:,inferred_df.columns.str.contains(':')].sum()
 
 
 # output the comparison DataFrame to a CSV file
 transitions_df.reset_index(drop=False, inplace=True)
 transitions_df = transitions_df.rename(columns={'index':'name'})
-transitions_df.to_csv(f'{outdir}detailed_comparison_inferred_true_migration_{sim_name}.csv', index=False)
+transitions_df.to_csv(f'{outdir}detailed_comparison_inferred_true_migration_{sim_name}.csv', index=False, na_rep='NaN')
 
