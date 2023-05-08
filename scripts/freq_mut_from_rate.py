@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import sys
+import csv
 import numpy as np
 import cassiopeia as cas
 from cassiopeia.data import CassiopeiaTree
@@ -42,6 +43,7 @@ def num_mutated_leaves(cas_tree,mut_prob):
     return len(mutated_leaves)
 ## PARAMETERS ##
 mut_prob = float(sys.argv[1])
+output_name=sys.argv[2]
 sample_num = 100
 try:
     bd_sim = cas.sim.BirthDeathFitnessSimulator(
@@ -57,5 +59,11 @@ try:
     mut = num_mutated_leaves(ground_truth_tree,mut_prob)
     freq_mut = mut / sample_num
     print(mut_prob,mut,freq_mut)
+    #write output to a csv file to simplify running in parallel
+    data = [output_name ,mut_prob, mut, sample_num, freq_mut]
+    filename=f"{output_name}_freq_mut_from_rate_data.csv"
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(data)
 except:
     print("Simulation failed. Try again!")
