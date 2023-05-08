@@ -1,0 +1,5 @@
+Status: True
+Solution: [0.12000021 0.12000021 0.1200002  0.1200002  0.1200002  0.1200002
+ 0.1200002  0.1200002  0.1200002  0.11999997]
+Function value: -5.28
+Number of function evaluations: 275
