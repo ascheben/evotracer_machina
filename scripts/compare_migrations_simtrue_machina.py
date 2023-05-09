@@ -30,7 +30,8 @@ for index, row in true_df.iterrows():
     if pd.notnull(parent_node):
         # get the tissue labels for the current node and parent node
         node_tissue = row['tissue']
-        parent_tissue = true_df.loc[true_df['node'] == parent_node, 'tissue'].iloc[0]
+        #parent_tissue = true_df.loc[true_df['node'] == parent_node, 'tissue'].iloc[0]      ### referencing parent nodes causes a problem with downsampled tree tissues tsv output. I instead added a parent tissue column to tissue output
+        parent_tissue = row['parent_tissue']
         
         # create a key for the tissue transition and increment the count in the dictionary
         transition_key2 = f"{parent_tissue}:{node_tissue}"

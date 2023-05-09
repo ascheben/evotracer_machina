@@ -107,7 +107,7 @@ def plot_csv(csv_file, x_column, outdir):
 
     #sns.scatterplot(x='average_mutrate', y='avg_proportion_mut_sites', data=data, s=20, color='k', legend=False)
     #sns.lineplot(x='avg_mutrate', y='value', data=data_melt, color='k', errorbar=('ci', ci), err_style='band', marker='o')
-    sns.boxplot(x=x_column, y='proportion', data=data, width=0.4, color='grey', showfliers=False, fliersize=3, dodge=True)
+    sns.boxplot(x=x_column, y='proportion', data=data, width=0.2, color='grey', showfliers=False, fliersize=3, dodge=True)
     
     ### Used below to annotate scipy lineplot
     #plt.annotate(f"Scipy.optimize solution:\navg_mutrate = 0.126398\nproportion = 0.60813", 
@@ -121,7 +121,7 @@ def plot_csv(csv_file, x_column, outdir):
 
     plt.xlabel(x_column)
     #plt.xticks(ticks=range(0,1,0.1), labels=range(0,1,0.1))
-    plt.xticks(rotation=-40, ha='left')
+    plt.xticks(rotation=-30, ha='left')
     #plt.ylim(0,1)
     plt.ylabel('Proportion of true migrations inferred')
     plt.title('')

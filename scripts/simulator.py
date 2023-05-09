@@ -161,6 +161,7 @@ def assign_tissue_labels(cas_tree,trans_mat):
     tissue_array = np.array(list(trans_mat.keys()))
     tis_labels = {}
     parent_nodes = {}
+    parent_tissues = {}
     migration_labels = {}
     
     # Set the root node label to the first tissue in the list
@@ -185,6 +186,7 @@ def assign_tissue_labels(cas_tree,trans_mat):
             tis_labels[node] = prev_tissue
         
         parent_nodes[node] = tree.parent(node)
+        parent_tissues[node] = prev_tissue
         
         if tis_labels[node] == prev_tissue:
             migration_labels[node] = False
@@ -205,10 +207,23 @@ def assign_tissue_labels(cas_tree,trans_mat):
     tissues_df.reset_index(drop=False, inplace=True)
     tissues_df['leaves'] = [tree.is_leaf(x) for x in tissues_df['node'].values]
     tissues_df['parent_node'] = tissues_df['node'].map(parent_nodes)
+    tissues_df['parent_tissue'] = tissues_df['node'].map(parent_tissues)
     tissues_df['migration_event'] = tissues_df['node'].map(migration_labels)
 
     return tissues_df, tree_labeled
-    
+
+def subsample_tissue_labels(tissue_df,subsampled_tree):
+    tissue_df = tissue_df.copy()
+    sub_tree = subsampled_tree.copy()
+
+    # re-label the subsampled tree with the tissue label concatenated
+    subsampled_nodes = sub_tree.nodes
+    tissue_df_subsampled = tissue_df[tissue_df['node'].isin(subsampled_nodes)]
+    node_tissue_dict = {key: f'{key}_{value}' for key, value in zip(tissue_df_subsampled['node'], tissue_df_subsampled['tissue'])}
+    sub_tree.relabel_nodes(node_tissue_dict)
+
+    return tissue_df_subsampled, sub_tree
+
     
 ## PARAMETERS ##
 outprefix = sys.argv[1]
@@ -262,16 +277,19 @@ bd_sim = cas.sim.BirthDeathFitnessSimulator(
         initial_birth_scale = 0.5,
         num_extant = 10000
     )
-ground_truth_tree = bd_sim.simulate_tree()
+ground_truth_tree_population = bd_sim.simulate_tree()
 # downsample leaves
-ground_truth_tree = cas.sim.UniformLeafSubsampler(number_of_leaves=sample_num).subsample_leaves(ground_truth_tree)
+ground_truth_tree = cas.sim.UniformLeafSubsampler(number_of_leaves=sample_num).subsample_leaves(ground_truth_tree_population)
 
 # information on tree object: https://cassiopeia-lineage.readthedocs.io/en/latest/api/reference/cassiopeia.data.CassiopeiaTree.html
 #print("True tree:",ground_truth_tree.get_newick(record_branch_lengths=False))
 #s1 = ground_truth_tree.get_newick(record_branch_lengths=True)
 
 # overlay tissue labels for migration information
-tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree,migration_matrix)
+tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree_population,migration_matrix)
+
+# subsample tissue and tree migration information
+tissue_labels_df, labeled_tree = subsample_tissue_labels(tissue_labels_df,ground_truth_tree)
 
 # Write tissue labels df to output
 tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)

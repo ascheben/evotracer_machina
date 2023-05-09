@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="13_experimentalBarcode_bestSimBarcode_compare"
+parallel_sim_name="15_subsampledMigrations_tissuePopulation_experimentalBarcode_bestSimBarcode_compare"
 
 # Set the mutation rates to explore
 # mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
