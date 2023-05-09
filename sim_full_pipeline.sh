@@ -126,7 +126,7 @@ rm -r ${outputdir}${PREFIX}
 ##################################################
 echo "Starting simulated ground truth and Machina comparison..."
 # Extract the specified column and count the number of True values for the true migrations total
-true_count=$(awk -F'\t' '{print $5}' ${outputdir}${NAME}_tissues.tsv | grep -c True)
+true_count=$(awk -F'\t' '{print $6}' ${outputdir}${NAME}_tissues.tsv | grep -c True)
 #echo "Total true migrations in the ${NAME} simulation: $true_count"
 
 # Extract numerical values from the "migrations" column and sum them for the inferred migrations total
