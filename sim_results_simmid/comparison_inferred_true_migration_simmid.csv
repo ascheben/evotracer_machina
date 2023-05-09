@@ -1,2 +1,0 @@
-name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion
-simmid,0.1 0.1 0.1 0.1 0.1 0 0 0 0 0,50,data/true_migration_prob_matrix.csv,36,7.2000,99,1.9800,.3960,2,.0400,4.26019,2,8,4.0000
