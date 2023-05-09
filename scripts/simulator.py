@@ -234,9 +234,9 @@ if sample_num > 10000:
     sys.exit()
 migration_matrix_filepath = str(sys.argv[4])
 migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
-#migration_matrix = {"PRL":{"PRL":0.80,"HMR":0.10, "LGR":0.10},
-#                    "HMR":{"PRL":0.10,"HMR":0.80,"LGR":0.10},
-#                    "LGR":{"PRL":0.10,"HMR":0.10,"LGR":0.80}}
+#migration_matrix = {"PRL":{"PRL":0.999,"HMR":0.001, "LGR":0.001},
+#                    "HMR":{"PRL":0.001,"HMR":0.999,"LGR":0.001},
+#                    "LGR":{"PRL":0.001,"HMR":0.999,"LGR":0.001}}
 #migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
 num_cuts = 10
 ref_seq = "TCTACACGCGCGTTCAACCGAGGAAAACTACACACACGTTCAACCACGGTTTTTTACACACGCATTCAACCACGGACTGCTACACACGCACTCAACCGTGGATATTTACATACTCGTTCAACCGTGGATTGTTACACCCGCGTTCAACCAGGGTCAGATACACCCACGTTCAACCGTGGTACTATACTCGGGCATTCAACCGCGGCTTTCTGCACACGCCTACAACCGCGGAACTATACACGTGCATTCACCCGTGGATC"
@@ -289,7 +289,7 @@ ground_truth_tree = cas.sim.UniformLeafSubsampler(number_of_leaves=sample_num).s
 tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree_population,migration_matrix)
 
 # subsample tissue and tree migration information
-tissue_labels_df, labeled_tree = subsample_tissue_labels(tissue_labels_df,ground_truth_tree)
+#tissue_labels_df, labeled_tree = subsample_tissue_labels(tissue_labels_df,ground_truth_tree)
 
 # Write tissue labels df to output
 tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)

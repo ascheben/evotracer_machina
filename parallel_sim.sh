@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="15_subsampledMigrations_tissuePopulation_experimentalBarcode_bestSimBarcode_compare"
+parallel_sim_name="17_ultrarareMM_subpopulation_tissuePopulation_experimentalBarcode_bestSimBarcode_compare"
 
 # Set the mutation rates to explore
 # mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -36,7 +36,7 @@ parallel_sim_name="15_subsampledMigrations_tissuePopulation_experimentalBarcode_
 ### mr input for mied strategies with an average of 0.1264
 mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
 mr2=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
-mr_array=("$mr1" "$mr2")
+mr_array=("$mr1")
 
 ### Use below to take input mutrate for scipy.optimize script
 #while [[ "$#" -gt 0 ]]; do
@@ -52,13 +52,14 @@ mr_array=("$mr1" "$mr2")
 ss_array=(100)
 
 # Set the migration matrix values that will be tested
+ultra_rare_mm="data/ultrarare_migration_prob_matrix.csv"
 rare_mm="data/rare_migration_prob_matrix.csv"
 moderate_mm="data/moderate_migration_prob_matrix.csv"
 true_mm="data/true_migration_prob_matrix.csv"
 high_mm="data/high_migration_prob_matrix.csv"
 equal_mm="data/equal_migration_prob_matrix.csv"
 #mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${high_mm} ${true_mm})
-mm_array=(${true_mm})
+mm_array=(${ultra_rare_mm})
 
 # Setup headers for recording the input parameters in a csv
 mr_header="mutation_rate"

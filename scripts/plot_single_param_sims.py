@@ -121,14 +121,14 @@ def plot_csv(csv_file, x_column, outdir):
 
     plt.xlabel(x_column)
     #plt.xticks(ticks=range(0,1,0.1), labels=range(0,1,0.1))
-    plt.xticks(rotation=-30, ha='left')
+    plt.xticks(rotation=-30, ha='left', fontsize=8)
     #plt.ylim(0,1)
     plt.ylabel('Proportion of true migrations inferred')
     plt.title('')
     #plt.legend(['Rare migration matrix', 'True migration matrix', 'Equal migration matrix'], loc='upper left', bbox_to_anchor=(0, 1))
-    plt.legend(loc='upper left', bbox_to_anchor=(0, 1))
+    #plt.legend(loc='upper left', bbox_to_anchor=(0, 1))
     plt.tight_layout()
-    plt.savefig(f'{out_dir}{x_column}_vs_proportion_lineplot.png')
+    plt.savefig(f'{out_dir}{x_column}_vs_proportion_boxplot.png')
     #plt.show()
 
 csv=sys.argv[1]
