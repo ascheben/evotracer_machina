@@ -112,10 +112,10 @@ mv ${sim_dir}${NAME}_true_tissues.nwk ${outputdir}
 mv ${sim_dir}${NAME}_tissues.tsv ${outputdir}
 mv ${sim_dir}${NAME}_mutations.tsv ${outputdir}
 mv ${sim_dir}${NAME}_indel_character_matrix.tsv ${outputdir}
-rm -r ${sim_dir}
+#rm -r ${sim_dir}
 
 # Prune all EvoTraceR output files
-rm -r ${evo_output_dir}
+#rm -r ${evo_output_dir}
 
 # Prune Machina intermediate output files
 mv ${outputdir}${PREFIX}/${PREFIX}* ${outputdir}
@@ -181,6 +181,6 @@ python ./scripts/compare_migrations_simtrue_machina.py "${outputdir}${NAME}_tiss
 
 conda deactivate
 
-rm ${outputdir}${NAME}*
-rm ${outputdir}${PREFIX}*
+#rm ${outputdir}${NAME}*
+#rm ${outputdir}${PREFIX}*
 

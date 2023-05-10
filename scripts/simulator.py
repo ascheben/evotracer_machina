@@ -163,6 +163,8 @@ def assign_tissue_labels(cas_tree,trans_mat):
     parent_nodes = {}
     parent_tissues = {}
     migration_labels = {}
+    migration_scaling_boundary = 2.5
+    migration_scaling_factor = 0.1
     
     # Set the root node label to the first tissue in the list
     root = tree.root
@@ -177,10 +179,19 @@ def assign_tissue_labels(cas_tree,trans_mat):
         # Determine the probability of changing tissue label
         prev_tissue = tis_labels[tree.parent(node)]
         prob_vec = np.array([trans_mat[prev_tissue][t] for t in tissue_array])
-        
+
         # Make tissue label decision of the current node and assign the label
         if tree.is_leaf(node) == False:
-            tis_labels[node] = np.random.choice(tissue_array, p=prob_vec)
+            # Scale the migration probability to be less at earlier points in the tree
+            age = tree.get_time(node)
+            if age < migration_scaling_boundary:
+                tissue_index = np.where(tissue_array == prev_tissue)
+                prob_vec = prob_vec * migration_scaling_factor
+                sum_except_index = np.sum(np.delete(prob_vec, tissue_index))
+                prob_vec[tissue_index] = 1 - sum_except_index
+                tis_labels[node] = np.random.choice(tissue_array, p=(prob_vec))
+            else:
+                tis_labels[node] = np.random.choice(tissue_array, p=prob_vec)
         # Label leaves not by probability but by their parent
         if tree.is_leaf(node) == True:
             tis_labels[node] = prev_tissue
@@ -224,7 +235,7 @@ def subsample_tissue_labels(tissue_df,subsampled_tree):
 
     return tissue_df_subsampled, sub_tree
 
-    
+
 ## PARAMETERS ##
 outprefix = sys.argv[1]
 m = sys.argv[2]
