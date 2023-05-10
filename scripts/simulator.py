@@ -221,6 +221,10 @@ def assign_tissue_labels(cas_tree,trans_mat):
     tissues_df['parent_tissue'] = tissues_df['node'].map(parent_tissues)
     tissues_df['migration_event'] = tissues_df['node'].map(migration_labels)
 
+    # Change Casseiopeia tree to ETE tree to retain internal node labels when writing newick later
+    connections = tree_labeled.edges
+    tree_labeled = Tree.from_parent_child_table(connections)
+    
     return tissues_df, tree_labeled
 
 def subsample_tissue_labels(tissue_df,subsampled_tree):
@@ -232,6 +236,10 @@ def subsample_tissue_labels(tissue_df,subsampled_tree):
     tissue_df_subsampled = tissue_df[tissue_df['node'].isin(subsampled_nodes)]
     node_tissue_dict = {key: f'{key}_{value}' for key, value in zip(tissue_df_subsampled['node'], tissue_df_subsampled['tissue'])}
     sub_tree.relabel_nodes(node_tissue_dict)
+
+    # Change Casseiopeia tree to ETE tree to retain internal node labels when writing newick later
+    connections = sub_tree.edges
+    sub_tree = Tree.from_parent_child_table(connections)
 
     return tissue_df_subsampled, sub_tree
 
@@ -308,7 +316,7 @@ tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)
 #Write new tree with tissue labeled nodes to newick output
 out_tree_tissues = outprefix + "_true_tissues.nwk"
 with open(out_tree_tissues,'w') as ttt:
-    ttt.write(labeled_tree.get_newick())
+    ttt.write(labeled_tree.write(format=8))
 
 # Cassipeia can take a list of values for the mutation rate, applying a different rate to each site
 final_matrix = sim_chars(ground_truth_tree,m,num_cuts)
