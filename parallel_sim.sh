@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="17_ultrarareMM_subpopulation_tissuePopulation_experimentalBarcode_bestSimBarcode_compare"
+parallel_sim_name="trueMM_subpopulationMigrations"
 
 # Set the mutation rates to explore
 # mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -59,7 +59,7 @@ true_mm="data/true_migration_prob_matrix.csv"
 high_mm="data/high_migration_prob_matrix.csv"
 equal_mm="data/equal_migration_prob_matrix.csv"
 #mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${high_mm} ${true_mm})
-mm_array=(${ultra_rare_mm})
+mm_array=(${true_mm})
 
 # Setup headers for recording the input parameters in a csv
 mr_header="mutation_rate"

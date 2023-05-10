@@ -289,7 +289,7 @@ ground_truth_tree = cas.sim.UniformLeafSubsampler(number_of_leaves=sample_num).s
 tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree_population,migration_matrix)
 
 # subsample tissue and tree migration information
-#tissue_labels_df, labeled_tree = subsample_tissue_labels(tissue_labels_df,ground_truth_tree)
+tissue_labels_df, labeled_tree = subsample_tissue_labels(tissue_labels_df,ground_truth_tree)
 
 # Write tissue labels df to output
 tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)

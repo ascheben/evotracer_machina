@@ -72,7 +72,7 @@ def plot_csv(csv_file, x_column, outdir):
     #data_true = data_true.sort_values(x_column)
     #data_equal = data_equal.sort_values(x_column)
     ci=95
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(7, 8))
     #sns.lineplot(x=x_column, y='proportion', data=data_rare, errorbar=('ci', ci), err_style='band', marker='o', color='red', label='Rare migration matrix')
     #sns.lineplot(x=x_column, y='proportion', data=data_true, errorbar=('ci', ci), err_style='band', marker='o', color='blue', label='True migration matrix')
     #sns.lineplot(x=x_column, y='proportion', data=data_equal, errorbar=('ci', ci), err_style='band', marker='o', color='green', label='Equal migration matrix')
@@ -93,7 +93,7 @@ def plot_csv(csv_file, x_column, outdir):
     #sns.barplot(x=x_column, y='proportion', data=data, dodge=True, errorbar=('ci', ci), capsize=0.1, palette=['red', 'blue', 'green', 'grey'], hue='migration_matrix', hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'])
     
 
-    #sns.boxplot(x=x_column, y='migrations', data=data_melt, hue='migration_type', linewidth=1.5, width=0.4, palette=['black', 'red'], showfliers=False, dodge=True)
+    #sns.boxplot(x=x_column, y='migrations', data=data_melt, hue='migration_type', linewidth=1.5, width=0.4, palette=['grey', 'red'], showfliers=False, dodge=True)
     #sns.stripplot(x=x_column, y='migrations', data=data_melt, hue='migration_type', size=2, palette=['red', 'blue'], dodge=True, jitter=True)
 
     #sns.stripplot(x='mutrate', y='proportion', hue='migration_matrix', data=data_saturation, jitter=True, palette=['red', 'blue', 'green', 'orange'], hue_order=['data/rare_migration_prob_matrix.csv', 'data/true_migration_prob_matrix.csv', 'data/moderate_migration_prob_matrix.csv', 'data/equal_migration_prob_matrix.csv'],dodge=True)
@@ -121,7 +121,7 @@ def plot_csv(csv_file, x_column, outdir):
 
     plt.xlabel(x_column)
     #plt.xticks(ticks=range(0,1,0.1), labels=range(0,1,0.1))
-    plt.xticks(rotation=-30, ha='left', fontsize=8)
+    #plt.xticks(rotation=-30, ha='left', fontsize=10)
     #plt.ylim(0,1)
     plt.ylabel('Proportion of true migrations inferred')
     plt.title('')
