@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="trueMM_subpopulationMigrations"
+parallel_sim_name="15_sim_vs_experimental_oldSimulatorFramework"
 
 # Set the mutation rates to explore
 # mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -36,7 +36,7 @@ parallel_sim_name="trueMM_subpopulationMigrations"
 ### mr input for mied strategies with an average of 0.1264
 mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
 mr2=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
-mr_array=("$mr1")
+mr_array=("$mr1" "$mr2")
 
 ### Use below to take input mutrate for scipy.optimize script
 #while [[ "$#" -gt 0 ]]; do

@@ -72,7 +72,7 @@ def plot_csv(csv_file, x_column, outdir):
     #data_true = data_true.sort_values(x_column)
     #data_equal = data_equal.sort_values(x_column)
     ci=95
-    plt.figure(figsize=(7, 8))
+    plt.figure(figsize=(10, 8))
     #sns.lineplot(x=x_column, y='proportion', data=data_rare, errorbar=('ci', ci), err_style='band', marker='o', color='red', label='Rare migration matrix')
     #sns.lineplot(x=x_column, y='proportion', data=data_true, errorbar=('ci', ci), err_style='band', marker='o', color='blue', label='True migration matrix')
     #sns.lineplot(x=x_column, y='proportion', data=data_equal, errorbar=('ci', ci), err_style='band', marker='o', color='green', label='Equal migration matrix')
@@ -121,8 +121,8 @@ def plot_csv(csv_file, x_column, outdir):
 
     plt.xlabel(x_column)
     #plt.xticks(ticks=range(0,1,0.1), labels=range(0,1,0.1))
-    #plt.xticks(rotation=-30, ha='left', fontsize=10)
-    #plt.ylim(0,1)
+    plt.xticks(rotation=-30, ha='left', fontsize=8)
+    plt.ylim(0,1.1)
     plt.ylabel('Proportion of true migrations inferred')
     plt.title('')
     #plt.legend(['Rare migration matrix', 'True migration matrix', 'Equal migration matrix'], loc='upper left', bbox_to_anchor=(0, 1))
