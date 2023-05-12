@@ -1,9 +1,9 @@
 # Migration history analysis
 
-This pipeline uses EvoTracR data based on a cancer Cas9 lineage tracing system to infer and analysie tumor
+This pipeline uses EvoTracR data based on a cancer Cas9 lineage tracing system to infer and analyze tumor
 migration histories.
 
-## Running the pipeline on EvoTracR outputs
+## Running the Machina inference pipeline on EvoTracR outputs
 
 Install the dependencies:
 
@@ -82,11 +82,6 @@ The generated FASTQ files can be used as EvoTraceR input. The `asv_stat.csv` is 
 
 The script used for evaluation is 'test_evotracer.py'. Set input parameters in 'test_config.py' such as the file paths for the indel character matrix, the cut positions, the mutations, and the asv_stat.csv file output from EvoTraceR. 
 
-## Limitations of the simulator
-
-* Indel lengths are drawn from an exponential distribution, but then filtered by length to prevent overlap, which is not the best way to model them
-* A better way to deal with indel lengths would be to draw them all from the exponential distribution and then overlay them simulateneously, allowing for overlaps. Then overlaps should be resolved so that old deletions take precedence. This better models how large deletions cause dropout of neighboring cut sites.
-
 ## Test EvoTraceR Usage
 ```
 Usage: python test_evotracer.py [options]
@@ -110,9 +105,33 @@ To compare the `asv_stat.csv` file to the ground truth, the separate indel matri
 
 ## Full simulation pipeline with EvoTraceR and Machina inference
 
-With the `simulate`, `r_env`, and `machina` conda environments already installed and validated on the independent wrappers, the entire simulation -> evotracer -> machina pipeline can be run with the `sim_full_pipeline.sh` script. There are some filepaths for installed dependencies that need to be manually updated for running machina in the last section of the script. Note: this pipeline also requires the EvoTraceR-parallelize repo to be installed and initialized in R.
+With the `simulate`, `r_env`, and `machina` conda environments already installed and validated on the independent wrappers, the entire simulation -> evotracer -> machina pipeline can be run with the `sim_full_pipeline.sh` script. There are some filepaths for installed dependencies (trimmomatic, flash, and evotraceR) that need to be manually updated for running machina in the Machina section of the pipeline. Note: this pipeline requires the EvoTraceR-parallelize repo to be installed and initialized in R.
 
-Here is example input to run the script:
+Here is example input to run the entire simulation pipeline script:
 ```
-./sim_full_pipeline.sh --out simmid --mutrate 0.1,0.1,0.1,0.1,0.1,0,0,0,0,0 --samples 50 --migration data/true_migration_prob_matrix.csv 
+./sim_full_pipeline.sh --out simmid --mutrate 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1 --samples 100 --migration data/true_migration_prob_matrix.csv 
 ```
+
+
+There is also a `parallel_sim.sh` wrapper script that allows for manual specification of the inputs to `sim_full_pipeline.sh` to then be run in parallel batches across nodes using ParaFly. This parallel_sim.sh script can be modified manually and then run as normally in bash with no parameter inputs at the command line:
+```
+./parallel_sim.sh
+```
+
+
+The `scripts/simulator.py` python script runs the simulation and outputs fasta file formats. This can be run with:
+```
+conda activate simulate
+python scripts/simulator.py simmid 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1 100 data/true_migration_prob_matrix.csv
+```
+
+
+The `sim_wrapper.sh` script wraps the `scripts/simulator.py` script to produce fastq files from the simulator output fasta file formats. This wrapper can be run:
+```
+conda activate simulate
+sim_wrapper.sh --out simmid --mutrate 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1 --samples 100 --migration data/true_migration_prob_matrix.csv
+```
+
+
+
+
