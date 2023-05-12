@@ -117,21 +117,3 @@ There is also a `parallel_sim.sh` wrapper script that allows for manual specific
 ```
 ./parallel_sim.sh
 ```
-
-
-The `scripts/simulator.py` python script runs the simulation and outputs fasta file formats. This can be run with:
-```
-conda activate simulate
-python scripts/simulator.py simmid 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1 100 data/true_migration_prob_matrix.csv
-```
-
-
-The `sim_wrapper.sh` script wraps the `scripts/simulator.py` script to produce fastq files from the simulator output fasta file formats. This wrapper can be run:
-```
-conda activate simulate
-sim_wrapper.sh --out simmid --mutrate 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1 --samples 100 --migration data/true_migration_prob_matrix.csv
-```
-
-
-
-
