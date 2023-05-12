@@ -1,4 +1,0 @@
-Status: True
-Solution: 0.12639846516042785
-Function value: -0.6081340000000001
-Number of function evaluations: 19
