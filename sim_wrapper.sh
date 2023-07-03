@@ -55,7 +55,7 @@ mv ${NAME}* ${outputdir}
 
 all_dir="${outputdir}all_samples_fastq/"
 mkdir ${all_dir}
-art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 150 -f 500 -o ${all_dir}${PREFIXALL}_R >> ${NAME}.log 2>&1
+art_illumina -ss MSv1 -amp -p -na -i ${outputdir}${FA_ALL}.fa -l 175 -f 1000 -o ${all_dir}${PREFIXALL}_R >> ${NAME}.log 2>&1
 for file in ${all_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
 tissues_column=$(cut -f 2 "${outputdir}${NAME}_tissues.tsv" | tail -n +2)
@@ -67,7 +67,7 @@ mkdir ${tissue_dir}
 for (( i=0; i<${NTISSUES}; i++ )); do
     FA_PREFIX="${NAME}_${TISSUES[$i]}"
     PREFIX="${MOUSE}_${TISSUES[$i]}_${REF}_${TAG}"
-    art_illumina -ss HS25 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 150 -f 500 -o ${tissue_dir}${PREFIX}_R >> ${NAME}.log 2>&1
+    art_illumina -ss MSv1 -amp -p -na -i ${outputdir}${FA_PREFIX}.fa -l 175 -f 1000 -o ${tissue_dir}${PREFIX}_R >> ${NAME}.log 2>&1
 done
 for file in ${tissue_dir}*.fq; do mv "$file" "${file%.fq}.fastq"; done
 
