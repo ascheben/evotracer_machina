@@ -2,6 +2,9 @@
 source ~/miniconda3/etc/profile.d/conda.sh
 
 parallel_sim_name="evoCapPaper_metastatic_trajectories_evoMachina_7.15.23"
+par_results="${parallel_sim_name}_parallel_sim_results"
+mkdir ${par_results}
+mkdir ${par_results}/data
 
 # Set the mutation rates to explore
 mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
@@ -61,12 +64,10 @@ ss_array=(100)
 # #mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${high_mm} ${true_mm})
 # mm_array=(${true_mm})
 
-primary_confined_mm="data/primary_confined_migration_prob_matrix.csv"
 primary_mono_seeding_mm="data/primary_mono_seeding_migration_prob_matrix.csv"
 primary_re_seeding_mm="data/primary_reseeding_migration_prob_matrix.csv"
-metastatic_confined_mm="data/metastatic_confined_migration_prob_matrix.csv"
 metastatic_re_seeding_mm="data/metastatic_reseeding_migration_prob_matrix.csv"
-mm_array=(${primary_confined_mm} ${primary_mono_seeding_mm} ${primary_re_seeding_mm} ${metastatic_confined_mm} ${metastatic_re_seeding_mm})
+mm_array=(${primary_mono_seeding_mm} ${primary_re_seeding_mm} ${metastatic_re_seeding_mm})
 
 
 # Setup headers for recording the input parameters in a csv
@@ -154,15 +155,15 @@ do
   # Append the second line of each csv file to the main file
   for f in sim_results*/comparison*; do tail -n +2 $f >> output_all_${parallel_sim_name}.csv; done
   # Remove all the individual csv files
-  rm -r sim_results*
+  #rm -r sim_results*
+  mv -r sim_results* ${par_results}/data/
 done
 
 echo "All batches are done."
 
 conda deactivate
 
-par_results="${parallel_sim_name}_parallel_sim_results"
-mkdir ${par_results}
+
 mv *${parallel_sim_name}.csv ${par_results}/
 
 
