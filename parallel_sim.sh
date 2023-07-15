@@ -1,10 +1,10 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="15_sim_vs_experimental_oldSimulatorFramework"
+parallel_sim_name="evoCapPaper_metastatic_trajectories_evoMachina_7.15.23"
 
 # Set the mutation rates to explore
-# mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
+mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
 # mr2=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0)
 # mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0)
 # mr4=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0,0)
@@ -34,9 +34,9 @@ parallel_sim_name="15_sim_vs_experimental_oldSimulatorFramework"
 # mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15" "$mr16" "$mr17" "$mr18" "$mr19" "$mr20" "$mr21" "$mr22" "$mr23" "$mr24" "$mr25" "$mr26" "$mr27")
 
 ### mr input for mied strategies with an average of 0.1264
-mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
-mr2=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
-mr_array=("$mr1" "$mr2")
+#mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
+#mr2=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
+mr_array=("$mr1")
 
 ### Use below to take input mutrate for scipy.optimize script
 #while [[ "$#" -gt 0 ]]; do
@@ -52,14 +52,22 @@ mr_array=("$mr1" "$mr2")
 ss_array=(100)
 
 # Set the migration matrix values that will be tested
-ultra_rare_mm="data/ultrarare_migration_prob_matrix.csv"
-rare_mm="data/rare_migration_prob_matrix.csv"
-moderate_mm="data/moderate_migration_prob_matrix.csv"
-true_mm="data/true_migration_prob_matrix.csv"
-high_mm="data/high_migration_prob_matrix.csv"
-equal_mm="data/equal_migration_prob_matrix.csv"
-#mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${high_mm} ${true_mm})
-mm_array=(${true_mm})
+# ultra_rare_mm="data/ultrarare_migration_prob_matrix.csv"
+# rare_mm="data/rare_migration_prob_matrix.csv"
+# moderate_mm="data/moderate_migration_prob_matrix.csv"
+# true_mm="data/true_migration_prob_matrix.csv"
+# high_mm="data/high_migration_prob_matrix.csv"
+# equal_mm="data/equal_migration_prob_matrix.csv"
+# #mm_array=(${rare_mm} ${equal_mm} ${moderate_mm} ${high_mm} ${true_mm})
+# mm_array=(${true_mm})
+
+primary_confined_mm="data/primary_confined_migration_prob_matrix.csv"
+primary_mono_seeding_mm="data/primary_mono_seeding_migration_prob_matrix.csv"
+primary_re_seeding_mm="data/primary_reseeding_migration_prob_matrix.csv"
+metastatic_confined_mm="data/metastatic_confined_migration_prob_matrix.csv"
+metastatic_re_seeding_mm="data/metastatic_reseeding_migration_prob_matrix.csv"
+mm_array=(${primary_confined_mm} ${primary_mono_seeding_mm} ${primary_re_seeding_mm} ${metastatic_confined_mm} ${metastatic_re_seeding_mm})
+
 
 # Setup headers for recording the input parameters in a csv
 mr_header="mutation_rate"

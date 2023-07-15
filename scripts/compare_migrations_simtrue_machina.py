@@ -8,6 +8,7 @@ true_migration_filepath = sys.argv[1]
 inferred_migration_filepath = sys.argv[2]
 sim_name = sys.argv[3]
 outdir = sys.argv[4]
+migration_matrix = sys.argv[5]
 
 true_df = pd.read_csv(true_migration_filepath, sep="\t")
 inferred_df = pd.read_csv(inferred_migration_filepath)
@@ -47,6 +48,8 @@ transitions_df = transitions_df.transpose()
 ### Extract the inferred migration values form the dataframe and append under the true values in the transitions df above
 transitions_df.loc[f'{sim_name}_inferred']=inferred_df.loc[:,inferred_df.columns.str.contains(':')].sum()
 
+# add migration matrix value for identification when running in parallel
+transitions_df['migration_matrix'] = [migration_matrix, migration_matrix]
 
 # output the comparison DataFrame to a CSV file
 transitions_df.reset_index(drop=False, inplace=True)
