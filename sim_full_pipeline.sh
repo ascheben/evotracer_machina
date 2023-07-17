@@ -177,7 +177,7 @@ echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_uniq_mutation
 
 conda activate simulate
 
-python ./scripts/compare_migrations_simtrue_machina.py "${outputdir}${NAME}_tissues.tsv" "${outputdir}${PREFIX}_migration.txt" "${NAME}" "${outputdir}"
+python ./scripts/compare_migrations_simtrue_machina.py "${outputdir}${NAME}_tissues.tsv" "${outputdir}${PREFIX}_migration.txt" "${NAME}" "${outputdir}" ${MIGRATION_MATRIX}
 
 conda deactivate
 
