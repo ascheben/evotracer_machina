@@ -99,8 +99,9 @@ PTISSUE="${TISSUES[1]}"
 
 timeout 3m ./run_pipeline.sh --infile ${ASV} --tree ${TREE} --scripts ${SPATH} --prefix ${PREFIX} --primary-tissue ${PTISSUE} --keep-first-cp
 
-mkdir ${outputdir}${PREFIX}
-mv ${PREFIX}_cp_output/* ${outputdir}${PREFIX}/
+machina_dir="${outputdir}${PREFIX}/"
+mkdir ${machina_dir}
+mv ${PREFIX}_cp_output/* ${machina_dir}/
 rm -r ${PREFIX}_cp_output/
 
 conda deactivate
@@ -108,35 +109,36 @@ conda deactivate
 
 ### Retain only migration related files and delete the rest
 # Prune files for simulator output
-mv ${sim_dir}${NAME}_true_tissues.nwk ${outputdir}
-mv ${sim_dir}${NAME}_tissues.tsv ${outputdir}
-mv ${sim_dir}${NAME}_mutations.tsv ${outputdir}
-mv ${sim_dir}${NAME}_indel_character_matrix.tsv ${outputdir}
+#mv ${sim_dir}${NAME}_true_tissues.nwk ${outputdir}
+#mv ${sim_dir}${NAME}_tissues.tsv ${outputdir}
+#mv ${sim_dir}${NAME}_mutations.tsv ${outputdir}
+#mv ${sim_dir}${NAME}_indel_character_matrix.tsv ${outputdir}
 #rm -r ${sim_dir}
 
 # Prune all EvoTraceR output files
 #rm -r ${evo_output_dir}
 
 # Prune Machina intermediate output files
-mv ${outputdir}${PREFIX}/${PREFIX}* ${outputdir}
-rm -r ${outputdir}${PREFIX}
+#mv ${machina_dir}/${PREFIX}* ${outputdir}
+#rm -r ${machina_dir}
+rm -r ${machina_dir}data
 
 ##################################################
 ### Compare total true and inferred migrations ###
 ##################################################
 echo "Starting simulated ground truth and Machina comparison..."
 # Extract the specified column and count the number of True values for the true migrations total
-true_count=$(awk -F'\t' '{print $6}' ${outputdir}${NAME}_tissues.tsv | grep -c True)
+true_count=$(awk -F'\t' '{print $6}' ${sim_dir}${NAME}_tissues.tsv | grep -c True)
 #echo "Total true migrations in the ${NAME} simulation: $true_count"
 
 # Extract numerical values from the "migrations" column and sum them for the inferred migrations total
-inferred_count=$(awk -F',' 'NR>1{sum+=$3} END{print sum}' ${outputdir}${PREFIX}_migration.txt)
+inferred_count=$(awk -F',' 'NR>1{sum+=$3} END{print sum}' ${machina_dir}${PREFIX}_migration.txt)
 #echo "Total inferred migrations in the ${NAME} simulation: $inferred_count"
 proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
 
-num_uniq_mutations=$(wc -l ${outputdir}${NAME}_mutations.tsv | awk '{print $1}')
+num_uniq_mutations=$(wc -l ${sim_dir}${NAME}_mutations.tsv | awk '{print $1}')
 
-avg_mut_age=$(awk '{ age += $NF } END { print age / NR }' ${outputdir}${NAME}_mutations.tsv)
+avg_mut_age=$(awk '{ age += $NF } END { print age / NR }' ${sim_dir}${NAME}_mutations.tsv)
 
 # Write both true and inferred to an output csv with the input parameters stored
 echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" >> ${outputdir}comparison_inferred_true_migration_${NAME}.csv
@@ -168,7 +170,7 @@ while read line; do
     row_mut_count=$(echo "$line" | cut -f 2- | tr '\t' '\n' | grep -v -e "^$" -e "^-1$" -e "^0$" | wc -l)
     total_mut_sites=$((total_mut_sites + row_mut_count))
     mut_array+=("$row_mut_count")
-done < <(tail -n +2 "${outputdir}${NAME}_indel_character_matrix.tsv")
+done < <(tail -n +2 "${sim_dir}${NAME}_indel_character_matrix.tsv")
 avg_row_dropout=$(echo "scale=4; $total_dropout / $NUM_SAMPLES" | bc)
 avg_mut_sites_per_sample=$(echo "scale=4; $total_mut_sites / $NUM_SAMPLES" | bc)
 avg_proportion_mut_sites=$(echo "scale=4; $avg_mut_sites_per_sample / $num_sites" | bc)
@@ -177,7 +179,7 @@ echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_uniq_mutation
 
 conda activate simulate
 
-python ./scripts/compare_migrations_simtrue_machina.py "${outputdir}${NAME}_tissues.tsv" "${outputdir}${PREFIX}_migration.txt" "${NAME}" "${outputdir}" ${MIGRATION_MATRIX}
+python ./scripts/compare_migrations_simtrue_machina.py "${sim_dir}${NAME}_tissues.tsv" "${machina_dir}${PREFIX}_migration.txt" "${NAME}" "${outputdir}" ${MIGRATION_MATRIX}
 
 conda deactivate
 

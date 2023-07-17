@@ -136,14 +136,14 @@ def generate_indel():
         mut_bases = mut_size * "-"
     return mut_bases
 
-def sim_chars(tree,mut_rate,num_cuts):
+def sim_chars(tree,mut_rate,num_cuts,sample_num):
     np.random.seed(seed=None)
     lt_sim = cas.sim.Cas9LineageTracingDataSimulator(
         number_of_cassettes = num_cuts,
         size_of_cassette = 1,
         mutation_rate = mut_rate, # can also be a list of rates of equal len to num_cuts
         state_generating_distribution = lambda: np.random.exponential(1e-5),
-        number_of_states = 100,
+        number_of_states = sample_num,
         state_priors = None,
         heritable_silencing_rate = 0, #heritable_silencing_rate = 9e-4,
         stochastic_silencing_rate = 0, #stochastic_silencing_rate = 0.1,
@@ -227,23 +227,6 @@ def assign_tissue_labels(cas_tree,trans_mat):
     
     return tissues_df, tree_labeled
 
-def subsample_tissue_labels(tissue_df,subsampled_tree):
-    tissue_df = tissue_df.copy()
-    sub_tree = subsampled_tree.copy()
-
-    # re-label the subsampled tree with the tissue label concatenated
-    subsampled_nodes = sub_tree.nodes
-    tissue_df_subsampled = tissue_df[tissue_df['node'].isin(subsampled_nodes)]
-    node_tissue_dict = {key: f'{key}_{value}' for key, value in zip(tissue_df_subsampled['node'], tissue_df_subsampled['tissue'])}
-    sub_tree.relabel_nodes(node_tissue_dict)
-
-    # Change Casseiopeia tree to ETE tree to retain internal node labels when writing newick later
-    connections = sub_tree.edges
-    sub_tree = Tree.from_parent_child_table(connections)
-
-    return tissue_df_subsampled, sub_tree
-
-
 ## PARAMETERS ##
 outprefix = sys.argv[1]
 m = sys.argv[2]
@@ -316,7 +299,7 @@ with open(out_tree_tissues,'w') as ttt:
     ttt.write(labeled_tree.write(format=8))
 
 # Cassipeia can take a list of values for the mutation rate, applying a different rate to each site
-final_matrix = sim_chars(ground_truth_tree,m,num_cuts)
+final_matrix = sim_chars(ground_truth_tree,m,num_cuts,sample_num)
 site_names = list(final_matrix.columns)
 seq_arr = np.array(list(ref_seq))
 # alternative way to get ref cut sites but with unequal spacing due to rounding
