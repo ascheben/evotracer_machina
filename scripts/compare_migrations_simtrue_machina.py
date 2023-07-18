@@ -59,6 +59,7 @@ if os.path.exists(inferred_migration_filepath):
     transitions_df['migration_matrix'] = [migration_matrix_filepath, migration_matrix_filepath]       # add migration matrix value for identification when running in parallel
 else:
     transitions_df['migration_matrix'] = [migration_matrix_filepath]
+transitions_df = transitions_df.fillna(0)
 
 # calculate specific metastatic path aware true positives, false positives, and false negative counts with statistics for inferred vs. true data
 if os.path.exists(inferred_migration_filepath):
@@ -92,6 +93,6 @@ if os.path.exists(inferred_migration_filepath):
 # output the comparison DataFrame to a CSV file
 transitions_df.reset_index(drop=False, inplace=True)
 transitions_df = transitions_df.rename(columns={'index':'name'})
-transitions_df.to_csv(f'{outdir}detailed_comparison_inferred_true_migration_{sim_name}.csv', index=False, na_rep='NaN')
+transitions_df.to_csv(f'{outdir}detailed_comparison_inferred_true_migration_{sim_name}.csv', index=False, na_rep=0)
     
 
