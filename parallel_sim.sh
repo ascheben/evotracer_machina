@@ -73,7 +73,9 @@ mm_6="data/migration_matrices/migration_matrix_075.csv"   ## 0.075 migration rat
 mm_7="data/migration_matrices/migration_matrix_1.csv"   ## 0.1 migration rate split between all tissues
 mm_8="data/migration_matrices/migration_matrix_25.csv"   ## 0.25 migration rate split between all tissues
 mm_9="data/migration_matrices/migration_matrix_50.csv"   ## 0.50 migration rate split between all tissues
-mm_array=(${mm_1} ${mm_2} ${mm_3} ${mm_4} ${mm_5} ${mm_6} ${mm_7} ${mm_8} ${mm_9})
+mm_10="data/migration_matrices/migration_matrix_75.csv"   ## 0.75 migration rate split between all tissues
+mm_11="data/migration_matrices/migration_matrix_99.csv"   ## 0.99 migration rate split between all tissues
+mm_array=(${mm_1} ${mm_2} ${mm_3} ${mm_4} ${mm_5} ${mm_6} ${mm_7} ${mm_8} ${mm_9} ${mm_10} ${mm_11})
 
 # primary_mono_seeding_mm="data/primary_mono_seeding_migration_prob_matrix.csv"
 # primary_re_seeding_mm="data/primary_reseeding_migration_prob_matrix.csv"
