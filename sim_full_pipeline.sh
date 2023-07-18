@@ -132,9 +132,21 @@ true_count=$(awk -F'\t' '{print $6}' ${sim_dir}${NAME}_tissues.tsv | grep -c Tru
 #echo "Total true migrations in the ${NAME} simulation: $true_count"
 
 # Extract numerical values from the "migrations" column and sum them for the inferred migrations total
-inferred_count=$(awk -F',' 'NR>1{sum+=$3} END{print sum}' ${machina_dir}${PREFIX}_migration.txt)
+inferred_filepath="${machina_dir}${PREFIX}_migration.txt"
+if [ -e "$inferred_filepath" ]; then
+  inferred_count=$(awk -F',' 'NR>1{sum+=$3} END{print sum}' ${inferred_filepath})
+else
+  inferred_count=0
+fi
+    
 #echo "Total inferred migrations in the ${NAME} simulation: $inferred_count"
-proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
+if (( true_count > 0 && inferred_count > 0 )); then
+  proportion=$(echo "scale=4;$inferred_count/$true_count" | bc)
+elif (( true_count == 0 && inferred_count == 0 )); then
+  proportion=1
+else
+  proportion=0
+fi
 
 num_uniq_mutations=$(wc -l ${sim_dir}${NAME}_mutations.tsv | awk '{print $1}')
 
@@ -179,7 +191,7 @@ echo "${NAME},${mr_write},${NUM_SAMPLES},${MIGRATION_MATRIX},${num_uniq_mutation
 
 conda activate simulate
 
-python ./scripts/compare_migrations_simtrue_machina.py "${sim_dir}${NAME}_tissues.tsv" "${machina_dir}${PREFIX}_migration.txt" "${NAME}" "${outputdir}" ${MIGRATION_MATRIX}
+python ./scripts/compare_migrations_simtrue_machina.py "${sim_dir}${NAME}_tissues.tsv" ${inferred_filepath} "${NAME}" "${outputdir}" ${MIGRATION_MATRIX}
 
 conda deactivate
 

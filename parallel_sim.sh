@@ -1,7 +1,7 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="trueInferredMigrations_variableMigrationRate_evoMachina_7.17.23"
+parallel_sim_name="statisticalComparison_variableMigrationRate_evoMachina_7.18.23"
 par_results="${parallel_sim_name}_parallel_sim_results"
 mkdir ${par_results}
 mkdir ${par_results}/data
@@ -135,6 +135,7 @@ echo "There are ${#commands[@]} commands to be submitted."
 
 # Create the main output file with the header
 echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
+echo "machina_sim_name,true_positives,false_positives,false_negatives,precision,recall,f1_score" > output_statistics_machina_all_${parallel_sim_name}.csv
 
 # Submit the commands in batches of 20 using ParaFly
 batch_size=20
@@ -167,6 +168,7 @@ do
   rm ${i}.cmd.completed
   # Append the second line of each csv file to the main file
   for f in sim_results*/comparison*; do tail -n +2 $f >> output_all_${parallel_sim_name}.csv; done
+  for f in sim_results*/statistics*; do tail -n +2 $f >> output_statistics_machina_all_${parallel_sim_name}.csv; done
   # Remove all the individual csv files
   #rm -r sim_results*
   mv sim_results* ${par_results}/data/
