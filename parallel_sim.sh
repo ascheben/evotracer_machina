@@ -1,13 +1,13 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="variableMutrateMigrationRepeat_evoMachina_7.15.23"
+parallel_sim_name="trueInferredMigrations_variableMigrationRate_evoMachina_7.17.23"
 par_results="${parallel_sim_name}_parallel_sim_results"
 mkdir ${par_results}
 mkdir ${par_results}/data
 
 # Set the mutation rates to explore
-# mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
+mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
 # mr2=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0)
 # mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0)
 # mr4=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0,0)
@@ -17,15 +17,15 @@ mkdir ${par_results}/data
 # mr8=(0.1,0.1,0.1,0,0,0,0,0,0,0)
 # mr9=(0.1,0.1,0,0,0,0,0,0,0,0)
 # mr10=(0.1,0,0,0,0,0,0,0,0,0)
-mr1=(0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01)
-mr2=(0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05)
-mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
-mr4=(0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15)
-mr5=(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2)
-mr6=(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3)
-mr7=(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5)
-mr8=(0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7)
-mr9=(1,1,1,1,1,1,1,1,1,1)
+# mr1=(0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01)
+# mr2=(0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05)
+# mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
+# mr4=(0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15)
+# mr5=(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2)
+# mr6=(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3)
+# mr7=(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5)
+# mr8=(0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7)
+# mr9=(1,1,1,1,1,1,1,1,1,1)
 # mr20=(1,0.01,1,0.01,1,0.01,1,0.01,1,0.01)
 # mr21=(1,1,1,1,0.1,0.1,0.1,0.01,0.01,0.01)
 # mr22=(1,1,1,1,1,0.01,0.01,0.01,0.01,0.01)
@@ -34,12 +34,12 @@ mr9=(1,1,1,1,1,1,1,1,1,1)
 # mr25=(1,0.01,0.01,1,0.01,0.01,1,0.01,0.01,1)
 # mr26=(1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
 # mr27=(0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01)
-mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9")
+# mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9")
 
 ### mr input for mied strategies with an average of 0.1264
 #mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
 #mr2=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
-#mr_array=("$mr1")
+mr_array=("$mr1")
 
 ### Use below to take input mutrate for scipy.optimize script
 #while [[ "$#" -gt 0 ]]; do
@@ -56,13 +56,24 @@ ss_array=(100)
 
 # Set the migration matrix values that will be tested
 # ultra_rare_mm="data/ultrarare_migration_prob_matrix.csv"
-rare_mm="data/rare_migration_prob_matrix.csv"
+# rare_mm="data/rare_migration_prob_matrix.csv"
 #moderate_mm="data/moderate_migration_prob_matrix.csv"
-true_mm="data/true_migration_prob_matrix.csv"
-high_mm="data/high_migration_prob_matrix.csv"
+# true_mm="data/true_migration_prob_matrix.csv"
+# high_mm="data/high_migration_prob_matrix.csv"
 #equal_mm="data/equal_migration_prob_matrix.csv"
-mm_array=(${rare_mm} ${true_mm} ${high_mm})
+# mm_array=(${rare_mm} ${true_mm} ${high_mm})
 # mm_array=(${true_mm})
+
+mm_1="data/migration_matrices/migration_matrix_001.csv"  ## 0.001 migration rate split between all tissues
+mm_2="data/migration_matrices/migration_matrix_005.csv"   ## 0.005 migration rate split between all tissues
+mm_3="data/migration_matrices/migration_matrix_01.csv"   ## 0.01 migration rate split between all tissues
+mm_4="data/migration_matrices/migration_matrix_025.csv"   ## 0.025 migration rate split between all tissues
+mm_5="data/migration_matrices/migration_matrix_05.csv"   ## 0.05 migration rate split between all tissues
+mm_6="data/migration_matrices/migration_matrix_075.csv"   ## 0.075 migration rate split between all tissues
+mm_7="data/migration_matrices/migration_matrix_1.csv"   ## 0.1 migration rate split between all tissues
+mm_8="data/migration_matrices/migration_matrix_25.csv"   ## 0.25 migration rate split between all tissues
+mm_9="data/migration_matrices/migration_matrix_50.csv"   ## 0.50 migration rate split between all tissues
+mm_array=(${mm_1} ${mm_2} ${mm_3} ${mm_4} ${mm_5} ${mm_6} ${mm_7} ${mm_8} ${mm_9})
 
 # primary_mono_seeding_mm="data/primary_mono_seeding_migration_prob_matrix.csv"
 # primary_re_seeding_mm="data/primary_reseeding_migration_prob_matrix.csv"
