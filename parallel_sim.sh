@@ -135,7 +135,7 @@ echo "There are ${#commands[@]} commands to be submitted."
 
 # Create the main output file with the header
 echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
-echo "machina_sim_name,true_positives,false_positives,false_negatives,precision,recall,f1_score" > output_statistics_machina_all_${parallel_sim_name}.csv
+echo "machina_sim_name,migration_matrix,true_positives,false_positives,false_negatives,precision,recall,f1_score" > output_statistics_machina_all_${parallel_sim_name}.csv
 
 # Submit the commands in batches of 20 using ParaFly
 batch_size=20

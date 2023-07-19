@@ -79,6 +79,7 @@ if os.path.exists(inferred_migration_filepath):
     f1_score = 2 * (precision * recall) / (precision + recall)
     stats_data = {
         'machina_sim_name': [sim_name],
+        'migration_matrix': [migration_matrix_filepath],
         'true_positives': [tp],
         'false_positives': [fp],
         'false_negatives': [fn],
