@@ -1,9 +1,10 @@
-# CRISPR Cas9 lineage tracing data analysis EvoTraceR/MACHINA and simulation framework for CRISPR Cas9 lineage tracing data
+# CRISPR Cas9 lineage tracing data analysis with EvoTraceR/MACHINA and simulation framework for CRISPR Cas9 lineage tracing data
 
 This repo accomplishes 2 main tasks:
 
-        1. Capable of analyzing experimental data from a cancer Cas9 lineage tracing system with EvoTraceR to then infer and analyze tumor migration histories with MACHINA.
-        2. Provides a thorough simulation framework that simulates CRISPR Cas9 lineage tracing barcode sequences as FASTQ files to evaluate the efficiency of the EvoTraceR pipeline in collapsing unique barcode inputs into amplicon sequence variants (ASVs) output. The repo also contains optional capabilities to compare EvoTraceR to other commonly used tools for calling mutations from a single CRISPR Cas9 target site, ampliCan and CRISPResso2. It is also possible to generate simulations based on specifying migration probabilities to evaluate the EvoTraceR and MACHINA migration history inference.
+1. Capable of analyzing experimental data from a cancer Cas9 lineage tracing system with EvoTraceR to then infer and analyze tumor migration histories with MACHINA.
+
+2. Provides a thorough simulation framework that simulates CRISPR Cas9 lineage tracing barcode sequences as FASTQ files to evaluate the efficiency of the EvoTraceR pipeline in collapsing unique barcode inputs into amplicon sequence variants (ASVs) output. The repo also contains optional capabilities to compare EvoTraceR to other commonly used tools for calling mutations from a single CRISPR Cas9 target site, ampliCan and CRISPResso2. It is also possible to generate simulations based on specifying migration probabilities to evaluate the EvoTraceR and MACHINA migration history inference.
 
 
 ## Required software environments for Simulation, EvoTraceR, MACHINA, ampliCan, and CRISPResso2
@@ -119,18 +120,20 @@ Now we can create a series of commands to run the MACHINA pipeline on each of th
 We developed a simulation framework of ground truth amplicon sequences that is compatible with analysis by EvoTraceR, ampliCan, and CRISPResso2 or by EvoTraceR/MACHINA. The `./scripts/simulator.py` script calls [Cassiopeia](https://cassiopeia-lineage.readthedocs.io/en/latest/index.html) and [art](https://www.niehs.nih.gov/research/resources/software/biostatistics/art/index.cfm) to carry out the simulation. The `./scripts/simulator.py` is wrapped for formatting with `./scripts/simulator/sim_wrapper.sh` and the whole simulation is governed by and best used through `./sim_full_pipeline.sh` which has the following input requirements:
 
 Required command line inputs:
-
+```
 [--out <out_name>] is the desired output directory name for the simulation. It should not be an already existing directory.
 [--mutrate <float|comma-sep list of floats>] is a 10 float comma seperated list of mutation rates for each of the 10 target sites in the CRISPR Cas9 barcode. Mutation rates must be between 0 and 1.
 [--samples <int>] is the number of sample barcodes to be simulated and must be less than 10,000 to be compatible with the current Cassiopeia tree downsampling setup.
+```
 
 Optional command line inputs:
-
+```
 [--evotracer] is an optional flag specifying to run EvoTraceR.
 [--amplican] is an optional flag specifying to run ampliCan.
 [--crispresso2] is an optional flag specifying to run CRISPResso2.
 [--machina] is an optional flag specifying to run MACHINA. If this optional flag is used, then EvoTraceR is automatically run in combination and the other optional flags are invalid.
 [--migration <migration_matrix_filepath>] is optional if not running MACHINA, but required if running MACHINA. It specifies the filepath of the csv matrix with tissue labels and probabilities of migration between tissues for the simulation to output tissue labeled data compatible with MACHINA.
+```
 
 ### Running the full simulation pipeline with optional EvoTraceR, ampliCan, and CRISPResso2 analysis or EvoTraceR/MACHINA analysis
 
@@ -165,7 +168,7 @@ There are three optional flags to run EvoTraceR, ampliCan, and CRISPResso2 follo
 
 ### Parallelization of the full simulation pipeline
 
-There is a `parallel_sim.sh` wrapper script that allows for manual specification of the inputs to `sim_full_pipeline.sh` to then run the pipeline in parallel batches across nodes using ParaFly. This script is best used after having a general understanding of `sim_full_pipeline.sh` due to the need for extensive manual changes of the `sim_full_pipeline.sh` input within `parallel_sim.sh`. This parallel_sim.sh script can be run with:
+There is a `parallel_sim.sh` wrapper script that allows for manual specification of the inputs to `sim_full_pipeline.sh` to then run the pipeline in parallel batches across nodes using ParaFly. This script is best used after having a general understanding of `sim_full_pipeline.sh` due to the need for extensive manual changes of the `sim_full_pipeline.sh` input within `parallel_sim.sh`. The `parallel_sim.sh`` script can be run with:
 ```
 ./parallel_sim.sh
 ```
