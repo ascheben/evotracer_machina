@@ -1,57 +1,43 @@
 #!/bin/bash
 source ~/miniconda3/etc/profile.d/conda.sh
 
-parallel_sim_name="statisticalComparison_variableMigrationRate_evoMachina_7.18.23"
-par_results="${parallel_sim_name}_parallel_sim_results"
-mkdir ${par_results}
-mkdir ${par_results}/data
+parallel_sim_name="simEvoCompareBulkMutrates_FlexibleTP1bpEndMismatch_7_17_23"
+running_machina=false   ### SET TO TRUE IF RUNNING MACHINA
 
 # Set the mutation rates to explore
-mr1=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
-# mr2=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0)
-# mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0)
-# mr4=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0,0,0)
-# mr5=(0.1,0.1,0.1,0.1,0.1,0.1,0,0,0,0)
-# mr6=(0.1,0.1,0.1,0.1,0.1,0,0,0,0,0)
-# mr7=(0.1,0.1,0.1,0.1,0,0,0,0,0,0)
-# mr8=(0.1,0.1,0.1,0,0,0,0,0,0,0)
-# mr9=(0.1,0.1,0,0,0,0,0,0,0,0)
-# mr10=(0.1,0,0,0,0,0,0,0,0,0)
-# mr1=(0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01)
-# mr2=(0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05)
-# mr3=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
-# mr4=(0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15)
-# mr5=(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2)
-# mr6=(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3)
-# mr7=(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5)
-# mr8=(0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7)
-# mr9=(1,1,1,1,1,1,1,1,1,1)
-# mr20=(1,0.01,1,0.01,1,0.01,1,0.01,1,0.01)
-# mr21=(1,1,1,1,0.1,0.1,0.1,0.01,0.01,0.01)
-# mr22=(1,1,1,1,1,0.01,0.01,0.01,0.01,0.01)
-# mr23=(1,1,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01)
-# mr24=(1,0.1,1,0.1,1,0.1,1,0.1,1,0.1)
-# mr25=(1,0.01,0.01,1,0.01,0.01,1,0.01,0.01,1)
-# mr26=(1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
-# mr27=(0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01,0.1,0.01)
-# mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9")
 
-### mr input for mied strategies with an average of 0.1264
+# Empirical mutation rates
+#mr1=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
+
+# Easy alignment mode mutation rates
 #mr1=(0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264,0.1264)
-#mr2=(0.3173305,0.0009823,0.00000008,0.00000162,0.00000335,0.18609872,0.00000254,0,0,0)
-mr_array=("$mr1")
-
-### Use below to take input mutrate for scipy.optimize script
-#while [[ "$#" -gt 0 ]]; do
-#    case $1 in
-#        -m|--mutrate) mr_array="$2"; shift ;;
-#    *) echo "Unknown parameter passed: $1"; echo "Usage: parallel_sim.sh -m <10 comma seperated values 0 to 1>" ; exit 1 ;;
-#    esac
-#    shift
-#done ### remove to above if not doing scipy for mutrate. Input mutrate can be manual for manual simulations not with scipy.
+#mr1=(0,0,0,0,0.1,0,0,0,0,0)
+#mr_array=("$mr1")
+# mr1=(0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001)
+# mr2=(0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005,0.005)
+mr1=(0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01)
+mr2=(0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02)
+mr3=(0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03,0.03)
+mr4=(0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04,0.04)
+mr5=(0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05)
+mr6=(0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06)
+mr7=(0.07,0.07,0.07,0.07,0.07,0.07,0.07,0.07,0.07,0.07)
+mr8=(0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.08)
+mr9=(0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09,0.09)
+mr10=(0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1)
+mr11=(0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15)
+mr12=(0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2,0.2)
+mr13=(0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3)
+mr14=(0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4)
+mr15=(0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5)
+# mr18=(0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6,0.6)
+# mr19=(0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7)
+# mr20=(0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8)
+# mr21=(0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.9)
+# mr22=(1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0)
+mr_array=("$mr1" "$mr2" "$mr3" "$mr4" "$mr5" "$mr6" "$mr7" "$mr8" "$mr9" "$mr10" "$mr11" "$mr12" "$mr13" "$mr14" "$mr15")
 
 # Set the sample sizes to explore
-#ss_array=(100 250 500 750 1000)
 ss_array=(100)
 
 # Set the migration matrix values that will be tested
@@ -77,46 +63,40 @@ mm_10="data/migration_matrices/migration_matrix_75.csv"   ## 0.75 migration rate
 mm_11="data/migration_matrices/migration_matrix_99.csv"   ## 0.99 migration rate split between all tissues
 mm_array=(${mm_1} ${mm_2} ${mm_3} ${mm_4} ${mm_5} ${mm_6} ${mm_7} ${mm_8} ${mm_9} ${mm_10} ${mm_11})
 
-# primary_mono_seeding_mm="data/primary_mono_seeding_migration_prob_matrix.csv"
-# primary_re_seeding_mm="data/primary_reseeding_migration_prob_matrix.csv"
-# metastatic_re_seeding_mm="data/metastatic_reseeding_migration_prob_matrix.csv"
-# mm_array=(${primary_mono_seeding_mm} ${primary_re_seeding_mm} ${metastatic_re_seeding_mm})
 
 
-# Setup headers for recording the input parameters in a csv
-mr_header="mutation_rate"
-ss_header="sample_size"
-mm_header="migration_matrix"
+if [[ "$running_machina" = false ]]; then
+  # Setup headers for recording the input parameters in a csv
+  mr_header="mutation_rate"
+  ss_header="sample_size"
 
-# Determine the maximum length of the arrays for input parameter csv writing
-max_len=${#mm_array[@]}
-if [ ${#mr_array[@]} -gt $max_len ]; then
-  max_len=${#mr_array[@]}
-fi
-if [ ${#ss_array[@]} -gt $max_len ]; then
-  max_len=${#ss_array[@]}
-fi
+  # Determine the maximum length of the arrays for input parameter csv writing
+  max_len=${#mm_array[@]}
+  if [ ${#mr_array[@]} -gt $max_len ]; then
+    max_len=${#mr_array[@]}
+  fi
+  if [ ${#ss_array[@]} -gt $max_len ]; then
+    max_len=${#ss_array[@]}
+  fi
 
-# Write the array values to a CSV file
-echo "${mr_header},${ss_header},${mm_header}" > input_ranges_${parallel_sim_name}.csv
+  # Write the array values to a CSV file
+  echo "${mr_header},${ss_header}" > input_ranges_${parallel_sim_name}.csv
 
-for ((i=0; i<$max_len; i++)); 
-  do
-    mr=${mr_array[$i]:-}
-    mr=${mr//,/ }
-    ss=${ss_array[$i]:-}
-    mm=${mm_array[$i]:-}
-    echo "${mr},${ss},${mm}" >> input_ranges_${parallel_sim_name}.csv
-  done
+  for ((i=0; i<$max_len; i++)); 
+    do
+      mr=${mr_array[$i]:-}
+      mr=${mr//,/ }
+      ss=${ss_array[$i]:-}
+      echo "${mr},${ss}" >> input_ranges_${parallel_sim_name}.csv
+    done
 
-# Create an array to store all the commands
-commands=()
+  # Create an array to store all the commands
+  commands=()
 
-echo "Setting up all parameter combinations..."
-# Loop over all combinations of the three arrays and add the command to the commands array
-j=0
-for mm in ${mm_array[@]}
-do
+  echo "Setting up all parameter combinations..."
+  # Loop over all combinations of the three arrays and add the command to the commands array
+  j=0
+
   for mr in ${mr_array[@]}
   do
     for ss in ${ss_array[@]}
@@ -124,18 +104,81 @@ do
       for ((rep=0; rep<100; rep++))   ### Can set the amount of repeat simulations with the same parameters
       do
       simmid="sim${j}"
-      cmd="./sim_full_pipeline.sh --out ${simmid} --mutrate ${mr} --samples ${ss} --migration ${mm}"
+      cmd="./sim_full_pipeline.sh --evotracer --out ${simmid} --mutrate ${mr} --samples ${ss}"
       commands+=("$cmd")
       j=$((j+1))
       done
     done
   done
-done
+fi
+
+
+
+if [[ "$running_machina" = true ]]; then
+  # Setup headers for recording the input parameters in a csv
+  mr_header="mutation_rate"
+  ss_header="sample_size"
+  mm_header="migration_matrix"
+
+  # Determine the maximum length of the arrays for input parameter csv writing
+  max_len=${#mm_array[@]}
+  if [ ${#mr_array[@]} -gt $max_len ]; then
+    max_len=${#mr_array[@]}
+  fi
+  if [ ${#ss_array[@]} -gt $max_len ]; then
+    max_len=${#ss_array[@]}
+  fi
+
+  # Write the array values to a CSV file
+  echo "${mr_header},${ss_header},${mm_header}" > input_ranges_${parallel_sim_name}.csv
+
+  for ((i=0; i<$max_len; i++)); 
+    do
+      mr=${mr_array[$i]:-}
+      mr=${mr//,/ }
+      ss=${ss_array[$i]:-}
+      mm=${mm_array[$i]:-}
+      echo "${mr},${ss},${mm}" >> input_ranges_${parallel_sim_name}.csv
+    done
+
+  # Create an array to store all the commands
+  commands=()
+
+  echo "Setting up all parameter combinations..."
+  # Loop over all combinations of the three arrays and add the command to the commands array
+  j=0
+  for mm in ${mm_array[@]}
+  do
+    for mr in ${mr_array[@]}
+    do
+      for ss in ${ss_array[@]}
+      do
+        for ((rep=0; rep<100; rep++))   ### Can set the amount of repeat simulations with the same parameters
+        do
+        simmid="sim${j}"
+        cmd="./sim_full_pipeline.sh --machina --out ${simmid} --mutrate ${mr} --samples ${ss} --migration ${mm}"
+        commands+=("$cmd")
+        j=$((j+1))
+        done
+      done
+    done
+  done
+fi
+
 echo "There are ${#commands[@]} commands to be submitted."
 
-# Create the main output file with the header
-echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" > output_all_${parallel_sim_name}.csv
-echo "machina_sim_name,migration_matrix,true_positives,false_positives,false_negatives,precision,recall,f1_score" > output_statistics_machina_all_${parallel_sim_name}.csv
+# Create the main output files with the headers. These can be commented out if not running specific packages in the sim_full_pipeline.sh command line optional flag inputs.
+echo "name,mutrate,num_samples,num_uniq_mutations,num_uniq_barcodes,num_ASVs,proportion_ASVs_barcodes,avg_alignment_error,num_barcodes_missing,proportion_barcodes_missing,proportion_barcodes_found,num_barcodes_found,proportion_ASVs_barcodes_found" > output_sim_evotracer_${parallel_sim_name}.csv
+echo "sim_name,mutrate,num_samples,sim_mutations,count_sim_mutations,evotracer_mutations,count_evotracer_mutations,evo_precision,evo_recall,evo_f1,amplican_mutations,count_amplican_mutations,amp_precision,amp_recall,amp_f1,crispresso2_mutations,count_crispresso2_mutations,crispresso2_precision,crispresso2_recall,crispresso2_f1" > output_simEvoAmpCressoCompare_${parallel_sim_name}.csv
+if [["$running_machina" = true]]; then
+  echo "name,mutrate,num_samples,migration_matrix,num_uniq_mutations,uniq_mut_per_site,total_mut_sites,avg_mut_sites_per_sample,avg_proportion_mut_sites,total_dropout,dropout_per_sample,avg_mutation_age,true_migrations,inferred_migrations,proportion" > output_machina_all_${parallel_sim_name}.csv
+  echo "machina_sim_name,migration_matrix,true_positives,false_positives,false_negatives,precision,recall,f1_score" > output_statistics_machina_all_${parallel_sim_name}.csv
+fi
+
+par_results="${parallel_sim_name}_parallel_sim_results"
+mkdir ${par_results}
+par_results_data="${par_results}/data"
+mkdir ${par_results_data}
 
 # Submit the commands in batches of 20 using ParaFly
 batch_size=20
@@ -166,18 +209,22 @@ do
   ParaFly -CPU ${batch_size} -c ${i}.cmd
   rm ${i}.cmd
   rm ${i}.cmd.completed
-  # Append the second line of each csv file to the main file
-  for f in sim_results*/comparison*; do tail -n +2 $f >> output_all_${parallel_sim_name}.csv; done
-  for f in sim_results*/statistics*; do tail -n +2 $f >> output_statistics_machina_all_${parallel_sim_name}.csv; done
-  # Remove all the individual csv files
+  # Append the second line of each csv file to the main files
+  for f in sim_results*/comparison_sim*; do tail -n +2 $f >> output_sim_evotracer_${parallel_sim_name}.csv; done
+  for f in sim_results*/compare_*; do tail -n +2 $f >> output_simEvoAmpCressoCompare_${parallel_sim_name}.csv; done
+
+  if [["$running_machina" = true]]; then
+    for f in sim_results*/comparison_inferred*; do tail -n +2 $f >> output_machina_all_${parallel_sim_name}.csv; done
+    for f in sim_results*/statistics*; do tail -n +2 $f >> output_statistics_machina_all_${parallel_sim_name}.csv; done
+  fi
+
+  mv sim_results_sim* ${par_results_data}/
   #rm -r sim_results*
-  mv sim_results* ${par_results}/data/
 done
 
 echo "All batches are done."
 
 conda deactivate
-
 
 mv *${parallel_sim_name}.csv ${par_results}/
 

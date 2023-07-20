@@ -235,11 +235,8 @@ if sample_num > 10000:
     print("Sample size is over 10,000 - this is too large. Exiting!")
     sys.exit()
 migration_matrix_filepath = str(sys.argv[4])
-migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
-#migration_matrix = {"PRL":{"PRL":0.999,"HMR":0.001, "LGR":0.001},
-#                    "HMR":{"PRL":0.001,"HMR":0.999,"LGR":0.001},
-#                    "LGR":{"PRL":0.001,"HMR":0.999,"LGR":0.001}}
-#migration_matrix_filepath = "data/true_migration_prob_matrix.csv"
+if migration_matrix_filepath != "NA":
+    migration_matrix = pd.read_csv(migration_matrix_filepath, header=0, index_col=0).to_dict(orient='index')
 num_cuts = 10
 ref_seq = "TCTACACGCGCGTTCAACCGAGGAAAACTACACACACGTTCAACCACGGTTTTTTACACACGCATTCAACCACGGACTGCTACACACGCACTCAACCGTGGATATTTACATACTCGTTCAACCGTGGATTGTTACACCCGCGTTCAACCAGGGTCAGATACACCCACGTTCAACCGTGGTACTATACTCGGGCATTCAACCGCGGCTTTCTGCACACGCCTACAACCGCGGAACTATACACGTGCATTCACCCGTGGATC"
 # positions are 1-indexed
@@ -287,16 +284,16 @@ ground_truth_tree = cas.sim.UniformLeafSubsampler(number_of_leaves=sample_num).s
 #print("True tree:",ground_truth_tree.get_newick(record_branch_lengths=False))
 #s1 = ground_truth_tree.get_newick(record_branch_lengths=True)
 
-# overlay tissue labels for migration information
-tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree,migration_matrix)
+if migration_matrix_filepath != "NA":
+    # overlay tissue labels for migration information
+    tissue_labels_df, labeled_tree = assign_tissue_labels(ground_truth_tree,migration_matrix)
+    # Write tissue labels df to output
+    tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)
 
-# Write tissue labels df to output
-tissue_labels_df.to_csv(outprefix + "_tissues.tsv", sep='\t', index=False)
-
-#Write new tree with tissue labeled nodes to newick output
-out_tree_tissues = outprefix + "_true_tissues.nwk"
-with open(out_tree_tissues,'w') as ttt:
-    ttt.write(labeled_tree.write(format=8))
+    #Write new tree with tissue labeled nodes to newick output
+    out_tree_tissues = outprefix + "_true_tissues.nwk"
+    with open(out_tree_tissues,'w') as ttt:
+        ttt.write(labeled_tree.write(format=8))
 
 # Cassipeia can take a list of values for the mutation rate, applying a different rate to each site
 final_matrix = sim_chars(ground_truth_tree,m,num_cuts,sample_num)
@@ -428,20 +425,27 @@ with open(outfasta,'a') as o:
     outstr = ">ref" + "\n" + ref_seq + "\n"
     o.write(outstr)
 
+if migration_matrix_filepath != "NA":
 # Write tissue specific fasta files
-tissues = tissue_labels_df['tissue'].unique()
-for tis in tissues:
-    globals()[f"outfasta_{tis}"] = outprefix + "_" + tis + ".fa"
-    with open(globals()[f"outfasta_{tis}"],'a') as o:
-        outstr = ">ref" + "\n" + ref_seq + "\n"
-        o.write(outstr)
+    tissues = tissue_labels_df['tissue'].unique()
+    for tis in tissues:
+        globals()[f"outfasta_{tis}"] = outprefix + "_" + tis + ".fa"
+        with open(globals()[f"outfasta_{tis}"],'a') as o:
+            outstr = ">ref" + "\n" + ref_seq + "\n"
+            o.write(outstr)
 
-for i,seq in row_fasta.items():
-    seq = seq.replace('-', '')
-    outstr = ">" + str(i) + "\n" + seq + "\n"
-    with open(outfasta,'a') as o:
-        o.write(outstr)
-    
-    tissue = tissue_labels_df.loc[tissue_labels_df['node'] == i, 'tissue'].values[0]
-    with open(globals()[f"outfasta_{tissue}"],'a') as t:
-        t.write(outstr)
+    for i,seq in row_fasta.items():
+        seq = seq.replace('-', '')
+        outstr = ">" + str(i) + "\n" + seq + "\n"
+        with open(outfasta,'a') as o:
+            o.write(outstr)
+        
+        tissue = tissue_labels_df.loc[tissue_labels_df['node'] == i, 'tissue'].values[0]
+        with open(globals()[f"outfasta_{tissue}"],'a') as t:
+            t.write(outstr)
+else:
+    for i,seq in row_fasta.items():
+        seq = seq.replace('-', '')
+        outstr = ">" + str(i) + "\n" + seq + "\n"
+        with open(outfasta,'a') as o:
+            o.write(outstr)
