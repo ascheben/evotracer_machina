@@ -160,7 +160,7 @@ To run the Simulation and EvoTraceR/MACHINA:
 ./sim_full_pipeline.sh --machina --out simmid --mutrate 0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1 --samples 100 --migration data/migration_matrices/true_migration_prob_matrix.csv
 ```
 
-There are three optional flags to run EvoTraceR, ampliCan, and CRISPResso2 following the Simulation. Each flag can be used independently of whether the other two are included, but here is example input using all three analysis packages by specifying all three optional flags (this may take between 20-30 minutes to run due to separate aligment steps for each package):
+There are three optional flags to run EvoTraceR, ampliCan, and CRISPResso2 following the Simulation. Each flag can be used independently of whether the other two are included, but here is example input using all three analysis packages by specifying all three optional flags (this may take between 20-30 minutes to run due to separate alignment steps for each package):
 ```
 ./sim_full_pipeline.sh --evotracer --amplican --crispresso2 --out simmid --mutrate 0,0,0,0,0.1,0,0,0,0,0 --samples 100
 ```
@@ -168,7 +168,7 @@ There are three optional flags to run EvoTraceR, ampliCan, and CRISPResso2 follo
 
 ### Parallelization of the full simulation pipeline
 
-There is a `parallel_sim.sh` wrapper script that allows for manual specification of the inputs to `sim_full_pipeline.sh` to then run the pipeline in parallel batches across nodes using ParaFly. This script is best used after having a general understanding of `sim_full_pipeline.sh` due to the need for extensive manual changes of the `sim_full_pipeline.sh` input within `parallel_sim.sh`. The `parallel_sim.sh`` script can be run with:
+There is a `parallel_sim.sh` wrapper script that allows for manual specification of the inputs to `sim_full_pipeline.sh` to then run the pipeline in parallel batches across nodes using ParaFly. This script is best used after having a general understanding of `sim_full_pipeline.sh` due to the need for extensive manual changes of the `sim_full_pipeline.sh` input within `parallel_sim.sh`. The `parallel_sim.sh` script can be run with:
 ```
 ./parallel_sim.sh
 ```
