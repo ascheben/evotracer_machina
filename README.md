@@ -30,6 +30,8 @@ For more details on how the scripts and wrappers in this repo can be used, read 
 
 ## Required software environments for Simulation, EvoTraceR, MACHINA, ampliCan, and CRISPResso2
 
+This pipeline relies one multiple tools, which are installed in separate conda environments. The conda environments activated and deactivated from the `sim_full_pipeline.sh` wrapper script. While we recognize that complications can arise from this simplistic method of handling multiple environments, we provide the wrapper for convenience. When this solution is not sufficiently robust, users may prefer to run various steps of the pipeline individually.
+
 ### Simulation software
 The required software to run the Simulation can be installed with conda:
 ```
