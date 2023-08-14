@@ -1,5 +1,6 @@
 #!/bin/bash
-source ~/miniconda3/etc/profile.d/conda.sh
+
+#source ~/miniconda3/etc/profile.d/conda.sh
 
 run_evotracer=false
 run_amplican=false
@@ -38,6 +39,7 @@ echo "Starting simulator..."
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/simulate.yaml
 conda activate simulate
+eval "$(conda shell.bash hook)"
 
 if [ ! -f "./scripts/simulator/sim_wrapper.sh" ]
 then
@@ -53,9 +55,17 @@ fi
 
 outputdir="sim_results_${NAME}/"
 sim_dir="${outputdir}out_simulator_${NAME}/"
+
+if [ -d "${sim_dir}" ]; then
+  echo "Output directory ${sim_dir} already exists. Exiting!"
+  exit
+fi
+
 mkdir ${sim_dir}
-mv ${outputdir}/* ${sim_dir}
-echo "This message is okay"
+
+ls $outputdir| grep -v out_simulator_${NAME}| while read l; do mv $outputdir/${l} $outputdir/out_simulator_${NAME}/;done
+#mv ${outputdir}/* ${sim_dir}
+#echo "This message is okay"
 
 if [[ "$MIGRATION_MATRIX" = "NA" ]]; then
     num_uniq_barcodes=$(python scripts/analysis/sim_barcode_count.py ${sim_dir}*tissue1*.fa)
@@ -76,10 +86,9 @@ if [[ "$run_evotracer" = true ]]; then
     #############################################
 
     # you will likely want to create and activate a conda env using the provided yaml file
-    # conda env create -f env/r_env.yaml
+    # conda env create -f env/evotracer.yaml
     # then need to install R package in R from the library(devtools) for the EvoTraceR-parallelize repo and potentially fix "umi_tools" and "cassiopeia" issues if encountered
-
-    conda activate r_env
+    conda activate evotracer
 
     if [ ! -f "./scripts/evotracer/run_evotracer_parallelize.R" ]
     then
@@ -87,11 +96,20 @@ if [[ "$run_evotracer" = true ]]; then
         exit
     fi
 
-    # Need to manually specify paths here for the following variables
-    trimmomatic_path="/home/staklins/miniconda3/envs/r_env/share/trimmomatic-0.39-2/trimmomatic.jar"
-    flash_path="/home/staklins/miniconda3/envs/r_env/bin/flash"
-    evotracer_path="../EvoTraceR-parallelize"
-
+    flash_path=$(which flash)
+    if [ ! -x "$flash_path" ] ; then
+        echo "FLASH executable not found in PATH. Exiting!"
+        exit
+    fi
+    # ensure trimmomatic binary is executable
+    trimmomatic_path=$(which trimmomatic-0.39.jar)
+    if [ ! -x "$trimmomatic_path" ] ; then
+        trimmomatic_path=$(which trimmomatic.jar)
+        if [ ! -x "$trimmomatic_path" ] ; then
+            echo "trimmomatic.jar executable not found in PATH. Exiting!"
+            exit
+        fi
+    fi
     if [[ "$MIGRATION_MATRIX" = "NA" ]]; then
         evo_input_dir="./${sim_dir}all_samples_fastq"
     else
@@ -99,7 +117,8 @@ if [[ "$run_evotracer" = true ]]; then
     fi
     evo_output_dir="./${outputdir}out_evotracer_parallelize_${NAME}"
 
-    Rscript ./scripts/evotracer/run_evotracer_parallelize.R ${evo_input_dir} ${evo_output_dir} ${trimmomatic_path} ${flash_path} ${evotracer_path}
+    #Rscript ./scripts/evotracer/run_evotracer_parallelize.R ${evo_input_dir} ${evo_output_dir} ${trimmomatic_path} ${flash_path} ${evotracer_path}
+    Rscript ./scripts/evotracer/run_evotracer_parallelize.R ${evo_input_dir} ${evo_output_dir} ${trimmomatic_path} ${flash_path}
 
     num_uniq_mutations=$(wc -l ${sim_dir}${NAME}_mutations.tsv | awk '{print $1}')
     num_ASVs=$(tail -n +2 ${evo_output_dir}/phylogeny_analysis/phylogeny_del_ins/asv_stat.csv | cut -d ',' -f 1 | sort -u | wc -l)
@@ -116,8 +135,7 @@ if [[ "$run_evotracer" = true ]]; then
     ############################################
 
     if [[ "$MIGRATION_MATRIX" = "NA" ]]; then
-        conda activate r_env
-
+        conda activate evotracer
         ### Compare number of unique barcodes to number of collapsed ASVs
         echo "name,mutrate,num_samples,num_uniq_mutations,num_uniq_barcodes,num_ASVs,proportion_ASVs_barcodes,avg_alignment_error,num_barcodes_missing,proportion_barcodes_missing,proportion_barcodes_found,num_barcodes_found,proportion_ASVs_barcodes_found" >> ${outputdir}comparison_sim_evotracer_${NAME}.csv
 
@@ -137,7 +155,6 @@ if [[ "$run_evotracer" = true ]]; then
         proportion_ASVs_barcodes_found=$(echo "scale=4;$num_ASVs/$num_barcodes_found" | bc)
 
         echo "${NAME},${mr_write},${NUM_SAMPLES},${num_uniq_mutations},${num_uniq_barcodes},${num_ASVs},${proportion},${avg_alignment_error},${num_barcodes_missing},${proportion_barcodes_missing},${proportion_barcodes_found},${num_barcodes_found},${proportion_ASVs_barcodes_found}" >> ${outputdir}comparison_sim_evotracer_${NAME}.csv
-        conda deactivate
     fi
 else 
     evo_file="NA"
@@ -154,9 +171,9 @@ if [[ "$run_machina" = true ]]; then
     # conda env create -f env/machina.yaml
     conda activate machina
 
-    if [ ! -f "./scripts/machina/run_pipeline.sh" ]
+    if [ ! -f "./scripts/machina/run_machina.sh" ]
     then
-        echo "Script ./scripts/machina/run_pipeline.sh not found. Exiting!"
+        echo "Script ./scripts/machina/run_machina.sh not found. Exiting!"
         exit
     fi
 
@@ -168,7 +185,7 @@ if [[ "$run_machina" = true ]]; then
     IFS=', ' read -r -a TISSUES <<< "${RAW_TISSUES}"
     PTISSUE="${TISSUES[1]}"
 
-    timeout 3m ./scripts/machina/run_pipeline.sh --infile ${ASV} --tree ${TREE} --scripts ${SPATH} --prefix ${PREFIX} --primary-tissue ${PTISSUE} --keep-first-cp
+    timeout 3m ./scripts/machina/run_machina.sh --infile ${ASV} --tree ${TREE} --scripts ${SPATH} --prefix ${PREFIX} --primary-tissue ${PTISSUE} --keep-first-cp
 
     machina_dir="${outputdir}${PREFIX}/"
     mkdir ${machina_dir}
@@ -314,9 +331,8 @@ else
     cresso_file="NA"
 fi
 
-if [[ "$run_evotracer" = true ]] || [[ "$run_amplican" = true ]] || [[ "$run_crispresso" = true ]]; then
+if [[ "$run_evotracer" = true ]] && [[ "$run_amplican" = true ]] && [[ "$run_crispresso" = true ]]; then
     conda activate simulate
-            
     python ./scripts/analysis/compare_amplican_evotracer_crispresso2.py ${NAME} "${mr_write}" ${NUM_SAMPLES} ${sim_file} ${amp_file} ${outputdir} ${amp_count_file} ${evo_file} ${cresso_file}
                 
     conda deactivate
