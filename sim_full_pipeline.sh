@@ -31,6 +31,12 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+##########################
+### Make conda available #
+##########################
+
+eval "$(conda shell.bash hook)"
+
 ################################################################
 ### Run the simulator with the given command line parameters ###
 ################################################################
@@ -38,8 +44,8 @@ done
 echo "Starting simulator..."
 # you will likely want to create and activate a conda env using the provided yaml file
 # conda env create -f env/simulate.yaml
+
 conda activate simulate
-eval "$(conda shell.bash hook)"
 
 if [ ! -f "./scripts/simulator/sim_wrapper.sh" ]
 then
