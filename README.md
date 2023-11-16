@@ -111,7 +111,7 @@ We can run MACHINA with:
 
 ```
 conda activate machina
-./scripts/machina/run_pipeline.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/machina/ --prefix myprefix --primary-tissue PRL
+./scripts/machina/run_machina.sh --infile data/asv_stat.csv --tree data/tree_all_clones.newick --scripts ./scripts/machina/ --prefix myprefix --primary-tissue PRL --batches 2 --threads 12
 ```
 
 Only a single tissue can be designated as the primary tumor source tissue. The cutoff value determines how many labels (unique sequence variant and tissue combinations) a clonal populations has to have to be analysed using the faster "OLD" machina algorithm. If no cutoff value is supplied, all populations will be analysed with the "OLD" algorithm.
