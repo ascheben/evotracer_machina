@@ -1,14 +1,11 @@
-# development branch
-###### libraries load ######
 library("EvoTraceR")
-###### Running from Copernicus ######
 
 args <- commandArgs(trailingOnly = TRUE)
 input_dir <- args[1]
 output_dir <- args[2]
 trimmomatic_path <- args[3]
 flash_path <- args[4]
-devtools::load_all(args[5])
+#devtools::load_all(args[5])
 
 #devtools::load_all("/local/storage/no-backup/staklins-scratch/EvoTraceR-parallelize")
 #input_dir <- "/local/storage/no-backup/staklins-scratch/evotracer_machina/fastq"
@@ -52,12 +49,9 @@ EvoTraceR_object <-
 end_time <- Sys.time()
 end_time - start_time
 
-prefilt <- EvoTraceR_object$asv_prefilter
+#prefilt <- EvoTraceR_object$asv_prefilter
+#seqtab <- EvoTraceR_object$clean_asv_dataframe
 
-seqtab <- EvoTraceR_object$clean_asv_dataframe
-
-#?asv_analysis()
-#?infer_phylogeny()
 ###### marking indexing and stat ######
 EvoTraceR_object <- 
   analyse_mutations(EvoTraceR_object = EvoTraceR_object) # -> marking_analysis()
@@ -79,4 +73,4 @@ EvoTraceR_object <-
 ###### SAVE ALL DATA ######
 #save.image(paste0(output_dir, "group_id_select", ".RData"))
 ###### SAVE ALL DATA ######
-#save.image("MMUS1469_2023-03-23_Armin.RData")
+#save.image("EvoTraceR_object.RData")
