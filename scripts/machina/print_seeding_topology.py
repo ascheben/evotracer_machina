@@ -1,6 +1,7 @@
 import sys
 from collections import Counter
 from ete3 import Tree
+from itertools import groupby
 
 def get_index(mylist,myname):
     for i,n in enumerate(mylist):
@@ -25,12 +26,14 @@ def find_ABA(seeding_path):
     bidirectional seeding or reseeding
     '''
     ABA = []
+    # collapse redundancy in seeding path
+    seeding_path = [key for key, _group in groupby(seeding_path)]
     for i,s in enumerate(seeding_path):
         try:
             second = seeding_path[i+1]
             third = seeding_path[i+2]
-            if i == third and i != second:
-                pattern = [i,second,third]
+            if s == third and s != second:
+                pattern = [s,second,third]
                 ABA.append(pattern)
         except:
             pass
@@ -88,6 +91,8 @@ def seeding_topology_tree(tabular_tree,tissue_dict,ptissue):
                 seeding_type.append("primary_stationary")
             elif pair[0] != primary and pair[1] != primary and pair[0] == pair[1]:
                 seeding_type.append("metastatic_stationary")
+            elif pair[0] != primary and pair[1] == primary:
+                seeding_type.append("primary_reseeding")
             # machina enforces primary tissue to always be source
             # thus any migration from one metastatic tissue to another is part of a cascade
             elif pair[0] != primary and pair[1] != primary and pair[0] != pair[1]:
@@ -106,56 +111,51 @@ def seeding_topology_tree(tabular_tree,tissue_dict,ptissue):
         #    pass
     return(seeding_type)
 
-
-
-
-
-def seeding_topology(seeding_path_list,ptissue):
-    '''
-    Takes in nested list of seeding paths for each ASV
-    '''
-    #primary = "PRL"
-    primary = ptissue
-    #primary = "prostate"
-    # asv tissue for primary and cascade
-    pri_cas_tissues = set()
-    pri2met_tissues = set()
-    seeding_type = []
-    for asv in seeding_path_list: 
-        window = 2
-        overlap = 1
-        neighbors = [asv[i:i+window] for i in range(0, len(asv), window-overlap)]
-        for pair in neighbors:
-            if len(pair) == 2:
-                if pair[0] == primary and pair[1] != primary:
-                    pri2met_tissues.add(pair[1])
-                    seeding_type.append("primary_seeding")
-                elif pair[0] == primary and pair[1] == primary:
-                    seeding_type.append("primary_stationary")
-                elif pair[0] != primary and pair[1] != primary and pair[0] == pair[1]:
-                    seeding_type.append("metastatic_stationary")
-                # machina enforces primary tissue to always be source
-                # thus any migration from one metastatic tissue to another is part of a cascade
-                elif pair[0] != primary and pair[1] != primary and pair[0] != pair[1]:
-                    seeding_type.append("cascade_seeding")
-                    seeding_type.append("metastatic_seeding")
-            # check for reseeding or bidirectional seeding
-            aba = find_ABA(asv)
-            if len(aba) > 0:
-                for pattern in aba:
-                    if pattern[0] == primary:
-                        seeding_type.append("primary_reseeding")
-                    # ignore met->pri->met pattern
-                    elif primary not in pattern:
-                        seeding_type.append("metastatic_reseeding")
-            else:
-                pass
-    # check for parallel seeding
-    #if len(pri_cas_tissues) > 1:
-    if len(pri2met_tissues) > 1:
-        seeding_type.append("parallel_seeding")
-
-    return(seeding_type)
+#def seeding_topology(seeding_path_list,ptissue):
+#    '''
+#    Takes in nested list of seeding paths for each ASV
+#    '''
+#    #primary = "PRL"
+#    primary = ptissue
+#    #primary = "prostate"
+#    # asv tissue for primary and cascade
+#    pri_cas_tissues = set()
+#    pri2met_tissues = set()
+#    seeding_type = []
+#    for asv in seeding_path_list: 
+#        window = 2
+#        overlap = 1
+#        neighbors = [asv[i:i+window] for i in range(0, len(asv), window-overlap)]
+#        for pair in neighbors:
+#            if len(pair) == 2:
+#                if pair[0] == primary and pair[1] != primary:
+#                    pri2met_tissues.add(pair[1])
+#                    seeding_type.append("primary_seeding")
+#                elif pair[0] == primary and pair[1] == primary:
+#                    seeding_type.append("primary_stationary")
+#                elif pair[0] != primary and pair[1] != primary and pair[0] == pair[1]:
+#                    seeding_type.append("metastatic_stationary")
+#                # machina enforces primary tissue to always be source
+#                # thus any migration from one metastatic tissue to another is part of a cascade
+#                elif pair[0] != primary and pair[1] != primary and pair[0] != pair[1]:
+#                    seeding_type.append("cascade_seeding")
+#                    seeding_type.append("metastatic_seeding")
+#            # check for reseeding or bidirectional seeding
+#            aba = find_ABA(asv)
+#            if len(aba) > 0:
+#                for pattern in aba:
+#                    if pattern[0] == primary:
+#                        seeding_type.append("primary_reseeding")
+#                    # ignore met->pri->met pattern
+#                    elif primary not in pattern:
+#                        seeding_type.append("metastatic_reseeding")
+#            else:
+#                pass
+#    # check for parallel seeding
+#    #if len(pri_cas_tissues) > 1:
+#    if len(pri2met_tissues) > 1:
+#        seeding_type.append("parallel_seeding")
+#    return(seeding_type)
 
 
 
@@ -228,9 +228,8 @@ with open(sys.argv[1],'r') as infile:
                         parent_tissues.append(parent_tissue)
                     parent_tissues.append(child_tissue)
                     topologies.append(parent_tissues)
-                    #print(cur_cp,asv,list(reversed(parent_list)),parent_tissues)
-            #print("CP, topologies:",cp,topologies)
-            topo = seeding_topology(topologies,ptissue)
+            
+            #topo = seeding_topology(topologies,ptissue)
             topo_tree = seeding_topology_tree(tabular_tree,tissue_dict,ptissue)
             # reset tabular tree
             tabular_tree = []
@@ -253,6 +252,7 @@ with open(sys.argv[1],'r') as infile:
                     "metastatic_stationary"]
 
             topo_counts = Counter(topo_tree)
+            #print("TOPO COUNTS:",topo_counts)
             #topo_counts = Counter(topo)
             #print("New:",cur_cp,Counter(topo_tree))
             #print("Old:",cur_cp,topo_counts)
