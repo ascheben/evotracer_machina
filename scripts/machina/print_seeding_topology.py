@@ -73,13 +73,10 @@ def seeding_topology_tree(tabular_tree,tissue_dict,ptissue):
                 # here all non-primary children seeded in parallel are counted as one event
                 parallel_seeding_edges[node.name] = children_list
                 seeding_type.append("parallel_seeding")
-                for c in primary_children:
-                     edges.append([parent_tis,parent_tis])
-            else:
-                for c in primary_children_tis:
-                    edges.append([parent_tis,c])
-                for c in children_tis:
-                    edges.append([parent_tis,c])
+            for c in primary_children_tis:
+                edges.append([parent_tis,c])
+            for c in children_tis:
+                edges.append([parent_tis,c])
     # asv tissue for primary and cascade
     #print("New edges",cur_cp,edges)
     for pair in edges:
@@ -98,6 +95,7 @@ def seeding_topology_tree(tabular_tree,tissue_dict,ptissue):
             elif pair[0] != primary and pair[1] != primary and pair[0] != pair[1]:
                 seeding_type.append("cascade_seeding")
                 seeding_type.append("metastatic_seeding")
+            #print(seeding_type)
         # check for reseeding or bidirectional seeding
         #aba = find_ABA(asv)
         #if len(aba) > 0:
