@@ -17,7 +17,7 @@ for cas_mat in cas_boot:
     # add the trunkal mutations back to the matrix
     #new_mat = cas_mat[0].join(trunkal_cols)
     #cas_tree = cas.data.CassiopeiaTree(character_matrix=new_mat)
-    cas_tree = cas.data.CassiopeiaTree(character_matrix=df)
+    cas_tree = cas.data.CassiopeiaTree(character_matrix=cas_mat[0]))
     vanilla_greedy.solve(cas_tree, collapse_mutationless_edges=True)
     cas_tree.get_newick(record_branch_lengths = False)
     cas_tree.collapse_mutationless_edges(infer_ancestral_characters=True)
