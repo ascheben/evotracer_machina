@@ -17,10 +17,12 @@ def overlay_data_drop(self, tree: CassiopeiaTree):
     if self.random_seed is not None:
         np.random.seed(self.random_seed)
 
+    number_of_characters = self.number_of_cassettes * self.size_of_cassette
+
     # create state priors if they don't exist.
     # This will set the instance's variable for mutation priors and will
     # use this for all future simulations.
-    if self.mutation_priors is None:
+    if self.mutation_priors_per_character is None:
         self.mutation_priors = {}
         probabilites = [
             self.state_generating_distribution()
@@ -29,8 +31,9 @@ def overlay_data_drop(self, tree: CassiopeiaTree):
         Z = np.sum(probabilites)
         for i in range(self.number_of_states):
             self.mutation_priors[i + 1] = probabilites[i] / Z
+        self.mutation_priors_per_character = (
+                [self.mutation_priors] * number_of_characters)
 
-    number_of_characters = self.number_of_cassettes * self.size_of_cassette
 
     # initialize character states
     character_matrix = {}
